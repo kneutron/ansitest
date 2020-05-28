@@ -4,7 +4,7 @@
 
   tasks:
   -  name: ZFS-aware Root FS usage
-     shell: [ $(df -hT / |grep -c zfs) -gt 0 ] && zpool list rpool |grep -v ALLOC |awk '{print $3}' || df -h / |awk ' { print $5 } ' |grep -v Use
+     shell: [ $(df -hT / |grep -c zfs) -gt 0 ] && zpool list rpool |grep -v ALLOC |awk '{print $3}' || df -h / |grep -v Use |awk '{print $5}'
      register: dfroot
 
   -  debug:
