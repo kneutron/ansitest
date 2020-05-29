@@ -3,9 +3,9 @@
   gather_facts: yes
 
   tasks:
-  - name: add virtualbox repo for focal / 1910 - TODO update when repo for focal / 20.04 hits
+  - name: add virtualbox repo for bionic / 1804LTS - TODO update when repo for focal / 20.04 hits
     apt_repository: 
-      repo: 'deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian eoan contrib'
+      repo: 'deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian bionic contrib'
       state: present
     
   - name: Update apt-get repo and cache if more than 12 hrs old
@@ -153,6 +153,11 @@
     shell: "[ $(lsmod |grep -c zfs) -gt 0 ] && zpool import"
 #      executable: /bin/bash
 
+  - name: finally - update any remaining outdated packages
+    apt:
+      name: "*"
+      state: latest
+    
   - name: Check if a reboot is needed for Debian and Ubuntu boxes
     register: reboot_required_file
     stat: path=/var/run/reboot-required get_md5=no
