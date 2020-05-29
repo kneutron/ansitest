@@ -148,7 +148,7 @@
     shell: apt-file update
     
   - name: if zfs module loaded, display importable pools
-    shell: [ $(lsmod |grep -c zfs) -gt 0 ] && zpool import
+    shell: "[ $(lsmod |grep -c zfs) -gt 0 ] && zpool import"
       args:
       executable: /bin/bash
 
