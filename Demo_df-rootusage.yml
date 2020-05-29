@@ -4,7 +4,7 @@
 
   tasks:
   -  name: ZFSaware Root FS usage
-     shell: [ $(df -hT / |grep -c zfs) -gt 0 ] && zpool list rpool |grep -v ALLOC |awk '{print $3}'
+     shell: zpool list rpool |grep -v ALLOC |awk '{print $3}'
      register: dfrootz
   -  name: nonzfs rootfs usage
      shell: df -h / |grep -v "Use" |awk '{print $5}'
