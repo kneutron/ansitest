@@ -1,14 +1,23 @@
 ---
 - hosts: all
-  gather_facts: no
+  gather_facts: yes
 
   tasks:
-  - name: Update apt-get repo and cache
+  - name: add virtualbox repo for focal / 1910 - TODO update when repo for focal / 20.04 hits
+    apt_repository: repo='deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian eoan contrib'
+
+  - name: Update apt-get repo and cache if more than 12 hrs old
       apt: update_cache=yes force_apt_get=yes cache_valid_time=43200
 
-  - name: get oracle keys
-    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
-    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+  - name: add VirtualBox repo signing keys
+      apt_key: state=present
+        url=http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc
+      apt_key: state=present
+        url=http://download.virtualbox.org/virtualbox/debian/oracle_vbox_2016.asc
+#    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+#    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+
+  - name: get linux headers for current kernel - useful for vbox modules
     shell: apt install -y linux-headers-$(uname -r)
     
   - name: Install a list of packages - most-needed admin tools
@@ -127,6 +136,14 @@
       - smbclient 
       - cifs-utils
 
+  - name: add dependency manager
+    apt: name=dkms
+
+  - name: install vbox 6.1
+    apt:
+      name: virtualbox-6.1
+      state: present
+      
   - name: updt apt-file cache
     shell: apt-file update
     
@@ -146,4 +163,3 @@
         post_reboot_delay: 30
         test_command: uptime
       when: reboot_required_file.stat.exists
-
