@@ -152,12 +152,12 @@
 #      executable: /bin/bash
 
   - name: Check if a reboot is needed for Debian and Ubuntu boxes
-      register: reboot_required_file
+    register: reboot_required_file
       stat: path=/var/run/reboot-required get_md5=no
       
   - name: Reboot the Debian or Ubuntu server
-      reboot:
-        msg: "Reboot initiated by Ansible due to kernel updates"
+    reboot:
+      msg: "Reboot initiated by Ansible due to kernel updates"
         connect_timeout: 5
         reboot_timeout: 300
         pre_reboot_delay: 0
