@@ -4,8 +4,10 @@
 
   tasks:
   -  name: ZFSaware Root FS usage
-     shell: [ $(df -hT / |grep -c zfs) -gt 0 ] && zpool list rpool |grep -v ALLOC |awk '{print $3}' || (df -h / |grep -v Use |awk '{print $5}')
-     register: dfroot
+     shell: [ $(df -hT / |grep -c zfs) -gt 0 ] && zpool list rpool |grep -v ALLOC |awk '{print $3}' 
+     register: dfrootz
+     shell: df -h / |grep -v "Use" |awk '{print $5}'
+     register: dfrootnz
 
   -  debug:
-       msg: "System {{ inventory_hostname }}'s root FS utilization is {{ dfroot.stdout }}"
+       msg: "System {{ inventory_hostname }}'s root FS utilization is {{ dfrootz.stdout }} {{ dfrootnz.stdout }}"
