@@ -7,13 +7,13 @@
     apt_repository: repo='deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian eoan contrib'
 
   - name: Update apt-get repo and cache if more than 12 hrs old
-      apt: update_cache=yes force_apt_get=yes cache_valid_time=43200
+    apt: update_cache=yes force_apt_get=yes cache_valid_time=43200
 
   - name: add VirtualBox repo signing keys
-      apt_key: state=present
-        url=http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc
-      apt_key: state=present
-        url=http://download.virtualbox.org/virtualbox/debian/oracle_vbox_2016.asc
+    apt_key: state=present
+      url=http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc
+    apt_key: state=present
+      url=http://download.virtualbox.org/virtualbox/debian/oracle_vbox_2016.asc
 #    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
 #    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
 
