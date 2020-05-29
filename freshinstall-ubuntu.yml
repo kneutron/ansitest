@@ -1,0 +1,149 @@
+---
+- hosts: all
+  gather_facts: no
+
+  tasks:
+  - name: Update apt-get repo and cache
+      apt: update_cache=yes force_apt_get=yes cache_valid_time=43200
+
+  - name: get oracle keys
+    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+    shell: cd; wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo apt-key add -
+    shell: apt install -y linux-headers-$(uname -r)
+    
+  - name: Install a list of packages - most-needed admin tools
+    apt:
+      pkg:
+      - joe
+      - mc
+      - screen
+      - lzop
+      - fsarchiver
+      - netcat-traditional
+      - bwm-ng
+      - openssh-server
+      - smartmontools
+      - sysstat
+      - pv
+      - buffer
+      - ethtool
+      - gparted
+      - iotop 
+
+  - name: Install another list of useful pkgs
+    apt:
+      pkg:
+      - build-essential
+      - synaptic 
+      - aptitude 
+      - apt-file
+      - lm-sensors
+      - hddtemp
+      - sshfs 
+      - dos2unix
+      - p7zip
+      - unrar
+      - parallel
+      - pbzip2
+      - xz-utils
+      - lsscsi 
+      - scsitools 
+      - sdparm  
+      - sg3-utils
+      - lftp 
+      - nmap 
+      - iptraf 
+      - autossh 
+      
+  - name: Install another list of pkgs - desktop sound and video related
+    apt:
+      pkg:
+      - sox 
+      - vorbis-tools 
+      - cdparanoia 
+      - vlc 
+      - youtube-dl 
+      - handbrake 
+      - handbrake-cli 
+      - lame 
+      - mpg123 
+      - ffmpeg
+      - devede
+      - udftools 
+      - dvd+rw-tools 
+      - growisofs 
+      - wodim 
+      - icedax
+      - xine-ui 
+      - mplayer
+
+  - name: Install another list of pkgs - desktop related
+    apt:
+      pkg:
+      - thunar 
+      - xfce4-terminal 
+      - xterm 
+      - rxvt  
+      - xtightvncviewer 
+      - x11vnc 
+      - xfce4-screenshooter 
+      - scrot 
+      - mesa-utils
+
+  - name: Install another list of pkgs - doc related
+    apt:
+      pkg:
+      - evince
+      - libreoffice
+
+  - name: Install another list of pkgs - toys and image-related
+    apt:
+      pkg:
+      - cmatrix 
+      - xaos 
+      - imagemagick 
+      - geeqie 
+      - ristretto 
+      - jpegoptim 
+      - tumbler
+
+  - name: install list of pkgs - printing 
+    apt:
+      pkg:
+      - cups 
+      - hplip 
+      - hplip-gui
+      
+  - name: install basic browsers
+    apt:
+      pkg:
+      - lynx
+      - w3m
+
+  - name: install zfs file sharing stuff
+    apt:
+      pkg:
+      - samba 
+      - smbclient 
+      - cifs-utils
+
+  - name: updt apt-file cache
+    shell: apt-file update
+    
+  - name: if zfs module loaded, display importable pools
+    shell: [ $(lsmod |grep -c zfs) -gt 0 ] && zpool import
+
+  - name: Check if a reboot is needed for Debian and Ubuntu boxes
+      register: reboot_required_file
+      stat: path=/var/run/reboot-required get_md5=no
+      
+  - name: Reboot the Debian or Ubuntu server
+      reboot:
+        msg: "Reboot initiated by Ansible due to kernel updates"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+        test_command: uptime
+      when: reboot_required_file.stat.exists
+
