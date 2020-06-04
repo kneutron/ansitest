@@ -3,10 +3,10 @@
   gather_facts: yes
 
   tasks:
-  - name: add virtualbox repo for bionic / 1804LTS - TODO update when repo for focal / 20.04 hits
-    apt_repository: 
-      repo: 'deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian bionic contrib'
-      state: present
+#  - name: add virtualbox repo for bionic / 1804LTS - TODO update when repo for focal / 20.04 hits
+#    apt_repository: 
+#      repo: 'deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian bionic contrib'
+#      state: present
     
   - name: Update apt-get repo and cache if more than 12 hrs old
     apt: update_cache=yes force_apt_get=yes cache_valid_time=43200
