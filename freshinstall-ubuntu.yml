@@ -141,10 +141,10 @@
   - name: add dependency manager
     apt: name=dkms
 
-  - name: install vbox 6.1
-    apt:
-      name: virtualbox-6.1
-      state: present
+#  - name: install vbox 6.1
+#    apt:
+#      name: virtualbox-6.1
+#      state: present
       
   - name: updt apt-file cache
     shell: apt-file update
