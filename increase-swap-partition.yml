@@ -55,7 +55,10 @@
     shell: "parted -s /dev/sdb mkpart primary linux-swap 1MiB 100%"
 
   - name: verify new partition
-    shell: "parted -s /dev/sdb1 print"
+    shell: parted -s /dev/sdb1 print
+    register: partedprintout
+
+  - debug: msg="DEBUG {{ partedprintout.stdout }}"
 
 #  - name: create new partition with existing blkid
 #    parted:
@@ -90,6 +93,9 @@
 
   - name: verify swap from blkid
     shell: "blkid |grep swap"
+    register: blkidoutput
+
+  - debug: msg="DEBUG {{ blkidoutput.stdout }}"
 
   - name: turn swap back on
     shell: swapon -a
@@ -98,15 +104,13 @@
     shell: swapon -s
     register: swaponS
 
-  - debug: 
-      msg: DEBUG {{ swaponS.stdout }}
+  - debug: msg="DEBUG {{ swaponS.stdout }}"
 
   - name: verify changes2
     shell: free
     register: swaponS
 
-  - debug: 
-      msg: DEBUG {{ swaponS.stdout }}
+  - debug: msg="DEBUG {{ swaponS.stdout }}"
 
 # - name: cleanup
 
@@ -115,4 +119,3 @@
 # script to delete and expand existing swap partition on sdb1
 # 2020.0820 alpha ver
 # 2020.0821 got it working in test env
-
