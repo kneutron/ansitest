@@ -1,0 +1,73 @@
+---
+# pseudocode:
+# reboot to get new disk size
+# get info on existing swap: swapon -s
+# TURN OFF swap: swapoff -a
+# blkid|grep swap && reuse UUID so no modify fstab
+
+# NOTE this script relies on swap being on sdb1, and only 1 swap partition
+
+- name: install parted pkg if missing
+  package:
+    name: parted
+    state: present
+
+- name: get swapinfo - partition size b4
+  shell: "swapon -s > /tmp/swapinfo.txt"
+  args:
+    creates: /tmp/swapinfo.txt
+
+# straight up copied from patch
+- name: reboot server to get latest disk size
+    reboot:
+      reboot_timeout: 600
+      test_command: uptime
+      post_reboot_delay: 60
+
+- name: turn swap off
+  shell: "swapoff -a"
+
+- name: reuse existing swap uuid
+  shell: "blkid |grep swap |head -n 1 |awk '{print $2}' > /tmp/blkidswapinfo.txt"
+  args:
+    creates: /tmp/blkidswapinfo.txt
+#expected result:
+#"UUID="BLAH"
+
+# TODO Fail if swap not on sdb  
+
+- name: delete existing swap on sdb
+  parted:
+    device: /dev/sdb
+    number: 1
+    state: absent
+
+- name: create new partition with existing blkid
+  parted:
+    device: /dev/sdb
+    number: 1
+    part_type: primary
+    part_start: 0%
+    part_end: 100%
+    state: present
+
+- name: change partid to 82/swap
+  shell: "parted -s /dev/sdb1 print"
+  shell: "parted -s /dev/sdb1 set swap on"
+  shell: "parted -s /dev/sdb1 print"
+
+- name: remake swap partition with old UUID / no fstab changes
+  shell: mkswap -U $(awk -F\" '{print $2}' /tmp/blkidswapinfo.txt)
+  shell: "blkid |grep swap"
+
+- name: turn swap back on
+  shell: "swapon -a; swapon -s; free"
+
+#- name: cleanup
+
+##################
+# Author: dave.bechtel@asmr
+# script to delete and expand existing swap partition on sdb1
+# 2020.0820 alpha ver 
+
+ 
