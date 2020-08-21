@@ -19,12 +19,10 @@
 
 # straight up copied from patch
 - name: reboot server to get latest disk size
-  tasks:
-    - name: Reboot server
-      reboot:
-        reboot_timeout: 600
-        test_command: uptime
-        post_reboot_delay: 60
+  reboot:
+    reboot_timeout: 600
+    test_command: uptime
+    post_reboot_delay: 45
 
 - name: turn swap off
   shell: "swapoff -a; free"
