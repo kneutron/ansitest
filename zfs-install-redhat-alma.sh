@@ -6,12 +6,12 @@
 zver="2.0.4"
 
 if [ "$1" = "fixit" ]; then
-# recompile module for new/current kernel
+  echo "$(date) recompiling ZFS module for new/current kernel"
   cd /usr/local/src/zfs-$zver
   time rpm --reinstall zfs-dkms*.rpm && modprobe zfs
   dmesg |grep ZFS
   zpool version
-  exit 0;
+  exit;
 fi
 
 yum install -y epel-release
@@ -51,6 +51,8 @@ date
 
 exit;
 
+# Download and install zfs from source code, load module
+# 2021 Dave Bechtel
 
 REF:
 https://zfsonlinux.topicbox.com/groups/zfs-discuss/T5e4d6ecb1044b00e
