@@ -5,6 +5,15 @@
 # xxx EDITME
 zver="2.0.4"
 
+if [ "$1" = "fixit" ]; then
+# recompile module for new/current kernel
+  cd /usr/local/src/zfs-$zver
+  time rpm --reinstall zfs-dkms*.rpm && modprobe zfs
+  dmesg |grep ZFS
+  zpool version
+  exit 0;
+fi
+
 yum install -y epel-release
 #yum install -y https://zfsonlinux.org/epel/zfs-release.el8_3.noarch.rpm
 #gpg --import --import-options show-only /etc/pki/rpm-gpg/RPM-GPG-KEY-zfsonlinux
