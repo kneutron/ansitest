@@ -1,22 +1,32 @@
 #!/bin/bash
-##Script to download ZFS on Linux from git, build and install.
+
+# Download ZFS on Linux from git, build and install.
+
+# This script is part 2 of 2 - run 'debian-compile-zfs--boojum.sh' first to completely uninstall existing ZFS and unmount everything 1st
+# FYI look for EDITME and change the point release
+
+# Original script / Author attribution; mods by Dave Bechtel:
 # REF: https://gitlab.com/snippets/1861014
 ##Tested on Ubuntu 18.04LTS with ZFS on Linux 0.8.0
-##ZFS on Linux release page: https://github.com/zfsonlinux/zfs/releases
+# Tested on Ubuntu 20.04LTS with ZOL 0.8.6 and 2.0.4
+
+# ZFS on Linux release page: https://github.com/zfsonlinux/zfs/releases
 
 #set -e
 set -x
 
 ##define variables
-# EDITME
+# xxx TODO EDITME
 firstrun=1
 pointrel="0.8.6"
 
+# xxx TODO EDITME - this is for chown later if creating encrypted pool
 user=dave
 
 poolname=ztestpoolencr
 poolmount=/mnt/"$poolname"/
 
+# file-based encrypted pool, change location if needed
 DISKID=/mnt/imacdual/zdisk1
 
 zfskeyloc=/home/"$user"/zfskey
@@ -36,11 +46,11 @@ cd /usr/local/src
 compile_zfs(){
 	##https://github.com/zfsonlinux/zfs/wiki/Custom-Packages#debian-and-ubuntu
 	installcompilepackages(){
-		apt-get -y install build-essential autoconf libtool gawk alien fakeroot gdebi wget
-		apt-get -y install zlib1g-dev uuid-dev libattr1-dev libblkid-dev libselinux-dev libudev-dev libaio-dev
-		apt-get -y install parted lsscsi ksh libssl-dev libelf-dev
-		apt-get -y install linux-headers-$(uname -r)
-		apt-get -y install python3 python3-dev python3-setuptools python3-cffi python3-distutils
+		apt-get install -y build-essential autoconf libtool gawk alien fakeroot gdebi wget
+		apt-get install -y zlib1g-dev uuid-dev libattr1-dev libblkid-dev libselinux-dev libudev-dev libaio-dev
+		apt-get install -y parted lsscsi ksh libssl-dev libelf-dev
+		apt-get install -y linux-headers-$(uname -r)
+		apt-get install -y python3 python3-dev python3-setuptools python3-cffi python3-distutils
 	}
 	
 	compile(){
@@ -62,7 +72,8 @@ compile_zfs(){
 			./configure --prefix=/usr
 			make -s -j$(nproc) && make deb-utils deb-dkms && echo "ZFS packages are ready" || echo "ZFS compilation error"
 		}
-		
+
+# run this:
 		pointrelease
 #		master
 	}
