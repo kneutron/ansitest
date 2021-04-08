@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function fixman () {
-for share in `zfs-show-my-shares--osx.sh |grep 'sharesmb  on' |awk '{print $1}'`; do
+for share in $(zfs-show-my-shares--osx.sh |grep 'sharesmb  on' |awk '{print $1}'); do
   echo "Fixing $share"
   zfs set sharesmb=on $share
 done
