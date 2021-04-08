@@ -3,21 +3,17 @@
 # REF: https://openzfsonosx.org/wiki/FAQ#Q.29_How_can_I_access_the_.zfs_snapshot_directories.3F
 
 # Auto-set visible on all (mounted/imported) pools
-for zds in `zpool list |grep -v ALLOC |awk '{print $1}'`; do
+for zds in $(zpool list |grep -v ALLOC |awk '{print $1}'); do
   zfs set snapdir=visible $zds
 done
 
-#zmac1t
-#zmac320
-#zmacsg2t
-
-# EDITME
-for zds in `zfs-list-snaps--boojum.sh |grep virtbox |awk '{print $1}'`; do
+# xxx TODO EDITME - mount all virtbox* snapshots
+for zds in $(zfs-list-snaps--boojum.sh |grep virtbox |awk '{print $1}'); do
 #for zds in `zfs-list-snaps--boojum.sh |grep DOM16 |awk '{print $1}'`; do
   zfs mount $zds  
 done
 
-df -h
+df -hT
 
 exit;
 
@@ -25,6 +21,7 @@ exit;
 
 How can I access the .zfs snapshot directories?
 A) You need to set snapdir visible and manually mount a snapshot.
+( ed. note: ZFS on Linux automounts zfs snapshots for you. )
 
 $ sudo zfs set snapdir=visible tank/bob
 $ sudo zfs mount tank/bob@yesterday
