@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# =LLC= © (C)opyright 2016 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
-## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
-## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
-#
-
 source ~/bin/failexit.mrg
 
 firstrun=1
@@ -42,7 +37,7 @@ time apt-get remove --purge -y libzfs2linux zfs-dkms zfsutils-linux spl spl-dkms
 [ `dpkg -l |egrep -c 'libzfs2linux|zfs-dkms|zfsutils-linux|spl-dkms|libnvpair|libuutil|libzpool'` -gt 0 ] && failexit 199 "! ZFS packages are still installed!"
 
 # call downloaded script
-~/dnld/ubuntu_zfs_build_install.sh
+ubuntu_zfs_build_install.sh
 
 
 exit;
