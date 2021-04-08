@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# script version: v2.2020.0527A bugfix edition
+# script version: v2.2021.0408 nobackticks edition, with moar comments and clarifications
 # NOTE - check this code for EDITME and modify according to your environment
 
+# Parses man page, creates all supported types of encrypted datasets and copies an ISO file to ramdisk
+
 # RUN AS ROOT - tested on Linux Mint / Ubuntu 18.04 and 20.04 (rpool), should be fairly easily adaptable
-# Pass arg $1 = "cleanup" to delete test encryption datasets / cleanup ramdisk
+# NOTE Pass arg $1 = "cleanup" to delete test encryption datasets / cleanup ramdisk
 
 # REF: https://github.com/openzfs/zfs/issues/10363
 # REF: https://www.cyberciti.biz/faq/how-to-find-out-aes-ni-advanced-encryption-enabled-on-linux-system/
@@ -19,22 +21,25 @@ fi
 # ex. OSTYPE=darwin17.7.0
 if [ $(echo $OSTYPE |grep -c darwin) -gt 0 ]; then
   echo "You need to be running this on a non-OSX (e.g. Linux) box. There is an OSX version of this script available."
-  exit 10
+  echo "See: https://github.com/kneutron/ansitest/tree/master/OSX"
+exit 10
 fi
 
 
 # DEFINE VARS
-zp=rpool # EDITME # NOTE this zpool is SSD-based 
+zp=rpool # xxx TODO EDITME # NOTE this zpool is SSD-based 
 
 logfile=~/zfs-test-encryption-speeds.log
 
 # will be copied to ramdisk (prep) - put "" to skip 
 # NOTE nothing prevents you from copying an .iso over SMB or NFS ;-)
-isofile=/zdell500/shrcompr/ISO/bionic-desktop-amd64.iso # EDITME
+isofile=/zdell500/shrcompr/ISO/bionic-desktop-amd64.iso # xxx TODO EDITME
 #isofile="/mnt/imac5/ISO/bionic-desktop-amd64.iso" # EDITME
 #isofile=""
 
 compr=lz4
+# compr=zstd-2
+# ^ for zfs 2.0.x
 
 # where are we storing the key for these test datasets (will be created if not exist)
 zfskeyloc=~/zek-testencr-zfs.key
@@ -71,13 +76,13 @@ function loggit () {
 } # END FUNC
 
 function ridmeofthesedatasets () {
-  loggit "$0 - `date` - Cleanup called"
+  loggit "$0 - $(date) - Cleanup called"
   if [ "$zp" = "rpool" ]; then
     cd /
   else
     cd /$zp || failexit 404 "! Cleanup failed - /$zp not found"
   fi
-  for zdel in `echo Test-aes*`; do loggit "$0 - Destroying encryption test dataset: $zp/$zdel"; time zfs destroy -rv "$zp/$zdel"; done
+  for zdel in $(echo Test-aes*); do loggit "$0 - Destroying encryption test dataset: $zp/$zdel"; time zfs destroy -rv "$zp/$zdel"; done
 
   # need only filename, not path - strippit
   isofile2=$(basename "$isofile")
@@ -85,7 +90,7 @@ function ridmeofthesedatasets () {
   chklen=$(echo ${#isofile2})
   if [ $chklen -gt 0 ] && [ -e "/dev/shm/$isofile2" ]; then
     loggit "Cleaning up $isofile2 from ramdisk"
-   /bin/rm -f "/dev/shm/$isofile2"
+   /bin/rm -fv "/dev/shm/$isofile2"
   fi  # sanity, will give error if we try to remove /dev/shm if var=blank
   
   df -hT |head -n 1
@@ -100,9 +105,9 @@ function ridmeofthesedatasets () {
 # MAIN ====================================================================
 mv -v $logfile $logfile-old 2>/dev/null
 
-echo "`date` - `hostname` - BEGIN encryption speed tests" |tee $logfile
+echo "$(date) - $(hostname) - BEGIN encryption speed tests" |tee $logfile
 
-loggit "o Kernel: `uname -r`" 
+loggit "o Kernel: $(uname -r)" 
 loggit "o Zpool version: $(zpool version)"
 loggit "$(dmesg |grep ZFS)"
 loggit "o CPU detected: $(grep -m1 "model name" /proc/cpuinfo |awk -F: '{print $2}')"
@@ -180,7 +185,7 @@ df -hT |grep -v '/ROOT/' |grep $zp
 df -hT |grep /dev/shm
 ls -lh /dev/shm/*.iso
 
-loggit "`date` $0 - $(hostname) - Ready for testing" # from here you can test how long it takes to copy iso file, run fio, etc
+loggit "$(date) $0 - $(hostname) - Ready for testing" # from here you can test how long it takes to copy iso file, run fio, etc
 # time (cp -v $isofile /$zp/aesdataset; sync)
 
 echo "o $0 Logfile is: $logfile"
@@ -190,10 +195,12 @@ exit;
 
 #################################################
 
-2020.0526 Author: Kneutron - knocked together a zfs test script to create datasets per encryption type
-Tested OK on Ubuntu 18.04 / Linux Mint
+2020.0526 Author: Kneutron - knocked together a zfs test script to create datasets per encryption type, to test speeds of each cipher
+Tested OK on Ubuntu 18.04 / Ubuntu 20.04 / Linux Mint
 
 # Future changes will be in reverse-date order
+
+2021.0408 backticks to $()
 
 2020.0527 v2A - bugfix edition, chklen was ($ instead of $(
 2020.0527 V2 - fixed minor bug in cleanup to fail if cant cd to /$zp, cd "/" if zp=rpool
