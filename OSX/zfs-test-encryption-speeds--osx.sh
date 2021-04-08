@@ -1,8 +1,12 @@
-#!/opt/local/bin/bash
+#!/bin/bash
+#BANG/opt/local/bin/bash
 # macports bash5
 
 #BANG/usr/local/bin/bash 
 # bash5 from brew
+
+# Creates datasets for all supported ZFS encryption types, creates ramdisk and copies ISO file into it for copying / speed testing
+# There is a separate script for actually performing the iso copy and timing how long it takes per each cipher
 
 # xxx 2020.0526 mod for OSX - requires file-based pool if zpool was created with dual-boot-compatible options
 # -> check with ' zpool upgrade ' or ' zpool get all |grep encryption ' - if encryption is missing, you need ^^
@@ -26,25 +30,28 @@ fi
 # ex. OSTYPE=darwin17.7.0
 if [ $(echo $OSTYPE |grep -c darwin) -ne 1 ]; then
   echo "You need to be running this on an OSX box. There is a Linux version of this script available."
+  echo "See: https://github.com/kneutron/ansitest"
   exit 10
 fi
 
 
 # DEFINE VARS
 #zp=zfilepool # EDITME # NOTE this zpool is FILE-based due to dual-boot pool compatibility 
-zp=zint500 # EDITME # NOTE this zpool is FILE-based due to dual-boot pool compatibility 
+zp=zint500 # xxx TODO EDITME # NOTE this zpool is DISK-based
 
 logfile=~/zfs-test-encryption-speeds.log
 
-# will be copied to ramdisk (prep) - put "" to skip - # EDITME
+# will be copied to ramdisk (prep) - put "" to skip - # xxx TODO EDITME
 #isofile=/Volumes/zsgtera2B/shrcompr-zsgt2B/ISO/bionic-desktop-amd64.iso
 isofile=/Volumes/zsgtera2B/shrcompr-zsgt2B/ISO/KNOPPIX_V8.6-2019-08-08-EN.iso
 #isofile=""
 
 compr=lz4
+#compr=zstd-2
+# ^ for zfs 2.0.x
 
 #ramdisksize=1200 # MB  # EDITME based on size of ISO file +200MB
-ramdisksize=4900 # MB  # EDITME based on size of ISO file +200MB
+ramdisksize=4900 # MB  # xxx TODO EDITME based on size of ISO file +200MB
 # recommended for systems with 8GB+ RAM, or have NO apps running 
 # - will auto-skip if RAM <6GB or if set to 0
 
@@ -63,6 +70,15 @@ zfskeyloc=~/zek-testencr-zfs.key
 function failexit () {
   echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
   exit $1
+}
+
+# GNU df supports -T, if not installed just use df -h
+function mydf () {
+  if [ $(which gdf |wc -l) -gt 0 ]; then
+    gdf -hT
+  else 
+    df -h
+  fi
 }
 
 # Echo something to current console AND log
@@ -112,13 +128,14 @@ function osxmkramdisk () {
 
 function ridmeofthesedatasets () {
   cd /Volumes/$zp
-  loggit "$0 - `date` - Cleanup called"
+  loggit "$0 - $(date) - Cleanup called"
 
-  for zdel in `echo Test-aes*`; do loggit "$0 - Destroying encryption test dataset: $zp/$zdel"; time zfs destroy -rv $zp/$zdel; done
+  for zdel in $(echo Test-aes*); do loggit "$0 - Destroying encryption test dataset: $zp/$zdel"; time zfs destroy -rv $zp/$zdel; done
   diskutil eject /Volumes/ramdisk && loggit "$0 - RAMdisk ejected"
   
-  gdf -hT |head -n 1
-  gdf -hT |grep $zp
+# GNU df supports -T, if not installed just use df -h
+  mydf |head -n 1
+  mydf |grep $zp
   exit;
 }
 
@@ -161,7 +178,7 @@ if [ -e /Applications/MacPorts/VeraCrypt.app/Contents/MacOS/VeraCrypt ]; then
   loggit "+ or there is a beta Linux benchmark test available at: https://www.pickysysadmin.ca/2016/09/03/veracrypt-cli-benchmark-script/"
 fi
 
-loggit "o PREP - Copy ~1GB iso file to ramdisk if not already there" 
+loggit "o PREP - Copy iso file to ramdisk if not already there" 
 [ -e /Volumes/ramdisk ] && [ -e "$isofile" ] && time cp -vn "$isofile" /Volumes/ramdisk |tee -a $logfile
 rc=$?
 [ "$rc" -gt 0 ] && failexit 404 "$isofile failed to copy to ramdisk"
@@ -224,8 +241,8 @@ done
 #echo 1 > /proc/sys/vm/drop_caches # free pagecache
 #free
 
-gdf -hT |head -n 1
-gdf -hT |egrep "$zp|ramdisk"
+mydf |head -n 1
+mydf |egrep "$zp|ramdisk"
 ls -lh /Volumes/ramdisk/*.iso
 
 loggit "$(date) $0 - $(hostname)"
@@ -239,6 +256,8 @@ exit;
 
 
 #################################################
+
+2021.0408 added mydf to use GNU df if-detected, regular df otherwise
 
 2021.0129 minor code cleanup, chg to ~4GB RAMdisk & ISO
 
