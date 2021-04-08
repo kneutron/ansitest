@@ -13,7 +13,7 @@ for zds in $(zfs-list-snaps--boojum.sh |grep virtbox |awk '{print $1}'); do
   zfs mount $zds  
 done
 
-df -hT
+df -h
 
 exit;
 
