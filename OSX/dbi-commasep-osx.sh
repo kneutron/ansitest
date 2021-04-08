@@ -5,11 +5,6 @@
 # NOTE - other scripts rely on this output!
 # put dev-disk-by-id into assoc array > comma-sep file
 
-# =LLC= © (C)opyright 2016 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
-## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
-## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
-#
-
 outf=/tmp/dbi-commasep--boojum.csv
 
 DBI=/var/run/disk/by-id
@@ -31,7 +26,7 @@ OSX:
 
  /var/run/disk $ ls -l $DBI $DBP |egrep -v 'var/|part|wwn|total'
 lrwxr-xr-x  1 root  daemon  10 Apr 18 19:31 PCI0-RP04@1C,3-FRWR@0-node@30e0c430385436-sbp-2@4008-@0:0 -> /dev/disk7
-1	    2 3     4       5  6   7  8     9							      10 11
+1	          2 3     4       5  6   7  8     9							                                                  10 11
 
 # NOTE FIELD 9 HAS COMMAS!!!!
 /var/run/disk $ ls -l $DBI $DBP |egrep -v 'var/|s[0-9]|wwn|total' |column -t
@@ -50,14 +45,14 @@ $ ls -l $DBI $DBP $DBS |egrep -v 'var/|s[0-9]|wwn|total' |column -t |sort -k 11
 lrwxr-xr-x  1  root  daemon  10  Apr  14  22:26  Hitachi_HDT721032SLA380-STA208MT3JA1EW                     ->  /dev/disk0
 lrwxr-xr-x  1  root  daemon  10  Apr  14  22:26  PCI0-SATA@1F,2-PRT0@0-PMP@0-@0:0                           ->  /dev/disk0
 lrwxr-xr-x  1  root  daemon  10  Apr  14  22:26  PCI0-EHC1@1D,7-@3:0                                        ->  /dev/disk1
-lrwxr-xr-x  1  root  daemon  10  Apr  14  22:26  Portable_SSD_T5-S3UJNP0K702016Y                            ->  /dev/disk1
+lrwxr-xr-x  1  root  daemon  10  Apr  14  22:26  Portable_SSD_T5-S3UJNP0K70.                                ->  /dev/disk1
 lrwxr-xr-x  1  root  daemon  10  Apr  18  19:25  000-1HJ164-W523LE2H                                        ->  /dev/disk2
 lrwxr-xr-x  1  root  daemon  10  Apr  18  19:25  PCI0-RP04@1C,3-FRWR@0-node@5500000065-sbp-2@4008-@0:0      ->  /dev/disk2
-lrwxr-xr-x  1  root  daemon  10  Apr  18  19:31  EFRX-68FYTN0-WD-WCC4J2HEAE4A                               ->  /dev/disk3
+lrwxr-xr-x  1  root  daemon  10  Apr  18  19:31  EFRX-68FYTN0-WD-WCC4J2HE.                                  ->  /dev/disk3
 lrwxr-xr-x  1  root  daemon  10  Apr  18  19:31  PCI0-RP04@1C,3-FRWR@0-node@30e0c430385436-sbp-2@4008-@1:0  ->  /dev/disk3
 lrwxr-xr-x  1  root  daemon  10  Apr  15  13:25  media-280E431F-DC1B-4AC2-81BF-2207DEF2CB8B                 ->  /dev/disk5
 lrwxr-xr-x  1  root  daemon  10  Apr  15  13:25  volume-3F432B2A-FBF0-3AB9-BE71-1D51409D467A                ->  /dev/disk5
-lrwxr-xr-x  1  root  daemon  10  Apr  18  19:31  EFRX-68FYTN0-WD-WCC4J4KD08T6                               ->  /dev/disk7
+lrwxr-xr-x  1  root  daemon  10  Apr  18  19:31  EFRX-68FYTN0-WD-WCC4J4KD                                   ->  /dev/disk7
 lrwxr-xr-x  1  root  daemon  10  Apr  18  19:31  PCI0-RP04@1C,3-FRWR@0-node@30e0c430385436-sbp-2@4008-@0:0  ->  /dev/disk7
 
 
@@ -68,20 +63,20 @@ total 0
 lrwxrwxrwx 1 root root  9 Aug  5 07:32 ata-HL-DT-ST_BD-RE_BH16NS40_K9JD27D5727 -> ../../sr1
 lrwxrwxrwx 1 root root  9 Aug  5 07:32 ata-Optiarc_DVD_RW_AD-7240S -> ../../sr0
 lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-ST3000VN007-2E4166_Z6A0GXZW -> ../../sde
-lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD1002FAEX-00Y9A0_WD-WCAW35807074 -> ../../sdb
-lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD2003FZEX-00SRLA0_WD-WMC6N0D2AZX2 -> ../../sdd
-lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD20EFRX-68EUZN0_WD-WCC4M1JDAPDP -> ../../sdf
-lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD20EFRX-68EUZN0_WD-WCC4MCYPD0KC -> ../../sda
-lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD30EURX-73T0FY0_WD-WMC4N0F2DKJA -> ../../sdc
+lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD1002FAEX-00Y9A0_WD-WCAW3580 -> ../../sdb
+lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD2003FZEX-00SRLA0_WD-WMC6N0D2 -> ../../sdd
+lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD20EFRX-68EUZN0_WD-WCC4M1JD -> ../../sdf
+lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD20EFRX-68EUZN0_WD-WCC4MCYP -> ../../sda
+lrwxrwxrwx 1 root root  9 Aug  5 12:32 ata-WDC_WD30EURX-73T0FY0_WD-WMC4N0F2 -> ../../sdc
 
-ata-HL-DT-ST_BD-RE_BH16NS40_K9JD27D5727,/dev/sr1
+ata-HL-DT-ST_BD-RE_BH16NS40_K9JD27D,/dev/sr1
 ata-Optiarc_DVD_RW_AD-7240S,/dev/sr0
 ata-ST3000VN007-2E4166_Z6A0GXZW,/dev/sde
-ata-WDC_WD1002FAEX-00Y9A0_WD-WCAW35807074,/dev/sdb
-ata-WDC_WD2003FZEX-00SRLA0_WD-WMC6N0D2AZX2,/dev/sdd
-ata-WDC_WD20EFRX-68EUZN0_WD-WCC4M1JDAPDP,/dev/sdf
-ata-WDC_WD20EFRX-68EUZN0_WD-WCC4MCYPD0KC,/dev/sda
-ata-WDC_WD30EURX-73T0FY0_WD-WMC4N0F2DKJA,/dev/sdc
+ata-WDC_WD1002FAEX-00Y9A0_WD-WCAW3580,/dev/sdb
+ata-WDC_WD2003FZEX-00SRLA0_WD-WMC6N0D2,/dev/sdd
+ata-WDC_WD20EFRX-68EUZN0_WD-WCC4M1JD,/dev/sdf
+ata-WDC_WD20EFRX-68EUZN0_WD-WCC4MCYP,/dev/sda
+ata-WDC_WD30EURX-73T0FY0_WD-WMC4N0F2,/dev/sdc
 
 fry - expected output:
  ls -l /dev/disk/by-id /dev/disk/by-path \
@@ -100,7 +95,7 @@ fry - expected output:
 /dev/sdd,pci-0000:01:00.0-sas-0x4433221102000000-lun-0
 /dev/sde,ata-ST9500420AS_5VJ5FDYE
 /dev/sde,pci-0000:02:00.0-sas-0x4433221101000000-lun-0
-/dev/sdf,ata-ST1000LM024_HN-M101MBB_S2RQJ9CC903375
+/dev/sdf,ata-ST1000LM024_HN-M101MBB_S2RQJ9CCQ
 /dev/sdf,pci-0000:02:00.0-sas-0x4433221103000000-lun-0
 /dev/sdg,pci-0000:00:14.0-usb-0:1:1.0-scsi-0:0:0:0
 /dev/sdg,usb-SanDisk_Ultra_Fit_4C530001171117106334-0:0
