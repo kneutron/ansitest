@@ -1,4 +1,4 @@
-#!/bin/bash5
+#!/bin/bash
 
 # REF: https://howchoo.com/g/mdc3mje5ngm/partition-hard-drive-macos
 
