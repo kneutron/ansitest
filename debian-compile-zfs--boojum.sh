@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Part 1 of 2 scripts - this part *uninstalls* and unmounts all current zfs for code upgrade!
+
 #source ~/bin/failexit.mrg
 # failexit.mrg
 function failexit () {
@@ -21,12 +23,13 @@ firstrun=1
 service zed stop
 service smbd stop
 
+# NOTE zfs pools go away temporarily here!
 zfs umount -a -f
 zpool export -a -f
 
 
 modprobe -r zfs zunicode zavl icp zcommon znvpair spl
-df -h -T |grep zfs
+df -hT |grep zfs
 
 [ $(lsmod |grep -c zfs) -gt 0 ] && failexit 101 "! ZFS module still loaded!"
 
