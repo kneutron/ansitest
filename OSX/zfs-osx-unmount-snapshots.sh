@@ -4,7 +4,7 @@ for zds in $(df|grep '.zfs' |awk '{print $1}'); do
   zfs umount $zds
 done
 
-df -hT
+df -h
 
 exit;
 
