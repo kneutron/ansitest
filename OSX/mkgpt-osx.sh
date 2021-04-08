@@ -5,8 +5,15 @@
 # NOTE no wwn's here to worry about
 argg="$1"
 
-source ~/bin/failexit.mrg
- ~/bin/boojum/dbi-commasep-osx.sh # run direct, don't SOURCE this
+#source ~/bin/failexit.mrg
+# failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
+
+ #~/bin/boojum/
+dbi-commasep-osx.sh # run direct, don't SOURCE this
 
 # find short form
 infile1=/tmp/dbi-commasep--boojum.csv
@@ -34,7 +41,7 @@ else
   sdev=`grep $argg $infile2 |head -n1 |awk -F'=' '{ print $1 }'`
 fi
 
-[ `echo $sdev |grep -c "disk"` -gt 0 ] || failexit 502 "Teh craziness happen - cannot find shortdev from $argg"
+[ $(echo $sdev |grep -c "disk") -gt 0 ] || failexit 502 "Teh craziness happen - cannot find shortdev from $argg"
 [ -e /dev/$sdev ] || failexit 999 "Short-form device $argg does not exist in /dev!"
 
 smartctl -a /dev/$sdev |head -n 16
