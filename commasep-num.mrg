@@ -11,9 +11,15 @@ function commanum () {
 #[ $(echo $- |grep i |wc -l) -gt 0 ] && 
 [ ! "$1" = "" ] && commanum $1
 
+exit;
+
 # Example usage:
 #$ tmpvar=$(./commasep-num.mrg 80000000000)
 #$ echo $tmpvar
 #80,000,000,000
 # Limitation: it doesn't handle fractional numbers x.xx , just integers - anything after the decimal gets dropped
 # so don't try to display π (pi) with it ;-)
+
+# this appears to work somewhat with fractionals but is not bash-internal:
+#$ echo 1232323.1415927 | awk '{printf(fmt,$1)}' fmt="%'19.19f\n"
+#1,232,323.1415927000343799591
