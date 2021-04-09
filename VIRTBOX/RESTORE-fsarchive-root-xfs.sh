@@ -1,9 +1,11 @@
 #!/bin/bash
 
+# NOTE this script should be included on the resulting ISO from mkrestoredvdiso.sh / or OSX version
+
 # restore ext4 (or other) root filesystem from fsarchiver to XFS on the fly (usually into VM)
-# To be run from systemrescuecd environment; NOTE restore disk MUST be partitioned 1st!
+# To be run from systemrescuecd environment; NOTE restore disk sda MUST be partitioned 1st!
 # REQUIRES 1 arg: filename of .fsa
-# copy this script to /tmp and chmod +x, run from there
+# copy this script to /tmp and chmod +x, edit if needed, run from there
 # NOTE ISO from mkrestoredvdiso should be mounted on 2nd dvd drive
 # NOTE having a copy of supergrubdisc is handy if the VM fails to boot
 # REF: https://distrowatch.com/table.php?distribution=supergrub
