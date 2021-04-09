@@ -14,7 +14,7 @@ cd "$d2b"
 ls -alh
 pwd
 
-echo "$(date) - Writing from $d2b to $HOME PK:"
+echo "$(date) - Writing UDF ISO from $d2b to $HOME - PK:"
 #read
 
 hdiutil makehybrid -verbose -iso -joliet -udf -print-size "$d2b"
