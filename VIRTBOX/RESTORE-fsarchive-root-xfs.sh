@@ -4,6 +4,9 @@
 # To be run from systemrescuecd environment; NOTE restore disk MUST be partitioned 1st!
 # REQUIRES 1 arg: filename of .fsa
 # copy this script to /tmp and chmod +x, run from there
+# NOTE ISO from mkrestoredvdiso should be mounted on 2nd dvd drive
+# NOTE having a copy of supergrubdisc is handy if the VM fails to boot
+# REF: https://distrowatch.com/table.php?distribution=supergrub
 
 # TODO include /home and restore that? IF EXIST
 
@@ -97,7 +100,7 @@ umount $rootdir/* 2>/dev/null
 
 df -hT
 
-echo "DON'T FORGET TO COPY /home and adjust fstab for swap / home / squid BEFORE booting new drive!"
+echo "DON'T FORGET TO COPY /home and adjust fstab for home / squid BEFORE booting new drive!"
 echo "+ also adjust etc/network/interfaces , getdrives-byid , etc/rc.local , etc/hostname , etc/hosts ,"
 echo "+ etc/init/tty11 port (home/cloudssh/.bash_login"
 echo "DONT FORGET to edit fstab and change root ext4 to xfs"
