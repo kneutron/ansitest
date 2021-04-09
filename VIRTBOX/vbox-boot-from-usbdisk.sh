@@ -44,7 +44,7 @@ MAKE SURE the VM has 128MB video RAM and ~2200-2300MB RAM
 NOTE - you will probably have to re- chown $myuser $mydisk everytime you boot the VM!
 ( Use ' vbox-reown-usb-rawdisk.sh ' )
 
-AND - as an additional pain in the ass, if the installer USB disk ID changes you have to REMOVE it FIRST
+AND - as an additional PITA, if the installer USB disk ID changes you have to REMOVE it FIRST
   in Vbox Global Tools BEFORE re-adding the usbdisk.vmdk to the VM 
   as Hotplug (SSD may not be nec)!!!
   
