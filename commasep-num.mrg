@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Returns a passed number as comma-separated e.g. pass $1 = 80000000000 and receive 80,000,000,000
 # REF: https://unix.stackexchange.com/questions/113795/add-thousands-separator-in-a-number
 
 function commanum () { 
@@ -9,4 +10,9 @@ function commanum () {
 # test for interactive shell / OK to echo text 
 #[ $(echo $- |grep i |wc -l) -gt 0 ] && 
 [ ! "$1" = "" ] && commanum $1
-#echo $1
+
+# Example usage:
+#$ tmpvar=$(./commasep-num.mrg 80000000000)
+#$ echo $tmpvar
+#80,000,000,000
+# Limitation: it doesn't handle fractional numbers x.xx , just integers - anything after the decimal gets dropped
