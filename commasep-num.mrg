@@ -16,3 +16,4 @@ function commanum () {
 #$ echo $tmpvar
 #80,000,000,000
 # Limitation: it doesn't handle fractional numbers x.xx , just integers - anything after the decimal gets dropped
+# so don't try to display π (pi) with it ;-)
