@@ -1,2 +1,2 @@
 # ansitest
-ansible test stuff
+ansible test stuff and root/bin bash scripts
