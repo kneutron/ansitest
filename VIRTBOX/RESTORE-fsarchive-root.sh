@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# To be run from systemrescuecd environment; NOTE restore disk MUST be partitioned 1st!
+# NOTE this script should be included on the resulting ISO from mkrestoredvdiso.sh / or OSX version
+
+# To be run from systemrescuecd environment; NOTE restore disk sda MUST be partitioned 1st!
 # REQUIRES 1 arg: filename of .fsa
 # copy this script to /tmp and chmod +x, run from there
 
@@ -43,13 +45,6 @@ echo "$(date) - RESTORING root filesystem to $rootdev"
 # PROBLEM with long filenames in UDF - gets cut off, use $1
 #time fsarchiver restfs *.fsa id=0,dest=$rootdev
 time fsarchiver restfs "$1" id=0,dest=$rootdev  || failexit 400 "Restore failed!";
-
-# TODO fix
-#while `wait -n`; do ## notwork - endless loop
-#while [ `jobs |wc -l` -gt 0 ]; do
-#  df -h |grep $rootdev # grep fsa
-#  sleep 5
-#done
 
 date
 
