@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# REF: https://unix.stackexchange.com/questions/113795/add-thousands-separator-in-a-number
+
+function commanum () { 
+  LC_NUMERIC=en_US printf "%'.f" $1
+}
+
+# test for interactive shell / OK to echo text 
+#[ $(echo $- |grep i |wc -l) -gt 0 ] && 
+[ ! "$1" = "" ] && commanum $1
+#echo $1
