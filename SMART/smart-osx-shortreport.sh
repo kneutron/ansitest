@@ -42,7 +42,7 @@ for d in $(ls -l $DBS |egrep -v 'disk.s.|^total' |awk '{print $NF}'); do
   echo "========================" >> $outfile
 
   smartctl -a $d |head -n 16 >> $outfile
-  smartctl -a $d |egrep 'ID#|Power_On|Reallocated|Uncorrect|Timeout|Pending_Sector|Uncorrectable' >> $outfile
+  smartctl -a $d |egrep 'ID#|Power_On|Reallocated|Uncorrect|Timeout|Pending_Sector' >> $outfile
   smartctl -a $d |grep -A 2 'log structure' >> $outfile
 
 #SMART Self-test log structure revision number 1
