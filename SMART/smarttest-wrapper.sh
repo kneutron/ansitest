@@ -42,7 +42,7 @@ ftrdt=$(date --date @"$nrsecs")
 #at -M 
 
 # cleanup
-/bin/rm -f $tmpf
+/bin/rm -f $tmpf $sortf
 
 IFS=$OIFS
 
