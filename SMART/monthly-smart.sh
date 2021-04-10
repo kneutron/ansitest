@@ -2,10 +2,12 @@
 
 # to be run every month 17th and 27th ~9:35pm to not conflict with snapshots
 
-PATH=/sbin:/var/root/bin:/var/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
+PATH=/sbin:/var/root/bin:/var/root/bin/boojum:/root/bin:/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
 
 log=/root/smartlog.log
-mv -v -f $log $log--old
+[ -e /var/root/bin ] && log=/var/root/smartlog.log # OSX env
+
+mv -vf $log $log--old
 
 if [ "$1" = "stage2" ]; then
   myd=$(date)
