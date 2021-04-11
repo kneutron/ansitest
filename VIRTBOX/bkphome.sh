@@ -35,14 +35,12 @@ time tar \
 #  | lzop \
 #  > $bkpfname.tar.lzop 
 
-#  -cpf - /home/* |gzip -2 > $bkpfname.tar1.gz 
-
 ls -lh
-
+pwd
 #echo $pathh
-#time sync
 
+# fire off in BG
 flist.sh &
 #time tar tzvf $bkpfname.tar1.gz > flist--$bkpfname.txt &
-pwd
+
 echo "$0 done - $(date)"
