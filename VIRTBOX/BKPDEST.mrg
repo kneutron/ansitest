@@ -1,0 +1,29 @@
+# bash - this defines where backup tars, etc will be stored
+# this lives in /root/bin/boojum - multiple scripts look for it there and source it, so dont do 'exit' at end
+
+#export bkpdest=/mnt/milterausb3
+# if calling script has an override, we still provide value by checking for mount
+#[ "$bkpdest" = "" ] && export bkpdest=/mnt/imacdual
+#[ "$bkpdest" = "" ] && export bkpdest=/mnt/imac5  ## shared drive
+[ "$bkpdest" = "" ] && export bkpdest=/zsg25lap1 
+# xxx TODO EDITME - should not be same disk as root!
+
+[ $(echo $bkpdest |grep -c "/mnt/") -gt 0 ] && mount $bkpdest   # mount if not ZFS!
+[ $(echo $bkpdest |grep -c "/media/") -gt 0 ] && mount $bkpdest   # mount if not ZFS!
+
+# from failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
+
+
+[ -e "$bkpdest/NOTHERE" ] && failexit 99 "$bkpdest NOTHERE -- NOT MOUNTED"
+# "If" checking for NOTHERE file under non-mounted dir... 0ldsk00l hax
+
+chkmount=$(df |grep -c $bkpdest)
+[ $chkmount -gt 0 ] || failexit 99 "$bkpdest NOT MOUNTED"
+
+# NOTE code 199 is generally could not cd to dir
+
+export myhn=$(hostname)
