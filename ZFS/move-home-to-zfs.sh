@@ -3,9 +3,12 @@
 # DEPENDS: fdisk, parted, pstree, fuser, working zfs install
 # Strongly recommended to run from GNU SCREEN 
 # Also you need to be on tty1 (or similar) logged in directly as root, NOT SUDO and preferably not ssh
-# NOTE this script is interactive and will wait for multiple PK = press a key/enter to proceed
 
-# DONE? - sep datasets for users
+# NOTE this script is interactive and will wait for multiple PK = press a key/enter to proceed
+# Will handle /home whether directly off root or mounted as a separate partition
+# Will stop X window manager! (and restart it for you afterward, most of the time)
+
+# DONE/tested - sep datasets for users
 
 # DONE new disk needs to be at least = size of /home du -s -h
 # DONE free snapshot
@@ -337,7 +340,8 @@ ls -al /$zp/home
 # xxxxx 2024.0404 EXPERIMENTAL but appears to work
 echo "$(date) + Beginning rsync /home to /$zp/home"
 
-time rsync -r -t -p -o -g -v --delete -l -s \
+# -v
+time rsync -r -t -p -o -g --delete -l -s \
   --exclude=.thumbnails/* \
   /home/ \
   /$zp/home \
@@ -382,6 +386,8 @@ logecho "LABEL=home  /home  ext4  defaults,noauto,noatime,errors=remount-ro  0 1
 # cleanup
 /bin/rm -f $tmpfile1
 
+ls -alh $logfile
+
 exit;
 
 
@@ -391,6 +397,8 @@ o grep, awk, column
 o parted, fdisk, blkid
 o pstree, lsof, fuser
 o tar, pv
+
+# 2021 April - major changes
 
 lrwxrwxrwx 1  9 Apr 26 13:20 usb-VBOX_HARDDISK-0:0 -> ../../sde
 lrwxrwxrwx 1 9 Apr 26 13:20 pci-0000:00:0b.0-usb-0:1:1.0-scsi-0:0:0:0 -> ../../sde
