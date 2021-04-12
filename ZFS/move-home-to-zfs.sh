@@ -324,9 +324,9 @@ cd /home; df -hT /home /$zp
 # xxx TODO test - create datasets for each user; can still proceed if this step fails
 for usrs in $(ls -1 /home |awk '{print $1}'); do
 # if they dont exist, cre8 them
-  [ -e /$zp/$usrs ] || \
+  [ -e /$zp/home/$usrs ] || \
    zfs create -o atime=off -o compression=$compr -o sharesmb=off -o recordsize=128k \
-     $zp/$usrs     # || failexit 999 "! Failed to create ZFS $zp/$usrs"
+     $zp/home/$usrs     # || failexit 999 "! Failed to create ZFS $zp/home/$usrs"
 done
 
 ls -al /$zp/home
