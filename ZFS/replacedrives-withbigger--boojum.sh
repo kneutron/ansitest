@@ -5,11 +5,12 @@
 # HOWTO - edit, search this file for TODO and replace things where necessary before running!
 # NOTE this script will auto-GPT-label new disks!!!
 
+# NOTE this script is interactive and will wait for PK = presskey/enter
 
-# =LLC= © (C)opyright 2016 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
-## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
-## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
-#
+# DEPENDS: parted, working zfs installation
+
+# 2016 Dave Bechtel
+
 # GOAL - replace all disks in pool1 with larger disks ON THE FLY, no downtime;
 # Adapted from mkdynpoolbigger-inplace--boojum
 
@@ -31,7 +32,7 @@ skipdisk=0   # Leave at 0 unless u know what u doing! for interrupt/resume AND r
 logfile=~/replacedrives-withbigger.log
 > $logfile # clearit
 
-# TODO xxxxx change this to the zfs pool you are working on!
+# TODO EDITME xxxxx change this to the zfs pool you are working on!
 zp=zmir320comp
 
 # TODO - can we make things easier by just adding a hotspare Xtimes and replacing with it??
@@ -49,20 +50,20 @@ function logecho () {
   args=$@
 
   if [ -z "$args" ]; then
-    args='tmp'
+    args='placeholder'
 
     while [ 1 ]; do
       read -e -t2 args
 
       if [ -n "$args" ]; then
-         echo $args |tee -a $logfile;
+         echo "$args" |tee -a $logfile;
       else
         break;
       fi
     done
 
   else
-    echo $args |tee -a $logfile;
+    echo "$args" |tee -a $logfile;
   fi
 } # END FUNC
 
@@ -72,10 +73,10 @@ dpath=/dev/disk/by-id
 #dpath=/dev/disk/by-path
 # If doing SCSI drives, use this
 
-chkpoolmount=`df |grep -c $zp`
+chkpoolmount=$(df |grep -c $zp)
 [ $chkpoolmount -gt 0 ] || zpool import -d $dpath $zp
 
-chkpoolmount=`df |grep -c $zp`
+chkpoolmount=$(df |grep -c $zp)
 [ $chkpoolmount -eq 0 ] && failexit 9999 "! $zp was not imported / is still not mounted!"
 
 # assuming: ( TODO paste relevant part of "zpool status" here as map before running )
@@ -89,7 +90,7 @@ chkpoolmount=`df |grep -c $zp`
 #            ata-WDC_WD10EZEX-00KUWA0_WD-WCC1S5925723  ONLINE       0     0     0
                                                                                                             
 
-# xxxxx TODO change disks here!
+# xxxxx TODO EDITME change disks here!
 declare -a pooldisks 	# regular indexed array
 pooldisks[1]=ata-SAMSUNG_HD322HJ_S17AJB0SA23730 
 pooldisks[2]=ata-ST3320620AS_9QF4BMH8 
@@ -105,7 +106,7 @@ pooldisks[2]=ata-ST3320620AS_9QF4BMH8
 # NOTE CAPITAL A for assoc array!
 declare -A ASrepdisks 	# associative array
 
-# xxxxx TODO put new disk names / WWN IDs here before running!
+# xxxxx TODO EDITME put new disk names / WWN IDs here before running!
 # ASrepdisks == New disk name to replace original disk with
 key=${pooldisks[1]} # zdyndisk1
 ASrepdisks[$key]=ata-ST3500641AS_3PM1523A 
@@ -165,10 +166,10 @@ zpool status -v $zp >> $logfile
 ################################# TEH MAIN THING
 zpool status -v $zp #|logecho
 #logecho "`date` - Starting pool size: `df |grep $zp`"
-startdata1="`date` - Starting pool size: "
+startdata1="$(date) - Starting pool size: "
 #startdata2="`df |grep $zp`"
-startdata2=`df|head -n 1`
-startdata2=$startdata2'\n'`df|grep $zp`
+startdata2=$(df|head -n 1)
+startdata2=$startdata2'\n'$(df|grep $zp)
 echo -e "$startdata2" >> $logfile
 #Filesystem                     1K-blocks       Used Available Use% Mounted on
 #zredpool2                      722824320   33628416 689195904   5% /zredpool2
@@ -191,7 +192,7 @@ for i in {1..2}; do
 
 	df -h |grep $zp
 	logecho "Replacing disk #$i -- $mykey -- Insert Replacement disk: $repdisk into a free slot -- PK or ^C to quit!"
-read -n 1
+        read -n 1
 
 	(set -x
 		zpool labelclear $dpath/$mykey #|| failexit 1000 "! Failed to zpool labelclear $dpath/$mykey"
@@ -209,25 +210,25 @@ read -n 1
 	zpool status -v $zp >> $logfile
 	zpool status -v $zp 
 
-	printf `date +%H:%M:%S`' ...waiting for resilver to complete...'
+	printf $(date +%H:%M:%S)' ...waiting for resilver to complete...'
 	waitresilver=1
 	while [ $waitresilver -gt 0 ];do 
-	  waitresilver=`zpool status -v $zp |grep -c resilvering`
+	  waitresilver=$(zpool status -v $zp |grep -c resilvering)
 	  sleep 2
 	done 
 	echo 'Syncing to be sure'; time sync;
 	date |logecho
 
-logecho "o OK - we replaced $mykey with $repdisk ... Remove disk $mykey"
-logecho "+ check log and NOTE pool size has increased with every finished mirror column!"
+        logecho "o OK - we replaced $mykey with $repdisk ... Remove disk $mykey"
+        logecho "+ check log and NOTE pool size has increased with every finished mirror column!"
 
-  zpool status -v $zp >> $logfile
+        zpool status -v $zp >> $logfile
 	zpool status -v $zp 
 
 	zfs list $zp >> $logfile 
 	zpool list $zp >> $logfile 
-  logecho "`date` - Disk $i = $mykey done - DF follows, moving on..."
-	df |grep $zp |logecho
+        logecho "$(date) - Disk $i = $mykey done - DF follows, moving on..."
+	df -hT |grep $zp |logecho
 
 done
 
@@ -238,8 +239,8 @@ echo "REMEMBER we started with:"
 echo "$startdata1"
 echo -e "$startdata2"
 echo "NOW we have a fully expanded pool with new larger disks:"
-echo "`date` - Pool size after IN-PLACE expansion, NO DOWNTIME:"
-echo "`df |grep $zp`"
+echo "$(date) - Pool size after IN-PLACE expansion, NO DOWNTIME:"
+echo "$(df |grep $zp)"
 
 echo 'o Complete!'
 
@@ -247,15 +248,3 @@ echo 'o Complete!'
 exit;
 
 2016.0615 SUCCESSFULLY TESTED 320GB > 500GB DISKS :)
-
-
-DONE startdata2:
-
- sd2=`df|head -n 1`
- sd2=$sd2'\n'`df|grep red`
- echo -e "$sd2"
-Filesystem                     1K-blocks       Used Available Use% Mounted on
-zredpool2                      722824320   33628416 689195904   5% /zredpool2
-zredpool2/bigvai750           1061294592  372098688 689195904  36% /zredpool2/bigvai750
-zredpool2/dvcompr              898452224  209256320 689195904  24% /zredpool2/dvcompr
-zredpool2/dvds                1270349696  581153792 689195904  46% /zredpool2/dvds
