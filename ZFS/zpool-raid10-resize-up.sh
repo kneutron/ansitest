@@ -3,6 +3,7 @@
 # 2020.0620
 # ADAPTED FROM # zpool-resizeup-mirror--no-degradation--raid10.sh
 # This assumes that all disks are slotted, no offline-yank-and-replace
+# We attach a 3rd and 4th mirror disk and then detach the originals to avoid pool degradation and get good throughput
 
 # NOTE - SCRUB 1st!!
 
