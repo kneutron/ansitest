@@ -262,7 +262,7 @@ fi
 zfs list -p $zp 
 
 # TODO check for zfs pool free space vs home use
-  zpcap=$)zfs list -p $zp |awk '{ print $3 }' |tail -n +2) # skip header and get bytes
+  zpcap=$(zfs list -p $zp |awk '{ print $3 }' |tail -n +2) # skip header and get bytes
 [ $debugg -gt 0 ] && logecho "zpcap: $zpcap ^^ homespc: $hsbytes"
 
 if [ $zpcap -lt $hsbytes ]; then
