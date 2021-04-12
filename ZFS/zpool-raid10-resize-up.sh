@@ -59,7 +59,7 @@ echo "o Attach disk2=disk4 - $(date)"
 time zpool attach $zp $disk2 $disk4 || failexit 104 "zpool attach disk2=disk4 $disk2 = $disk4 failed $(date)"
 wait4resilver $zp
 
-zpool status -v |awk 'NF>0'
+zpool status -v $zp |awk 'NF>0'
 df -hT
 
 echo "$(date) - PK to detach smaller/original mirror disks and increase pool size"
@@ -68,7 +68,7 @@ read -n 1
 time zpool detach $zp $disk1
 time zpool detach $zp $disk2
 
-zpool status -v |awk 'NF>0'
+zpool status -v $zp |awk 'NF>0'
 df -hT
 
 exit;
