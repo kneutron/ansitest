@@ -2,17 +2,45 @@
 
 # 2020.0620
 # ADAPTED FROM # zpool-resizeup-mirror--no-degradation--raid10.sh
+# This assumes that all disks are slotted, no offline-yank-and-replace
 
 # NOTE - SCRUB 1st!!
 
-source ~/bin/boojum/wait4resilver.mrg
-source ~/bin/failexit.mrg
+#source ~/bin/boojum/wait4resilver.mrg
+function wait4resilver () {
+  sdate=$(date)
+# do forever
+  while :; do
+    clear
+  
+    echo "Pool: $1 - NOW: $(date) -- Watchresilver started: $sdate"
+    zpool status $1 |grep -A 2 'resilver in progress' || break 2
+    zpool iostat -v -y $1 2 3 &
+    sleep 9
+    date
+  done
 
+  ndate=$(date)
+
+  zpool status -v $1
+  echo "o Resilver watch $1 start: $sdate // Completed: $ndate"
+}
+
+#source ~/bin/failexit.mrg
+# failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
+
+# xxx TODO EDITME
 zp=zseatera4
 
+# Original disks (mirrors) - in the same column!
 disk1=ata-ST4000VN000-2AH166_WDH0SB5N
 disk2=ata-ST4000VN000-1H4168_Z3076XVL
 
+# Replacements:
 disk3=ata-HGST_HUS726060ALE614_K8HU3M7N # sdh
 disk4=ata-HGST_HUS726060ALE614_K8HUH6YN # sdf
 
@@ -24,23 +52,23 @@ echo 8000 > /sys/module/zfs/parameters/zfs_resilver_min_time_ms
 # original value: 3000
 
 echo "o Attach disk1=disk3 - $(date)"
-time zpool attach $zp $disk1 $disk3 || failexit 103 "zpool attach disk1=disk3 $disk1 = $disk3 failed `date`"
-waitforresilver $zp
+time zpool attach $zp $disk1 $disk3 || failexit 103 "zpool attach disk1=disk3 $disk1 = $disk3 failed $(date)"
+wait4resilver $zp
 
 echo "o Attach disk2=disk4 - $(date)"
-time zpool attach $zp $disk2 $disk4 || failexit 104 "zpool attach disk2=disk4 $disk2 = $disk4 failed `date`"
-waitforresilver $zp
+time zpool attach $zp $disk2 $disk4 || failexit 104 "zpool attach disk2=disk4 $disk2 = $disk4 failed $(date)"
+wait4resilver $zp
 
-zpool status -v
+zpool status -v |awk 'NF>0'
 df -hT
 
-echo "`date` - PK to detach smaller mirror disks and increase pool size"
+echo "$(date) - PK to detach smaller/original mirror disks and increase pool size"
 read -n 1
 
 time zpool detach $zp $disk1
 time zpool detach $zp $disk2
 
-zpool status -v
+zpool status -v |awk 'NF>0'
 df -hT
 
 exit;
