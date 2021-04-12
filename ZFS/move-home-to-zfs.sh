@@ -24,7 +24,7 @@ function failexit () {
 
 # Check for root priviliges
 if [ "$(id -u)" -ne 0 ]; then
-   failexit 1000 "Please run $0 directly as root from tty1. X window manager cannot be running"
+   failexit 1000 "Please run $0 directly as root from tty1. X window manager cannot be running during /home migration"
    exit 1
 fi
 
@@ -314,7 +314,7 @@ while [ $flocks -gt 0 ]; do
 done
 
 lsof |grep /home
-logecho "o All /home files should be free! If not, ^C and fix it! PK"
+logecho "o All /home files should be free! If not, ^C and fix it ( ex: fuser -k /home/dave )! PK"
 read
 
 du -s -h /home
