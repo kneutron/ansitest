@@ -1,9 +1,11 @@
 #!/bin/bash
 # REF: https://sysadminman.net/blog/2008/remove-all-zfs-snapshots-50
 
-# destroy all snapshots on blue pool (to free space) and track what got killed
-#zp=zblue500compr0
-#zp=zredtera1
+# destroy arg snapshots on pool (to free space) and track what got killed
+# NOTE does NOT do Recursive and can grep on whatever criteria matches!
+# NOTE no logfile rotation
+# 2014 Dave Bechtel
+
 #crit=daily
 crit=weekly
 #crit=$zp
@@ -12,17 +14,15 @@ crit=weekly
 
 logfile=/root/zfs-killsnaps.log
 
-#for snapshot in `zfs list -H -t snapshot |grep hourly | cut -f 1`
-#for snapshot in `zfs list -H -t snapshot |grep $zp | cut -f 1`
 function dokill () {
   crit=$1
-  for snapshot in `zfs list -H -t snapshot |grep $crit | cut -f 1`
+  for snapshot in $(zfs list -H -t snapshot |grep $crit | cut -f 1)
   do
-    echo "`date` - Killing $snapshot" |tee -a $logfile
+    echo "$(date) - Killing $snapshot" |tee -a $logfile
     time zfs destroy $snapshot
   done
 }
 
 dokill $crit
-dokill hourly
+#dokill hourly
 #dokill weekly
