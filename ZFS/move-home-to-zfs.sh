@@ -2,7 +2,7 @@
 
 # DEPENDS: fdisk, parted, pstree, fuser, working zfs install
 # Strongly recommended to run from GNU SCREEN 
-# Also you need to be on tty1 logged in directly as root, NOT SUDO
+# Also you need to be on tty1 (or similar) logged in directly as root, NOT SUDO and preferably not ssh
 # NOTE this script is interactive and will wait for multiple PK = press a key/enter to proceed
 
 # DONE? - sep datasets for users
@@ -15,10 +15,25 @@
 
 # 2016 Dave Bechtel
 
-##Check for root priviliges
+#source ~/bin/failexit.mrg
+# failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
+
+# Check for root priviliges
 if [ "$(id -u)" -ne 0 ]; then
-   echo "Please run $0 directly as root."
+   failexit 1000 "Please run $0 directly as root from tty1. X window manager cannot be running"
    exit 1
+fi
+
+# TODO chk tty - if pts, logout and goto tty1
+# REF: https://www.cyberciti.biz/faq/linux-unix-appleosx-bsd-what-tty-command/
+whereameye=$(tty)
+if [ $(echo $whereameye |grep -c pts) -gt 0 ]; then
+  failexit 7 "Please log off, press Ctrl+Alt+F1 or if using Virtualbox right-Ctrl+F1 / OSX use right-CMD+F1 and login directly as root to run this"
+# NOTE root must have a password  
 fi
 
 # xxx TODO EDITME set compression type for new datasets - 2.0.x supports zstd
@@ -67,13 +82,6 @@ zp=zhome
 [ $RESETALL -gt 0 ] && (set -x; zpool destroy $zp)
 
 tmpfile1=/tmp/mvh2zTMP1.txt
-
-#source ~/bin/failexit.mrg
-# failexit.mrg
-function failexit () {
-  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
-  exit $1
-}
 
 modprobe zfs  # shouldnt hurt even if its already loaded
 
