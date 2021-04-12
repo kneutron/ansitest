@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Intention: bare-metal backup and restore linux running system (root), quite handy for restoring to VM
+# It is STRONGLY recommended to get used to doing a full bare-metal backup of root before doing any package updates/upgrades
 # REF: http://crunchbang.org/forums/viewtopic.php?id=24268
 
 # DEPENDS: fsarchiver, /root/bin/boojum/BKPDEST.mrg (up to date with a valid destination dir)
@@ -30,7 +31,7 @@ outfile="bkpsys-$myhn-64-debstable10-$bkpdate-fsarc-ZSTD.fsa"
 cp -v /tmp/fdisk-l.txt $ddir
 cp -v /tmp/smartctl.txt $ddir
 cp -v $0 $ddir
-cp -v ~/bin/boojum/RESTORE-fsarchive-root.sh $ddir
+cp -v ~/bin/boojum/RESTORE-fsarchive-root*.sh $ddir
 # copy restore script to backup dir, goes with mkrestoredvdiso.sh
 
 # NOTE autoclean !! find bkps and flist files more than XX days old and delete
@@ -42,7 +43,7 @@ df -hT / $dest
 date
 numproc=$(nproc --ignore=1)
 #time fsarchiver -v -o -A -z 1 -j 2 savefs \
-# NOTE older / LTS distros may need to use lower-case -z since the package ver may not support zstd
+# NOTE older / LTS distros may need to use lower-case -z since the package ver may not support zstd; ubuntu 20.04 LTS should be OK
 time fsarchiver -o -A -Z 1 -j $numproc savefs \
   $ddir/$outfile \
   $rootdev
