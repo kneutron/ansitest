@@ -1,10 +1,7 @@
 #!/bin/bash
 
+# 2016 Dave Bechtel
 
-# =LLC= © (C)opyright 2016 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
-## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
-## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
-#
 # REQUIRES zdynpool1 on mnt/milterausb3
 # GOAL - replace all disks in zdynpool1 with larger disks ON THE FLY, no downtime;
 # + also deal with if disk2 has already been replaced with spare disk8 (mkdynpoolFAIL ran before this)
@@ -71,15 +68,16 @@ function logecho () {
   fi
 } # END FUNC
 
+# xxx TODO EDITME
 lpath=/mnt/milterausb3/zdisks
 spath=/zdisks
 
-chkpoolmount=`df |grep -c $zp`
+chkpoolmount=$(df |grep -c $zp)
 [ $chkpoolmount -gt 0 ] || zpool import -d $lpath $zp
 #[ $chkpoolmount -gt 0 ] || zpool import -d /zdisks zdynpool1
 # NOTE for some rsn import doesnt use short /zdisks path!
 
-chkpoolmount=`df |grep -c $zp`
+chkpoolmount=$(df |grep -c $zp)
 [ $chkpoolmount -eq 0 ] && failexit 9999 "! $zp was not imported / is still not mounted!"
 
 # assuming: (if mkdynpoolFAIL-boojum.sh has run, otherwise disk8 will be disk2
@@ -103,7 +101,7 @@ pooldisks[4]=zdyndisk4
 pooldisks[5]=zdyndisk5
 pooldisks[6]=zdyndisk6
 
-chkalreadyfailed=`zpool status -v $zp|grep -c disk8`
+chkalreadyfailed=$(zpool status -v $zp|grep -c disk8)
 if [ $chkalreadyfailed -gt 0 ];then 
  #FAILD=8;REPW=2
  pooldisks[2]=zdyndisk8
@@ -160,7 +158,7 @@ chkdisk=${pooldisks[2]}
 
 zdpath=/tmp/failsafe  
 # if milterausb3 is mounted, use it
-usemil=`df |grep -c /mnt/milterausb3` 
+usemil=$(df |grep -c /mnt/milterausb3)
 if [ $usemil -gt 0 ]; then
   zdpath="/mnt/milterausb3/zdisks" 
 else
@@ -178,7 +176,7 @@ cd /zdisks || failexit 1011 "! Still cant cd to /zdisks! Check $logfile"
 
 
 if [ $newdisks -gt 0 ]; then
-  logecho "`date` - Preparing NEW set of Larger ($DS)MB virtual disks, no matter if they exist or not..."
+  logecho "$(date) - Preparing NEW set of Larger ($DS)MB virtual disks, no matter if they exist or not..."
   for i in {1..8};do
     printf $i...
     (time dd if=/dev/zero of=zbigrdisk$i bs=1M count=$DS 2>&1)  >> $logfile
@@ -187,7 +185,7 @@ else
   logecho "Skipping new bigger disk creation"
 fi
 
-logecho "`date` - Syncing..."
+logecho "$(date) - Syncing..."
 time sync
 
 # should now have zdyndisk1-8 PLUS zbigrdisk1-8
@@ -203,7 +201,7 @@ zpool status -v $zp >> $logfile
   done
 
 # check if pool was imported after reboot, uses longer path!
-chklongpath=`zpool status -v |grep -c milterausb3`
+chklongpath=$(zpool status -v |grep -c milterausb3)
 if [ $chklongpath -gt 0 ]; then
   usepath=$lpath
   logecho "Using longer path $usepath"
@@ -222,8 +220,8 @@ fi
 zpool status -v $zp #|logecho
 #ls -lh /zdisks/ |logecho
 #logecho "`date` - Starting pool size: `df |grep $zp`"
-startdata1="`date` - Starting pool size: "
-startdata2="`df |grep $zp`"
+startdata1="$(date) - Starting pool size: "
+startdata2="(df |grep $zp)"
 logecho $startdata1
 logecho $startdata2
 
@@ -236,7 +234,7 @@ for i in {1..6}; do
 	mykey=${pooldisks[$i]} # zdyndisk1
 	repdisk=${ASrepdisks[$mykey]} # zbigrdisk1 
 
-	df -h |grep $zp
+	df -hT |grep $zp
 	logecho "Replacing disk #$i -- $mykey -- OTF with Replacement disk: $repdisk - PK or ^C to quit!"
 read -n 1
 
@@ -248,24 +246,24 @@ read -n 1
 #ls -lh /zdisks/
 	zpool status -v $zp #|logecho
 
-	printf `date +%H:%M:%S`' ...waiting for resilver to complete...'
+	printf $(date +%H:%M:%S)' ...waiting for resilver to complete...'
 	waitresilver=1
 	while [ $waitresilver -gt 0 ];do 
-	  waitresilver=`zpool status -v $zp |grep -c resilvering`
+	  waitresilver=$(zpool status -v $zp |grep -c resilvering)
 	  sleep 2
 	done 
 	echo 'Syncing to be sure'; time sync;
 	date |logecho
 
-logecho "o OK - we replaced $mykey with $repdisk ..."
-logecho "+ check log and NOTE pool size has increased with every finished mirror column!"
+        logecho "o OK - we replaced $mykey with $repdisk ..."
+        logecho "+ check log and NOTE pool size has increased with every finished mirror column!"
 
 	zpool status -v $zp #|logecho
-  zpool status -v $zp >> $logfile
+        zpool status -v $zp >> $logfile
 
 	zfs list $zp >> $logfile # |logecho
 	zpool list $zp >> $logfile # |logecho
-  logecho "`date` - Disk $i = $mykey done - DF follows:"
+        logecho "$(date) - Disk $i = $mykey done - DF follows:"
 	df |grep $zp |logecho
 
 done
@@ -277,8 +275,8 @@ echo "REMEMBER we started with:"
 echo "$startdata1"
 echo "$startdata2"
 echo "NOW we have a fully expanded pool with new larger disks:"
-echo "`date` - Pool size after IN-PLACE expansion, NO DOWNTIME:"
-echo "`df |grep $zp`"
+echo "$(date) - Pool size after IN-PLACE expansion, NO DOWNTIME:"
+echo "$(df |grep $zp)"
 
 echo 'o Complete!'
 
