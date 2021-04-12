@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# TODO - sep datasets for users
+# DEPENDS: fdisk, parted, pstree, fuser, working zfs install
+# Strongly recommended to run from GNU SCREEN 
+# Also you need to be on tty1 logged in directly as root, NOT SUDO
+# NOTE this script is interactive and will wait for multiple PK = press a key/enter to proceed
+
+# DONE? - sep datasets for users
 
 # DONE new disk needs to be at least = size of /home du -s -h
 # DONE free snapshot
@@ -8,13 +13,46 @@
 # GOAL: move existing /home to zfs
 # $1 = disk name (long or short) OR existing zfs poolname
 
-# =LLC= © (C)opyright 2016 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
-## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
-## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
-#
+# 2016 Dave Bechtel
+
+##Check for root priviliges
+if [ "$(id -u)" -ne 0 ]; then
+   echo "Please run $0 directly as root."
+   exit 1
+fi
+
+# xxx TODO EDITME set compression type for new datasets - 2.0.x supports zstd
+compr=lz4
+#compr=zstd-2
 
 logfile=~/boojum-mvhome2zfs.log
-source ~/bin/logecho.mrg
+#source ~/bin/logecho.mrg
+#logecho.mrg 
+# Echo something to current console AND log
+# Can also handle piped input ( cmd |logecho )
+# Warning: Has trouble echoing '*' even when quoted.
+function logecho () {
+  args=$@
+
+  if [ -z "$args" ]; then
+    args='placeholder'
+
+    while [ 1 ]; do
+      read -e -t2 args
+
+      if [ -n "$args" ]; then
+         echo "$args" |tee -a $logfile;
+      else
+        break;
+      fi
+    done
+
+  else
+    echo "$args" |tee -a $logfile;
+  fi
+} # END FUNC
+
+# blankit
 > $logfile
 
 # If set to 1, will interactively kill user processes
@@ -24,13 +62,18 @@ RESETALL=0
 # DANGEROUS - ONLY SET IF U KNOW WHAT U DOING AFTER RESTORING A SNAPSHOT!
 # WILL DESTROY $zp
 
-# TODO edit this to be the name of the ZFS home pool you want to be created, if needed
+# xxx TODO EDITME  to be the name of the ZFS home pool you want to be created, if needed
 zp=zhome
-[ $RESETALL -gt 0 ] && (set -x;zpool destroy $zp)
+[ $RESETALL -gt 0 ] && (set -x; zpool destroy $zp)
 
 tmpfile1=/tmp/mvh2zTMP1.txt
 
-source ~/bin/failexit.mrg
+#source ~/bin/failexit.mrg
+# failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
 
 modprobe zfs  # shouldnt hurt even if its already loaded
 
@@ -38,11 +81,11 @@ modprobe zfs  # shouldnt hurt even if its already loaded
 #zfsps=`zpool status |head -n 1`
 zfsps=$(zfs list |head -n 1)
 
-if [ `echo "$zfsps" |grep -c 'MOUNTPOINT'` -ge 1 ]; then
+if [ $(echo "$zfsps" |grep -c 'MOUNTPOINT') -ge 1 ]; then
   logecho 'Existing zfs pool(s) detected:'
   zpool status |awk 'NF>0'
   echo 'FYI: Pass a ZFS pool name to this script to move /home there, or pass a disk name to create a new pool'
-elif [ `echo "$zfsps" |grep -c 'no datasets available'` ]; then
+elif [ $(echo "$zfsps" |grep -c 'no datasets available') ]; then
   logecho "NOTE: ZFS is installed and appears to be working - will create a pool ( $zp ) to hold /home"
 else
   logecho '! ZFS does not appear to be installed or is not working correctly'
@@ -62,9 +105,9 @@ hmnt=$(mount |grep /home |awk '{ print $1 }' |head -n 1) # 1st line only
 
 roothome=0
 homespc=0
-if [ `echo $hmnt |grep -c '/dev'` -gt 0 ]; then
+if [ $(echo $hmnt |grep -c '/dev') -gt 0 ]; then
   echo '';logecho "o Your /home appears to be on $hmnt"
-  df -h /home
+  df -hT /home
 elif [ -d /home ]; then
   logecho "o Your /home does not appear to be on a separate partition, is a directory on the root filesystem"
   echo "...Please wait while I determine how much space it is using..."
@@ -100,12 +143,12 @@ argg=$1
 [ "$argg" = "" ] && failexit 199 "! Cannot proceed - pass at least a disk device name (long or short form) OR zfs pool to move /home to!"
 
 usepool=""; usedisk=""
-if [ `grep -c $argg $tmpfile1` -gt 0 ]; then
+if [ $(grep -c $argg $tmpfile1) -gt 0 ]; then
   logecho "o You apparently want me to use this disk:"
-  bothforms=`grep $argg $tmpfile1`
+  bothforms=$(grep $argg $tmpfile1)
   echo "$bothforms"
 
-  getlongdisk=`grep $argg $tmpfile1 |awk '{ print $1 }' |head -n 1`
+  getlongdisk=$(grep $argg $tmpfile1 |awk '{ print $1 }' |head -n 1)
   shortdisk=${bothforms##*/} # strip off all leading "/"
   shortdev=/dev/$shortdisk
   usedisk=$getlongdisk
@@ -117,50 +160,50 @@ if [ `grep -c $argg $tmpfile1` -gt 0 ]; then
   ttlusecd=0 # TOTAL
 
 #TMPusecd
-  tucd=`echo $argg |egrep -c 'sr0|sr1|scd0|scd1|cdrom|cdrw|dvdrw'`
+  tucd=$(echo $argg |egrep -c 'sr0|sr1|scd0|scd1|cdrom|cdrw|dvdrw')
   let ttlusecd=$ttlusecd+$tucd
 
-  tucd=`echo $shortdisk |egrep -c 'sr0|sr1|scd0|scd1|cdrom|cdrw|dvdrw'`
+  tucd=$(echo $shortdisk |egrep -c 'sr0|sr1|scd0|scd1|cdrom|cdrw|dvdrw')
   let ttlusecd=$ttlusecd+$tucd
 
 #  [ `echo $argg |grep -c sr1` -gt 0 ] && failexit 401 "! I cant use a CDROM device, wiseguy!!"
-  [ $ttlusecd -gt 0 ] && failexit 401 "! I cant put /home on a CDROM device, wiseguy!! Try again with a hard drive!"
+  [ $ttlusecd -gt 0 ] && failexit 5150 "! I cant put /home on a CDROM device, wiseguy!! Try again with a hard drive!"
 
 
 # test for existing filesystem on destination disk - especially if sda!
   echo "...Checking blkid and zpools to see if the disk you specified is OK to use..."
 
-  [ `echo $hmnt |grep -c $shortdev` -gt 0 ] && failexit 32768 "! You CRAZY MANIAC - you cant re-use your existing home disk in-place for ZFS!!"
+  [ $(echo $hmnt |grep -c $shortdev) -gt 0 ] && failexit 502 "! You CRAZY MANIAC - you cant re-use your existing home disk in-place for ZFS!!"
 
-  alreadyf=`blkid |grep -c $argg`
-  alreadyf2=`blkid |grep -c $shortdev`
+  alreadyf=$(blkid |grep -c $argg)
+  alreadyf2=$(blkid |grep -c $shortdev)
   let alreadyf=$alreadyf+$alreadyf2
 #/dev/sde1: LABEL="zredpool2" UUID="17065421584496359800" UUID_SUB="1595728817173195411" TYPE="zfs_member" PARTLABEL="zfs"
 #/dev/sda2: LABEL="xubuntu1404" UUID="103f019e-1275-4c27-a972-5b5d3874b863" TYPE="ext4" PARTUUID="b680669e-02"
 
 # ISSUE - blkid is not always up to date, not detecting newly created test pools!
-  alreadyf2=`zpool status |grep -c $usedisk`
+  alreadyf2=$(zpool status |grep -c $usedisk)
   let alreadyf=$alreadyf+$alreadyf2
-  alreadyf2=`zpool status |grep -c $shortdisk`
+  alreadyf2=$(zpool status |grep -c $shortdisk)
   let alreadyf=$alreadyf+$alreadyf2
-  alreadyf2=`zpool status |grep -c $argg`
+  alreadyf2=$(zpool status |grep -c $argg)
   let alreadyf=$alreadyf+$alreadyf2
     
 
 # NOTE empty GPT label will not show on blkid!
-  [ $alreadyf -gt 0 ] && failexit 502 "! Disk is already formatted/IN USE and needs to either be blank or have an empty GPT label: $shortdev / $usedisk"
+  [ $alreadyf -gt 0 ] && failexit 302 "! Disk is already formatted/IN USE and needs to either be blank or have an empty GPT label: $shortdev / $usedisk"
 
 # Check disk capacity against existing
 # fdisk -l /dev/sdb |grep Disk |grep -v 'identifier'
 # 1   2         3    4   5
 #Disk /dev/sdb: 1000 GB, 1000202273280 bytes
-  dcap=`fdisk -l $shortdev |grep Disk |grep -v 'identifier' |awk '{print $5}'`
+  dcap=$(fdisk -l $shortdev |grep Disk |grep -v 'identifier' |awk '{print $5}')
 [ $debugg -gt 0 ] && logecho "dcap: $dcap ^^ homespc: $hsbytes"
 
 # comma-sep nums - REF: https://unix.stackexchange.com/questions/113795/add-thousands-separator-in-a-number
 if [ $dcap -lt $hsbytes ]; then
-  dcapcma=`printf "%'d" $dcap`
-  hsbcma=`printf "%'d" $hsbytes`
+  dcapcma=$(printf "%'d" $dcap)
+  hsbcma=$(printf "%'d" $hsbytes)
 
   logecho "! Disk capacity of $usedisk is less than home data usage!"
   logecho "Home: $hsbcma"
@@ -179,7 +222,7 @@ fi
    parted -s $shortdev mklabel gpt
    fdisk -l $shortdev |tee -a $logfile)
     
-elif [ `zfs list -d0 |grep -c $argg` -gt 0 ]; then
+elif [ $(zfs list -d0 |grep -c $argg) -gt 0 ]; then
   logecho "o You apparently want me to use this pre-existing ZFS pool for /home:"
   zfs list -d0 |grep $argg |head -n 1
   usepool=$argg
@@ -195,9 +238,10 @@ if [ "$usedisk" != "" ] && [ "$usepool" = "" ]; then
 # set a default name
 (set -x
     zpool create -o ashift=12 -o autoexpand=on -o autoreplace=on \
-    -O atime=off -O compression=lz4 \
+     -O atime=off -O compression=$compr \
     $zp \
     $usedisk
+    
     zpool status |awk 'NF>0'
 )
 fi
@@ -205,17 +249,17 @@ fi
 # from now on, we are using pool!
 (set -x
 [ $debugg -gt 0 ] && zfs destroy $zp/home
- zfs create -o sharesmb=off $zp/home )
+ zfs create -o sharesmb=off -o compression=$compr $zp/home )
 
 zfs list -p $zp 
 
 # TODO check for zfs pool free space vs home use
-  zpcap=`zfs list -p $zp |awk '{ print $3 }' |tail -n +2` # skip header and get bytes
+  zpcap=$)zfs list -p $zp |awk '{ print $3 }' |tail -n +2) # skip header and get bytes
 [ $debugg -gt 0 ] && logecho "zpcap: $zpcap ^^ homespc: $hsbytes"
 
 if [ $zpcap -lt $hsbytes ]; then
-  zpcapcma=`printf "%'d" $zpcap`
-  hsbcma=`printf "%'d" $hsbytes`
+  zpcapcma=$(printf "%'d" $zpcap)
+  hsbcma=$(printf "%'d" $hsbytes)
 
   logecho "! Usable ZFS pool capacity of $zp is less than home data usage!"
   logecho "Home: $hsbcma"
@@ -232,9 +276,9 @@ logecho "ENTER ADMIN PASSWORD TO PROCEED, OR ^C - you need to be running this sc
 read
 
 # Determine WM
-xwm=`pstree -psu -A|grep Xorg`
+xwm=$(pstree -psu -A |grep Xorg)
 #        |-lightdm(1325)-+-Xorg(1388)
-xwmedit=`echo $xwm |awk -F\( '{ print $1 }'`
+xwmedit=$(echo $xwm |awk -F\( '{ print $1 }')
 #|-lightdm
 xwmedit2=${xwmedit##*-} # strip off to "-"  ${tmp2##*-}
 #lightdm
@@ -244,10 +288,10 @@ sleep 2
 
 # OK so far, check if anything in /home is locked 
 function checkhomelock () {
-  flocks=`lsof |grep -c /home`
+  flocks=$(lsof |grep -c /home)
 }
 
-logecho "`date` ! Force-logging off anyone who is locking /home files..."
+logecho "$(date) ! Force-logging off anyone who is locking /home files..."
 # xxxxx workaround, root getting fragged off
 flocks=0
 while [ $flocks -gt 0 ]; do
@@ -261,21 +305,35 @@ while [ $flocks -gt 0 ]; do
 done
 
 lsof |grep /home
-logecho "o All /home files should be free!"
+logecho "o All /home files should be free! If not, ^C and fix it! PK"
+read
+
 du -s -h /home
-logecho "`date` - Copying /home data over to /$zp/home"
+logecho "$(date) - Copying /home data over to /$zp/home"
 cd /$zp/home || failexit 405 "! FARK - I cant cd to /$zp/home !"
 cd /home; df -hT /home /$zp
+
+# xxx TODO test - create datasets for each user; can still proceed if this step fails
+for usrs in $(ls -1 /home |awk '{print $1}'); do
+# if they dont exist, cre8 them
+  [ -e /$zp/$usrs ] || \
+   zfs create -o atime=off -o compression=$compr -o sharesmb=off -o recordsize=128k \
+     $zp/$usrs     # || failexit 999 "! Failed to create ZFS $zp/$usrs"
+done
+
+ls -al /$zp/home
 
 # had problems with ownership permissions
 #time tar cpf - * |pv |(cd /$zp/home; tar xpf - ) || failexit 1000 "! Copying home data failed - check free space!"
 # xxxxx 2024.0404 EXPERIMENTAL but appears to work
+echo "$(date) + Beginning rsync /home to /$zp/home"
+
 time rsync -r -t -p -o -g -v --delete -l -s \
   --exclude=.thumbnails/* \
   /home/ \
   /$zp/home \
   2>~/rsync-error.log \
-|| failexit 1000 "! Copying home data failed - check free space!"
+|| failexit 1000 "! Copying home data to zfs failed - check free space!"
 
 date
 
@@ -299,10 +357,10 @@ fi
 # SKIP edit fstab for noauto - NO, too dangerous to risk 
 
 zfs set mountpoint=/home $zp/home
-df -h
+df -hT
 
 [ "$xwmedit2" = "" ] || service $xwmedit2 start
-logecho "`date` - Finished migrating /home"
+logecho "$(date) - Finished migrating /home"
 
 zfs snapshot -r $zp@snapshot1
 zfs list -r -t snapshot
@@ -311,6 +369,9 @@ logecho " -- Dont forget to restart the window manager if needed, and edit /etc/
 logecho "Example: # service lightdm restart"
 logecho "EXAMPLE /etc/fstab:"
 logecho "LABEL=home  /home  ext4  defaults,noauto,noatime,errors=remount-ro  0 1"
+
+# cleanup
+/bin/rm -f $tmpfile1
 
 exit;
 
@@ -352,6 +413,3 @@ pci-0000:00:16.0-sas-0x00060504030201a0-lun-0  ->  ../../sdc
 #/dev/sde1: LABEL="zredpool2" UUID="17065421584496359800" UUID_SUB="1595728817173195411" TYPE="zfs_member" PARTLABEL="zfs"
 #/dev/sda2: LABEL="xubuntu1404" UUID="103f019e-1275-4c27-a972-5b5d3874b863" TYPE="ext4" PARTUUID="b680669e-02"
 #/dev/sda1: PARTUUID="b680669e-01"
-
-
-
