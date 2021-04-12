@@ -30,11 +30,12 @@ fi
 
 # TODO chk tty - if pts, logout and goto tty1
 # REF: https://www.cyberciti.biz/faq/linux-unix-appleosx-bsd-what-tty-command/
-whereameye=$(tty)
-if [ $(echo $whereameye |grep -c pts) -gt 0 ]; then
-  failexit 7 "Please log off, press Ctrl+Alt+F1 or if using Virtualbox right-Ctrl+F1 / OSX use right-CMD+F1 and login directly as root to run this"
+#whereameye=$(tty)
+#if [ $(echo $whereameye |grep -c pts) -gt 0 ]; then
+#  failexit 7 "Please log off, press Ctrl+Alt+F1 or if using Virtualbox right-Ctrl+F1 / OSX use right-CMD+F1 and login directly as root to run this"
 # NOTE root must have a password  
-fi
+#fi
+# ^ problematic - 'screen' on tty1 also has a pty
 
 # xxx TODO EDITME set compression type for new datasets - 2.0.x supports zstd
 compr=lz4
