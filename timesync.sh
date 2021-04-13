@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # mod for rhel8 / alma
+# Quite useful if time/date in your Resumed VM is stuck in the past
 # REF: https://access.redhat.com/solutions/4130881
 
 date
-# if exist, use it
+# if exist, use it; should work with .deb-based distros
 [ $(type -path ntpdate |wc -l) -gt 0 ] && ntpdate -s pool.ntp.org
 
 # RHEL8 / alma
