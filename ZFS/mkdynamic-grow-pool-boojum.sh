@@ -4,7 +4,7 @@
 # 2016 Dave Bechtel
 #====================================================
 
-# Interactive demo: make a dynamic-growing zfs pool from 1 disk to 6
+# Interactive demo: make a dynamic-growing zfs mirror pool from 1 disk to 6
 # zfs pools are on loop files (virtual disks)
 # NOTE this demo waits for multiple press-a-key-to-proceed prompts
 
