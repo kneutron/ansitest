@@ -6,5 +6,13 @@
 # REF: https://www.perlmonks.org/?node_id=865148
 # REF: https://www.w3.org/Daemon/User/Installation/PrivilegedPorts.html#:~:text=Priviliged%20ports,has%20put%20up%20for%20you.
 
-python -m SimpleHTTPServer 80 > ~/simple-web-server.log 2>&1 
+runport=8080
+
+##Check for root priviliges
+if [ "$(id -u)" -ne 0 ]; then
+   runport=80
+fi
+
+echo "$0 running on port $runport"
+python -m SimpleHTTPServer $runport > ~/simple-web-server.log 2>&1 
 date
