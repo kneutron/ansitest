@@ -3,6 +3,7 @@
 # 2016 Dave Bechtel
 
 # REQUIRES zdynpool1 on mnt/milterausb3
+# run mkdynamic-grow-pool-boojum.sh and keep the pool at the end
 # GOAL - replace all disks in zdynpool1 with larger disks ON THE FLY, no downtime;
 # + also deal with if disk2 has already been replaced with spare disk8 (mkdynpoolFAIL ran before this)
 
@@ -57,14 +58,14 @@ function logecho () {
       read -e -t2 args
 
       if [ -n "$args" ]; then
-         echo $args |tee -a $logfile;
+         echo "$args" |tee -a $logfile;
       else
         break;
       fi
     done
 
   else
-    echo $args |tee -a $logfile;
+    echo "$args" |tee -a $logfile;
   fi
 } # END FUNC
 
