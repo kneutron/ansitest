@@ -13,7 +13,7 @@ primaryuser=dave
 source /root/bin/boojum/BKPDEST.mrg     # now provides mount test
 drive=$bkpdest/notshrcompr
 
-# xxx TODO - set 1 if dest is ZFS compressed (lz4,zstd)
+# xxx TODO EDITME - set 1 if dest is ZFS compressed (lz4,zstd)
 comprdest=0
 if [ "$comprdest" = "1" ]; then
   taropts="-cpf "; tarsfx="tar"
@@ -24,11 +24,10 @@ fi
 
 rootpartn=$(df / |tail -n 1 |awk '{print $1}') # /dev/sde1
 rootpedit=$(echo ${rootpartn##*/}) # strip off beginning, and last slash: sde1
-#dest="$drive/bkpcrit-$myhn--linux-xubuntu1404LTS-64--sdX1"
 #dest="$drive/notshrcompr/bkpcrit-$myhn--fryserver--linux-xubuntu1404LTS-64--$rootpedit" #sdX1"
-dest="$drive/bkpcrit-$myhn--linux-antix-64--$rootpedit" #sdX1 # xxx TODO EDITME
+dest="$drive/bkpcrit-$myhn--$rootpedit" #sdX1 
+# xxx TODO EDITME
 echo $dest # = PK
-#read
 
 mkdir -pv $dest
 chmod 750 $dest # drwxr-x---
@@ -60,26 +59,39 @@ df -T -x{tmpfs,usbfs} > $dest/df-$tdate.txt	# nice to have non-h df as well
 
 # xxx TODO editme
 distro="debian"
-tar $taropts $dest/bkp-boot-$distro.$tarsfx /boot
+testd=$(grep ID_LIKE /etc/os-release |awk -F\" '{print $2}') # rhel fedora
+testd=${testd// /-}    # bash inline sed, replace space with dash
+[ "$testd" = "" ] || distro="$testd"
 
-tar $taropts $dest/bkp-ETC-$distro.$tarsfx /etc
+tar $taropts $dest/bkp-boot--$distro.$tarsfx /boot
 
-tar $taropts $dest/bkp-NXETC-$distro.$tarsfx /usr/NX/etc
-tar $taropts $dest/bkp-NXSHARE-$distro.$tarsfx /usr/NX/share
-tar $taropts $dest/bkp-NXVAR-$distro.$tarsfx /usr/NX/var
+tar $taropts $dest/bkp-ETC--$distro.$tarsfx /etc
 
-tar $taropts $dest/bkp-DEV-$distro.$tarsfx /dev
+tar $taropts $dest/bkp-NXETC--$distro.$tarsfx /usr/NX/etc
+tar $taropts $dest/bkp-NXSHARE--$distro.$tarsfx /usr/NX/share
+tar $taropts $dest/bkp-NXVAR--$distro.$tarsfx /usr/NX/var
 
-tar $taropts $dest/bkp-root-$distro.$tarsfx /root
+# this can probably be skipped with udev auto-dev population, but may come in handy on older platforms
+tar $taropts $dest/bkp-DEV--$distro.$tarsfx /dev
 
-tar $taropts $dest/bkp-usr-local-bin-$distro.$tarsfx /usr/local/bin
+tar $taropts $dest/bkp-rootshomedirectory--$distro.$tarsfx /root
+
+tar $taropts $dest/bkp-usr-local-bin--$distro.$tarsfx /usr/local/bin /usr/local/sbin
+#tar $taropts $dest/bkp-usr-local-sbin-$distro.$tarsfx /usr/local/sbin
 
 tar $taropts $dest/bkp-var-dpkg-status.$tarsfx /var/lib/dpkg
 tar $taropts $dest/bkp-var-dpkg-backups.$tarsfx /var/backups
 tar $taropts $dest/bkp-var-cache-apt-backups.$tarsfx /var/cache/apt
 
+# rhel-related distros
+tmp=/var/cache/yum;  [ -e "$tmp" ] && tar $taropts $dest/bkp-var-cache-yum--$distro.$tarsfx $tmp
+tmp=/var/lib/rpm;    [ -e "$tmp" ] && tar $taropts $dest/bkp-var-lib-rpm--$distro.$tarsfx $tmp
+tmp=/var/lib/yum;    [ -e "$tmp" ] && tar $taropts $dest/bkp-var-lib-yum--$distro.$tarsfx $tmp
+tmp=/var/log/secure; [ -e "$tmp" ] && tar $taropts $dest/bkp-var-log-secure--$distro.$tarsfx $tmp /var/log/yum.log
+
+
 tar $taropts $dest/bkp-$primaryuser-src.$tarsfx /home/$primaryuser/src
-tar $taropts $dest/bkp-$primaryuser-bin.$tarsfx /home/$primaryuser-/bin
+tar $taropts $dest/bkp-$primaryuser-bin.$tarsfx /home/$primaryuser/bin
 
 
 # Dotfiles
@@ -110,11 +122,14 @@ tar \
 #sync
 
 ls $dest -alh
-df -h $drive
+df -hT $drive
 echo $dest
 echo "$(date) - $0 done"
 
 exit;
+
+
+2021.april mod for redhat/rpm-based distros (not tested on SuSE) and try to auto-determine distro type
 
 Copyright (C) 1999, 2000 and beyond David J Bechtel
 
