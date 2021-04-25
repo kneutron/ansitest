@@ -18,7 +18,8 @@ set -x
 ##define variables
 # xxx TODO EDITME
 firstrun=1
-pointrel="0.8.6"
+pointrel="2.0.4"
+# pointrel="0.8.6" # for older installs
 
 # xxx TODO EDITME - this is for chown later if creating encrypted pool
 user=dave
