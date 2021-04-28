@@ -27,6 +27,7 @@ fdisk -l $argg
 
 smartctl -a $argg |head -n 15
 echo "!! ARE YOU SURE!! PK - THIS WILL OVERWRITE ALL DATA ON $argg / $longform"
+echo "Enter to continue or ^C to quit"
 read
 
 #time badblocks -f -c 20480 -n -s -v $argg
