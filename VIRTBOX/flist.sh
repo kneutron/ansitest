@@ -2,7 +2,7 @@
 
 # Go thru .tar.gz, .tar.bz2 in dir and list them to flist-file
 # This generally lives in /usr/local/bin since non-root can call it
-# DEPENDS: gzip, bzip2, lzop, tar
+# DEPENDS: gzip, bzip2, lzop, tar, unzip
 
 function process () {
   args=$*
@@ -68,6 +68,13 @@ for i in *.tar; do
   compr=""
 #  process $i 
   time tar tvf $i > flist--$bn.txt
+done
+
+for i in *.zip; do
+  [ "$i" == "*.zip" ] && break;
+  bn=$(basename $i .zip)
+
+  time unzip -v $i > flist--$bn.txt
 done
 
 # TODO zstd
