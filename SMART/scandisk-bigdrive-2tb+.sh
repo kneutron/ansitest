@@ -5,6 +5,7 @@
 # REQUIRES: hdparm, smartmontools, tee
 
 # NOTE pass only sdX as arg, no /dev needed
+# MAKE SURE you use the right /dev/sdX, I take *no responsibility* for data loss!
 # Requires key-input / Enter to continue
 
 # Recommended to run this from GNU ' screen ' as root
@@ -25,7 +26,7 @@ longform=$(ls -lk /dev/disk/by-id |grep $1 |head -n 1 |awk '{print $9}')
 fdisk -l $argg
 
 smartctl -a $argg |head -n 15
-echo "!! ARE YOU SURE!! PK - THIS WILL OVERWRITE ALL DATA ON $argg"
+echo "!! ARE YOU SURE!! PK - THIS WILL OVERWRITE ALL DATA ON $argg / $longform"
 read
 
 #time badblocks -f -c 20480 -n -s -v $argg
