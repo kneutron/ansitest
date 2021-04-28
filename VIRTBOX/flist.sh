@@ -75,6 +75,9 @@ for i in *.zip; do
   bn=$(basename $i .zip)
 
   time unzip -v $i > flist--$bn.txt
+# Short form: path/filename + %compressed + compressed size
+# unzip -v filename.zip |awk '{print $8" "$4" "$3}' |column -t
+# unzip -v filename.zip |awk '{print $8" "$1}' |column -t ## just path/filename + original size
 done
 
 # TODO zstd
