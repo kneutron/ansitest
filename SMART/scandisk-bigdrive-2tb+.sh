@@ -22,7 +22,7 @@ blockdev --getra $argg
 
 ls -lk /dev/disk/by-id |grep $1
 longform=$(ls -lk /dev/disk/by-id |grep $1 |head -n 1 |awk '{print $9}')
-fdisk -l /dev/$1
+fdisk -l $argg
 
 smartctl -a $argg |head -n 15
 echo "!! ARE YOU SURE!! PK - THIS WILL OVERWRITE ALL DATA ON $argg"
