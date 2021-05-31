@@ -3,23 +3,23 @@
 # 2014-2021 Dave Bechtel
 # this runs in cron.daily
 # and keeps 7 days of rotating snapshots
-# + plus 28-31 days of rotating snapshots, depending on days in month
+# example cron:
+# run zfs snapshot @ 11:45pm mon,wed,fri
+#45      23      *       *       1,3,5   /root/bin/boojum/zfs-1week-snapshot.sh
+
+# + plus optional 28-31 days of rotating snapshots, depending on days in month (will need to be uncommented)
 
 logfile=/root/zfs-1week-snapshot.log
 snaplog=/root/zfs-snaplist-all.log
 
 /bin/mv -vf $snaplog $snaplog-old
 
-PATH=/sbin:/root/bin:/root/bin/zfs:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin: #/usr/NX/bin:/usr/games:
+PATH=/sbin:/root/bin:/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin: #/usr/NX/bin:/usr/games:
 echo "=== START RUN $(date) - zfs 1-week +28-31 day snapshot" >> $logfile
-
-# speed things up a bit
-#/root/bin/zfs/spinup 2>&1 >> $logfile
 
 myday=$(date +%a) # ex. Sun  
 mydnum=$(date +%d) # ex. 04  
 
-#echo "= BEGIN Stage DF before, snaps before" >> $logfile
 echo "= BEGIN Stage 1: DF before" >> $logfile
 df -h -T |grep zfs >> $logfile
 #zfs list -H -t snapshot |column -t >> $logfile
@@ -34,11 +34,13 @@ for i in $(zpool list |grep -v ALLOC |awk '{ print $1 }');do
   zfs destroy -R -v $i@$myday 2>&1 >>$logfile;rc=$?
   echo "= DESTROY $i@$myday RTN CODE:$rc" >> $logfile
 
+# 28-31 days
   zfs destroy -R -v $i@zfsDOM$mydnum 2>&1 >>$logfile;rc=$?
   echo "= DESTROY $i@zfsDOM$mydnum RTN CODE:$rc" >> $logfile
 
 # this is for 28-31 days, uncomment if needed beyond 1 week
 #  zfs snapshot -r $i@zfsDOM$mydnum
+
   zfs snapshot -r $i@$myday
 done
 
@@ -49,13 +51,14 @@ echo "= BEGIN Stage 3: Today Snaps after, DF after" >> $logfile
 
 # ALL snaps here
 #zfs list -H -t snapshot |column -t > $snaplog
+# Requires another script in the same PATH
 zfs-list-snaps--boojum.sh |column -t > $snaplog
 
 # Only today+wkly here
 #zfs-list-snaps--boojum.sh |egrep "@$myday|DOM$mydnum|weekly" |column -t >> $logfile
 
 df -h -T |grep zfs >> $logfile
-echo "=== END RUN zfs 1wk/28-31 day snapshot: `date`" >> $logfile 
+echo "=== END RUN zfs 1wk/28-31 day snapshot: $(date)" >> $logfile 
   
 # DONE while we're here, keep 28-31 day number backups too
 
