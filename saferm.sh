@@ -1,10 +1,16 @@
 #!/bin/bash
 
 # safe delete with find and rm, logged
+# 2019 Dave Bechtel
 
-source ~/bin/failexit.mrg
+#source ~/bin/failexit.mrg
+# failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
 
-# xxxxx CHANGEME
+# xxxxx TODO CHANGEME
 dest=/mnt/tmp
 
 logfile=~/safeRM.log
@@ -12,7 +18,7 @@ logfile=~/safeRM.log
 
 cd "$dest" || failexit 99 "! Unable to cd to $dest"
 
-# xxxx CHANGEME wildcard files
+# xxxx TODO CHANGEME wildcard files
 time find -P "$dest"/* -mount -name "*.wav" -type f -exec /bin/rm -v {} >> $logfile \;
 
 ls -alh $logfile
