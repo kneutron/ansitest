@@ -1,17 +1,23 @@
 #!/bin/bash
 
+# 2014-2021 Dave Bechtel
 # 2020.1005 mod for auto-month
-# 2021.0303 fixed date pmonth for debian
+# 2021.0303 fixed date pmonth for debian (something about 'date' syntax changed, different from Ubuntu)
 
 # test for interactive shell / OK to ask for input
 intera=1
-[ `echo $- |grep i |wc -l` -gt 0 ] && intera=0
+[ $(echo $- |grep i |wc -l) -gt 0 ] && intera=0
 
 # TODO comment if you want auto
 #mymonth=Mar
 outfile=/tmp/zfs-killmonth-tmp.txt
 
-source ~/bin/failexit.mrg
+#source ~/bin/failexit.mrg
+# failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
 
 #zfs-list-snaps--boojum.sh |grep virtb |grep Jan |awk '{print $1}' |xargs -n1 -t zfs-killsnaps.sh
 
@@ -37,12 +43,13 @@ if [ $sanity -eq 0 ]; then
   failexit 12 "! Invalid month specified: $mymonth"
 fi
 
-echo "`date` - DF before:" > $outfile
+echo "$(date) - DF before:" > $outfile
 df -h -T |head -n 1 >> $outfile
 df -h -T |grep zfs >> $outfile
 
 # could use more error checking if $mymonth = 0 lines...
-numlines=`zfs-list-snaps--boojum.sh |grep $mymonth |wc -l`
+# NOTE requires another script in the PATH
+numlines=$(zfs-list-snaps--boojum.sh |grep $mymonth |wc -l)
 if [ $numlines -gt 0 ]; then
   echo "o KILLING THESE SNAPSHOTS:" >> $outfile
   zfs-list-snaps--boojum.sh |grep $mymonth >> $outfile # full dump of snapshots to delete
@@ -53,13 +60,13 @@ else
   failexit 101 "No $mymonth snapshots found to kill!"
 fi
 
-# killzem
+# killzem - NOTE requires another script in the PATH
 zfs-list-snaps--boojum.sh |grep $mymonth |awk '{print $1}' |xargs -n1 -t zfs-killsnaps.sh
 
 # review
 [ $intera -gt 0 ] && zfs-list-snaps--boojum.sh |less
 
-echo "`date` - DF after:" >> $outfile
+echo "$(date) - DF after:" >> $outfile
 #df -h >> $outfile
 df -h -T |head -n 1 >> $outfile
 df -h -T |grep zfs >> $outfile
