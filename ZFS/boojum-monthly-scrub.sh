@@ -8,7 +8,7 @@ PATH=/sbin:/root/bin:/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/
 
 debugg=0
 
-mydt=$(date +%e\) # ex. 24
+mydt=$(date +%e) # ex. 24
 
 [ $debugg -gt 0 ] && mydt=27
 # short circuit to smallest pool for testing (ztestpool4
@@ -31,7 +31,7 @@ logfile=~/boojum-monthly-scrub-$mydt.log # sep logfiles, by daynum
 #teratank3   2.28T   363G  1.93T  /teratank3	#23
 #zseatera2   1.83T  1.68T  2.98G  /zseatera2	#24
 #zseatera4   2.55T   990G    96K  /zseatera4	#25
-#zsgtera2    1.57T   190G   927M  /zsgtera2		#26
+#zsgtera2    1.57T   190G   927M  /zsgtera2	#26
 #ztestpool4  3.14T   376G    96K  /ztestpool4	#27
 
 function dum1hf () {
