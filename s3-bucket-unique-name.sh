@@ -60,3 +60,5 @@ vv This means the bucket already exists, should exit within (2) seconds if it do
 Waiter BucketNotExists failed: Max attempts exceeded
 real    1m39.380s
 ^^ RC=255
+
+Faster method: ' aws s3 ls |grep $result ' but depends on being configured and only applies to current account
