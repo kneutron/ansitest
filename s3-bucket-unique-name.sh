@@ -36,3 +36,5 @@ s3-bucket-unique-name.sh - arg1=prefix + [optional] arg2 = # of pad chars (limit
          1         2         3         4         5         6  6
 123456789012345678901234567890123456789012345678901234567890123
 testberferd1-rbn-f9d0ee0c77beb5a769fdd1b
+
+^ Running the same command twice with same parms should always generate a different result
