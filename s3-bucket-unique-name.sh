@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # 2021 Dave Bechtel
+# Generate a (hopefully) unique AWS S3 bucket name with arbitrary padding length up to limit
 # REQUIRES: sha1sum, sha256sum, tr, cut
 
 echo "$0 - arg1=prefix + [optional] arg2 = # of pad chars (limit 63)"
@@ -25,3 +26,13 @@ result=$(echo "$prefix-rbn-$out2" |tr ' ' '.' |cut -c 1-$pad)
 echo '         1         2         3         4         5         6  6'
 echo '123456789012345678901234567890123456789012345678901234567890123'
 echo "$result"
+
+exit;
+
+
+# e.g.
+$ s3-bucket-unique-name.sh testberferd1 40
+s3-bucket-unique-name.sh - arg1=prefix + [optional] arg2 = # of pad chars (limit 63)
+         1         2         3         4         5         6  6
+123456789012345678901234567890123456789012345678901234567890123
+testberferd1-rbn-f9d0ee0c77beb5a769fdd1b
