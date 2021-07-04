@@ -8,7 +8,7 @@ echo "- pass arg1='fail' and arg2=dev2fail to simulate failure"
 DBI=/dev/disk/by-id
 
 # total disks for pool / children
-td=84 # 90 - spares
+td=82 # 90 - spares and rootdisk
 
 # raidz level (usually 2)
 rzl=1
@@ -29,6 +29,7 @@ function zps () {
 #pooldisks2=$(echo /dev/sd{n..y})
 #pooldisks=$pooldisks1' '$pooldisks2 # need entire set for reset
 
+
 pooldisks01=$(echo /dev/sd{b..g}) # a is rootdisk
 pooldisks02=$(echo /dev/sd{h..m})
 pooldisks03=$(echo /dev/sd{n..s})
@@ -42,10 +43,10 @@ pooldisks08=$(echo /dev/sda{s..x}) #stuvwx # yz are spares
 pooldisks09=$(echo /dev/sdb{a..f}) #abcdef
 pooldisks10=$(echo /dev/sdb{g..l}) #ghijkl
 pooldisks11=$(echo /dev/sdb{m..r}) #mnopqr
-pooldisks12=$(echo /dev/sdb{s..x}) #stuvwx
+pooldisks12=$(echo /dev/sdb{s..x}) #stuvwx # yz are spares
 
 pooldisks13=$(echo /dev/sdc{a..f}) #abcdef
-pooldisks14=$(echo /dev/sdc{g..l}) #ghijkl # m is spare
+pooldisks14=$(echo /dev/sdc{g..l}) #ghijkl # no idle spares, only virtual
 #pooldisks=$pooldisks1' '$pooldisks2' '$pooldisks3' '$pooldisks4 # need entire set for reset
 pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04' '$pooldisks05' '$pooldisks06
   pooldisks=$pooldisks' '$pooldisks07' '$pooldisks08' '$pooldisks09' '$pooldisks10' '$pooldisks11
@@ -83,7 +84,7 @@ if [ "$1" = "fail" ]; then
   echo offline > /sys/block/$2/device/state
   cat /sys/block/$2/device/state
 
-  time dd if=/dev/urandom of=/$zp/^^tmpfileDELME bs=1M count=1; sync
+  time dd if=/dev/urandom of=/$zp/^^tmpfileDELME bs=1M count=$td; sync
   # force a write; if not work, try scrub
     
   zps 
@@ -134,15 +135,18 @@ else
      draid$rzl:6d:$td'c':$spr's' $pooldisks \
   || failexit 101 "Failed to create DRAID"
 )
-
-# draid$rzl:6d:$td'c':$spr's' $pooldisks \
-# invalid number of dRAID children; 84 required but 30 provided
 fi
 
+rc=$?
+[ $rc -gt 0 ] && exit $rc
+# ^ Need this check because of subshell, will not exit early otherwise
+
+# cre8 datasets
 # requires external script in the same PATH
 # going with lz4 so not limited by CPU for compression
 zfs-newds.sh 11 $zp shrcompr
 zfs-newds.sh 10 $zp notshrcompr
+zfs-newds.sh 00 $zp notshrnotcompr
   
 zps 
 zpool list
@@ -512,19 +516,354 @@ NOTE - best practice is to export the pool and # zpool import -a -d /dev/disk/by
 
 -----
 
-Here is a simulated severely degraded draidZ2 pool with multiple drive failures and spares in use, 
+Here is a simulated severely degraded draidZ2 pool with multiple drive failures and spares in use:
+
+zpool replace zdraidtest sdbf draid2-0-0
+zpool replace zdraidtest sdbg draid2-0-1
+
+
+  pool: zdraidtest
+ state: DEGRADED
+status: One or more devices could not be used because the label is missing or
+        invalid.  Sufficient replicas exist for the pool to continue
+        functioning in a degraded state.
+action: Replace the device using 'zpool replace'.
+   see: https://openzfs.github.io/openzfs-docs/msg/ZFS-8000-4J
+  scan: resilvered 192K in 00:00:00 with 0 errors on Sat Jul  3 17:13:50 2021
+config:
+        NAME                                             STATE     READ WRITE CKSUM
+        zdraidtest                                       DEGRADED     0     0     0
+          draid2:6d:84c:4s-0                             DEGRADED     0     0     0
+            sdb                                          ONLINE       0     0     0
+            sdc                                          ONLINE       0     0     0
+            sdd                                          ONLINE       0     0     0
+            sde                                          ONLINE       0     0     0
+            sdf                                          ONLINE       0     0     0
+            sdg                                          ONLINE       0     0     0
+            sdh                                          ONLINE       0     0     0
+            sdi                                          ONLINE       0     0     0
+            sdj                                          ONLINE       0     0     0
+            sdk                                          ONLINE       0     0     0
+            sdl                                          ONLINE       0     0     0
+            sdm                                          ONLINE       0     0     0
+            sdn                                          ONLINE       0     0     0
+            sdo                                          ONLINE       0     0     0
+            sdp                                          ONLINE       0     0     0
+            sdq                                          ONLINE       0     0     0
+            sdr                                          ONLINE       0     0     0
+            sds                                          ONLINE       0     0     0
+            sdt                                          ONLINE       0     0     0
+            sdu                                          ONLINE       0     0     0
+            sdv                                          ONLINE       0     0     0
+            sdw                                          ONLINE       0     0     0
+            sdx                                          ONLINE       0     0     0
+            sdy                                          ONLINE       0     0     0
+            sdaa                                         ONLINE       0     0     0
+            sdab                                         ONLINE       0     0     0
+            sdac                                         ONLINE       0     0     0
+            sdad                                         ONLINE       0     0     0
+            sdae                                         ONLINE       0     0     0
+            sdaf                                         ONLINE       0     0     0
+            sdag                                         ONLINE       0     0     0
+            sdah                                         ONLINE       0     0     0
+            sdai                                         ONLINE       0     0     0
+            sdaj                                         ONLINE       0     0     0
+            sdak                                         ONLINE       0     0     0
+            sdal                                         ONLINE       0     0     0
+            sdam                                         ONLINE       0     0     0
+            sdan                                         ONLINE       0     0     0
+            sdao                                         ONLINE       0     0     0
+            sdap                                         ONLINE       0     0     0
+            sdaq                                         ONLINE       0     0     0
+            sdar                                         ONLINE       0     0     0
+            sdas                                         ONLINE       0     0     0
+            sdat                                         ONLINE       0     0     0
+            sdau                                         ONLINE       0     0     0
+            sdav                                         ONLINE       0     0     0
+            sdaw                                         ONLINE       0     0     0
+            sdax                                         ONLINE       0     0     0
+            sdba                                         ONLINE       0     0     0
+            sdbb                                         ONLINE       0     0     0
+            sdbc                                         ONLINE       0     0     0
+            sdbd                                         ONLINE       0     0     0
+            sdbe                                         ONLINE       0     0     0
+            spare-53                                     DEGRADED     0     0     0
+              sdbf                                       UNAVAIL      0     0     0
+              draid2-0-0                                 ONLINE       0     0     0
+            spare-54                                     DEGRADED     0     0     0
+              sdbg                                       UNAVAIL      0     0     0
+              draid2-0-1                                 ONLINE       0     0     0
+            sdbh                                         ONLINE       0     0     0
+            sdbi                                         ONLINE       0     0     0
+            sdbj                                         ONLINE       0     0     0
+            sdbk                                         ONLINE       0     0     0
+            sdbl                                         ONLINE       0     0     0
+            sdbm                                         ONLINE       0     0     0
+            sdbn                                         ONLINE       0     0     0
+            sdbo                                         ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBa5ac7f8f-8a80f392  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB3e6c2216-e4a84097  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBdf46700d-57ffca34  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB93e2157f-ddab1d56  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBa832bbfb-72039324  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBfaec32a1-3e70d636  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBf341e4d8-2d3ef1c1  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB6e562a6b-0a70e7a7  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB2b5edd5d-4a72ce8e  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB7ba0f6fc-682efc82  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB159ac173-a10e8776  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBd640cdea-57f6bda0  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB17592c2d-adb9e154  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB6fd46fec-854516be  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB5eb81d86-30bd0f13  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB104bd37f-4cfbff43  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB0482fe5a-9533bcec  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBf406b98e-63085d50  ONLINE       0     0     0
+            scsi-1ATA_VBOX_HARDDISK_VB2bb3428a-78b4c7f1  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB3ccc0544-8e178e88  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBb0b1ed03-fa8cfd99  ONLINE       0     0     0
+        spares
+          draid2-0-0                                     INUSE     currently in use
+          draid2-0-1                                     INUSE     currently in use
+          draid2-0-2                                     AVAIL
+          draid2-0-3                                     AVAIL
+errors: No known data errors
   
 
-NOTE that unless an extra disk is added to the system, the virtual spares for draid1:4d:6c:1s-3 are all burned up;
-  if ANY of sdu-sdx also fails at this point, we will have a dead pool. 
-Spares for draid1-0-0, 1-1-0 and 1-2-0 CANNOT be used for column 3.
+NOTE that we still have 2x extra virtual spares available, and idle hotspare disks allocated;
+We should be able to sustain 2 more disk failures but not 3.
+
+At this point we will also simfail sdo and sdaq.
+
+  pool: zdraidtest
+ state: DEGRADED
+status: One or more devices could not be used because the label is missing or
+        invalid.  Sufficient replicas exist for the pool to continue
+        functioning in a degraded state.
+action: Replace the device using 'zpool replace'.
+   see: https://openzfs.github.io/openzfs-docs/msg/ZFS-8000-4J
+  scan: resilvered 192K in 00:00:00 with 0 errors on Sat Jul  3 17:13:50 2021
+config:
+        NAME                                             STATE     READ WRITE CKSUM
+        zdraidtest                                       DEGRADED     0     0     0
+          draid2:6d:84c:4s-0                             DEGRADED     0     0     0
+            sdb                                          ONLINE       0     0     0
+            sdc                                          ONLINE       0     0     0
+            sdd                                          ONLINE       0     0     0
+            sde                                          ONLINE       0     0     0
+            sdf                                          ONLINE       0     0     0
+            sdg                                          ONLINE       0     0     0
+            sdh                                          ONLINE       0     0     0
+            sdi                                          ONLINE       0     0     0
+            sdj                                          ONLINE       0     0     0
+            sdk                                          ONLINE       0     0     0
+            sdl                                          ONLINE       0     0     0
+            sdm                                          ONLINE       0     0     0
+            sdn                                          ONLINE       0     0     0
+            sdo                                          UNAVAIL      0     0     0
+            sdp                                          ONLINE       0     0     0
+            sdq                                          ONLINE       0     0     0
+            sdr                                          ONLINE       0     0     0
+            sds                                          ONLINE       0     0     0
+            sdt                                          ONLINE       0     0     0
+            sdu                                          ONLINE       0     0     0
+            sdv                                          ONLINE       0     0     0
+            sdw                                          ONLINE       0     0     0
+            sdx                                          ONLINE       0     0     0
+            sdy                                          ONLINE       0     0     0
+            sdaa                                         ONLINE       0     0     0
+            sdab                                         ONLINE       0     0     0
+            sdac                                         ONLINE       0     0     0
+            sdad                                         ONLINE       0     0     0
+            sdae                                         ONLINE       0     0     0
+            sdaf                                         ONLINE       0     0     0
+            sdag                                         ONLINE       0     0     0
+            sdah                                         ONLINE       0     0     0
+            sdai                                         ONLINE       0     0     0
+            sdaj                                         ONLINE       0     0     0
+            sdak                                         ONLINE       0     0     0
+            sdal                                         ONLINE       0     0     0
+            sdam                                         ONLINE       0     0     0
+            sdan                                         ONLINE       0     0     0
+            sdao                                         ONLINE       0     0     0
+            sdap                                         ONLINE       0     0     0
+            sdaq                                         UNAVAIL      0     0     0
+            sdar                                         ONLINE       0     0     0
+            sdas                                         ONLINE       0     0     0
+            sdat                                         ONLINE       0     0     0
+            sdau                                         ONLINE       0     0     0
+            sdav                                         ONLINE       0     0     0
+            sdaw                                         ONLINE       0     0     0
+            sdax                                         ONLINE       0     0     0
+            sdba                                         ONLINE       0     0     0
+            sdbb                                         ONLINE       0     0     0
+            sdbc                                         ONLINE       0     0     0
+            sdbd                                         ONLINE       0     0     0
+            sdbe                                         ONLINE       0     0     0
+            spare-53                                     DEGRADED     0     0     0
+              sdbf                                       UNAVAIL      0     0     0
+              draid2-0-0                                 ONLINE       0     0     0
+            spare-54                                     DEGRADED     0     0     0
+              sdbg                                       UNAVAIL      0     0     0
+              draid2-0-1                                 ONLINE       0     0     0
+            sdbh                                         ONLINE       0     0     0
+            sdbi                                         ONLINE       0     0     0
+            sdbj                                         ONLINE       0     0     0
+            sdbk                                         ONLINE       0     0     0
+            sdbl                                         ONLINE       0     0     0
+            sdbm                                         ONLINE       0     0     0
+            sdbn                                         ONLINE       0     0     0
+            sdbo                                         ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBa5ac7f8f-8a80f392  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB3e6c2216-e4a84097  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBdf46700d-57ffca34  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB93e2157f-ddab1d56  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBa832bbfb-72039324  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBfaec32a1-3e70d636  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBf341e4d8-2d3ef1c1  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB6e562a6b-0a70e7a7  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB2b5edd5d-4a72ce8e  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB7ba0f6fc-682efc82  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB159ac173-a10e8776  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBd640cdea-57f6bda0  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB17592c2d-adb9e154  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB6fd46fec-854516be  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB5eb81d86-30bd0f13  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB104bd37f-4cfbff43  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB0482fe5a-9533bcec  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBf406b98e-63085d50  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB2bb3428a-78b4c7f1  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB3ccc0544-8e178e88  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBb0b1ed03-fa8cfd99  ONLINE       0     0     0
+        spares
+          draid2-0-0                                     INUSE     currently in use
+          draid2-0-1                                     INUSE     currently in use
+          draid2-0-2                                     AVAIL
+          draid2-0-3                                     AVAIL
+errors: No known data errors
+
+As long as we replace the failed drives with either the available virtual spares or idling hotspare disks,
+the pool will continue in a degraded state with no data loss.
+
+Two virtual spares for  draid2:6d:84c:4s-0  are still good to go.
+  If ANY other drive also fails at this point without a virtual or real spare put into use,
+  we will have a dead pool. 
+
+FIX: zpool replace zdraidtest sdbg sdbz
+^ This puts the inuse spare back into an AVAIL state since the virtual spare was replaced with an actual drive
+
+ zpool replace zdraidtest sdaq sdaz
+ zpool replace zdraidtest sdo sday
+ zpool replace zdraidtest sdbf sdby
+
+  pool: zdraidtest
+ state: ONLINE
+  scan: resilvered 470K in 00:00:01 with 0 errors on Sat Jul  3 17:32:43 2021
+config:
+        NAME                                             STATE     READ WRITE CKSUM
+        zdraidtest                                       ONLINE       0     0     0
+          draid2:6d:84c:4s-0                             ONLINE       0     0     0
+            sdb                                          ONLINE       0     0     0
+            sdc                                          ONLINE       0     0     0
+            sdd                                          ONLINE       0     0     0
+            sde                                          ONLINE       0     0     0
+            sdf                                          ONLINE       0     0     0
+            sdg                                          ONLINE       0     0     0
+            sdh                                          ONLINE       0     0     0
+            sdi                                          ONLINE       0     0     0
+            sdj                                          ONLINE       0     0     0
+            sdk                                          ONLINE       0     0     0
+            sdl                                          ONLINE       0     0     0
+            sdm                                          ONLINE       0     0     0
+            sdn                                          ONLINE       0     0     0
+            sday                                         ONLINE       0     0     0
+            sdp                                          ONLINE       0     0     0
+            sdq                                          ONLINE       0     0     0
+            sdr                                          ONLINE       0     0     0
+            sds                                          ONLINE       0     0     0
+            sdt                                          ONLINE       0     0     0
+            sdu                                          ONLINE       0     0     0
+            sdv                                          ONLINE       0     0     0
+            sdw                                          ONLINE       0     0     0
+            sdx                                          ONLINE       0     0     0
+            sdy                                          ONLINE       0     0     0
+            sdaa                                         ONLINE       0     0     0
+            sdab                                         ONLINE       0     0     0
+            sdac                                         ONLINE       0     0     0
+            sdad                                         ONLINE       0     0     0
+            sdae                                         ONLINE       0     0     0
+            sdaf                                         ONLINE       0     0     0
+            sdag                                         ONLINE       0     0     0
+            sdah                                         ONLINE       0     0     0
+            sdai                                         ONLINE       0     0     0
+            sdaj                                         ONLINE       0     0     0
+            sdak                                         ONLINE       0     0     0
+            sdal                                         ONLINE       0     0     0
+            sdam                                         ONLINE       0     0     0
+            sdan                                         ONLINE       0     0     0
+            sdao                                         ONLINE       0     0     0
+            sdap                                         ONLINE       0     0     0
+            sdaz                                         ONLINE       0     0     0
+            sdar                                         ONLINE       0     0     0
+            sdas                                         ONLINE       0     0     0
+            sdat                                         ONLINE       0     0     0
+            sdau                                         ONLINE       0     0     0
+            sdav                                         ONLINE       0     0     0
+            sdaw                                         ONLINE       0     0     0
+            sdax                                         ONLINE       0     0     0
+            sdba                                         ONLINE       0     0     0
+            sdbb                                         ONLINE       0     0     0
+            sdbc                                         ONLINE       0     0     0
+            sdbd                                         ONLINE       0     0     0
+            sdbe                                         ONLINE       0     0     0
+            sdby                                         ONLINE       0     0     0
+            sdbz                                         ONLINE       0     0     0
+            sdbh                                         ONLINE       0     0     0
+            sdbi                                         ONLINE       0     0     0
+            sdbj                                         ONLINE       0     0     0
+            sdbk                                         ONLINE       0     0     0
+            sdbl                                         ONLINE       0     0     0
+            sdbm                                         ONLINE       0     0     0
+            sdbn                                         ONLINE       0     0     0
+            sdbo                                         ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBa5ac7f8f-8a80f392  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB3e6c2216-e4a84097  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBdf46700d-57ffca34  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB93e2157f-ddab1d56  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBa832bbfb-72039324  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBfaec32a1-3e70d636  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBf341e4d8-2d3ef1c1  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB6e562a6b-0a70e7a7  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB2b5edd5d-4a72ce8e  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB7ba0f6fc-682efc82  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB159ac173-a10e8776  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBd640cdea-57f6bda0  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB17592c2d-adb9e154  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB6fd46fec-854516be  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB5eb81d86-30bd0f13  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB104bd37f-4cfbff43  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB0482fe5a-9533bcec  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBf406b98e-63085d50  ONLINE       0     0     0
+            scsi-1ATA_VBOX_HARDDISK_VB2bb3428a-78b4c7f1  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VB3ccc0544-8e178e88  ONLINE       0     0     0
+            scsi-SATA_VBOX_HARDDISK_VBb0b1ed03-fa8cfd99  ONLINE       0     0     0
+        spares
+          draid2-0-0                                     AVAIL
+          draid2-0-1                                     AVAIL
+          draid2-0-2                                     AVAIL
+          draid2-0-3                                     AVAIL
+errors: No known data errors
+
+...and now the pool is whole again, all the virtual spares are back in place - things might be a little 
+disordered as far as tracking what drives are in use now but we had multiple drive failures even after 
+virtual spares were put in use and the pool is still going. ' zpool history ' can help.
 
 -----
 
 NOTE if you simulate/take a drive offline, you cant just "echo online" to it later, that wont bring it back up!
 try  rescan-scsi-bus.sh  or  reboot
 
-FIX: if a drive is offline, replace it temporarily with a builtin spare:
+FIX: if a drive is offline, replace it temporarily with a builtin virtual spare:
 # zpool replace zdraidtest sdd draid2-0-0
 
 # zps
