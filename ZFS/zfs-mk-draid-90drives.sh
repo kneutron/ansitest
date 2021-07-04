@@ -11,7 +11,7 @@ DBI=/dev/disk/by-id
 td=82 # 90 - spares and rootdisk
 
 # raidz level (usually 2)
-rzl=1
+rzl=2
 
 # spares
 spr=1
@@ -106,20 +106,13 @@ if [ "$iteration" = "1" ]; then
 ( set -x
 time zpool create -o autoexpand=on -O atime=off -O compression=lz4 \
   $zp \
-   draid$rzl:4d:6'c':$spr's' $pooldisks01 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks02 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks03 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks04 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks05 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks06 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks07 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks08 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks09 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks10 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks11 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks12 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks13 \
-   draid$rzl:4d:6'c':$spr's' $pooldisks14 \
+   draid$rzl:8d:12'c':$spr's' $pooldisks01 $pooldisks02 \
+   draid$rzl:8d:12'c':$spr's' $pooldisks03 $pooldisks04 \
+   draid$rzl:8d:12'c':$spr's' $pooldisks05 $pooldisks06 \
+   draid$rzl:8d:12'c':$spr's' $pooldisks07 $pooldisks08 \
+   draid$rzl:8d:12'c':$spr's' $pooldisks09 $pooldisks10 \
+   draid$rzl:8d:12'c':$spr's' $pooldisks11 $pooldisks12 \
+   draid$rzl:8d:12'c':$spr's' $pooldisks13 $pooldisks14 \
 || failexit 101 "Failed to create DRAID"
 )
 else
