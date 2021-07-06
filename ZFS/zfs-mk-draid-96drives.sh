@@ -71,6 +71,8 @@ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04' '$pooldisks
 #pooldisks2=$(echo /dev/sda{a..h})
 #sdaa sdab sdac sdad sdae sdaf sdag sdah
 
+# cre8 drive translation table
+source ~/bin/boojum/draid-pooldisks-assoc.sh
 
 # Flame the pool and start over from 0
 if [ "$1" = "reset" ]; then
@@ -82,6 +84,15 @@ if [ "$1" = "reset" ]; then
     zpool labelclear -f "$d"1
   done
   echo ''
+# also reset hotspares
+# echo ${hotspares[@]}
+# zpool status -v |egrep 'sdz|sday|sdaz|sdby|sdbz|sdcy|sdcz'
+  for d in ${hotspares[@]}; do
+    echo -e -n "o Clearing label for Hotspare disk $d          \r"
+    zpool labelclear -f "/dev/$d"1
+  done
+  echo ''
+
   zpool status -v
 
   exit; # early
@@ -112,7 +123,7 @@ fi
 #   draid$rzl:8d:12'c':$spr's' $pooldisks2 \
 
 # cre8 drive translation table
-source ~/bin/boojum/draid-pooldisks-assoc.sh 
+#source ~/bin/boojum/draid-pooldisks-assoc.sh 
 
 # TODO EDITME
 #iteration=OBM
