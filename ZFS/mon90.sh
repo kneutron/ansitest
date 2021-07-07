@@ -28,7 +28,7 @@ xterm -bg black -fg green -sl 2000 -rightbar -geometry 72x33-0+31 \
 #    Corners:  +955+369  -1+369  -1-215  +955-215
 #    -geometry 80x24-0+345
 
-cmdstr="iostat -k 5 --dec=0 -y -z sdc{a..m}"
+cmdstr="iostat -k 5 --dec=0 -y -z sdc{a..z}"
 xterm -bg black -fg green -sl 2000 -rightbar -geometry 72x33-0-0 \
  -name IOSTAT \
  -e "$cmdstr" &
