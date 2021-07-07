@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 2021 Dave Bechtel
-# SOURCE me to access array data, otherwise grep the log file
+# SOURCE me to access array data and access several helper functions
 # working with 96 pooldisks, put in associative array
 # REMEMBER ARRAYS START AT 0
 
@@ -13,52 +13,84 @@ DD=/dev/disk
 
 debugg=0
 
-# IGNORE ME - the real code is below
-if [ $debugg -gt 0 ]; then
-declare -a pooldisks # regular indexed array
-pooldisks=(sd{b..y}) # 24, skipping sda=root and sdz=hotspare
-#pooldisks=(/dev/sd{b..y}) # 24, skipping sda=root and sdz=hotspare
-# echo ${pd[0]} = sdb; echo ${pd[24]} = sdy
-
-# associative arrays REF: http://mywiki.wooledge.org/BashGuide/Arrays
-# REF: http://www.artificialworlds.net/blog/2012/10/17/bash-associative-array-examples/
-
-# NOTE CAPITAL A for assoc array!
-declare -A ASpooldisks 
-
-key=${pooldisks[0]} # sdb
-ASpooldisks[$key]=$(ls -lR $DD |grep -w /$key |head -n 1 |awk '{print $9}')
-  # ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J1NL656R -make this whatever this disk is in dev/disk/by-id 
-  # for SAS this will be  pci-0000:00:16.0-sas-phy0-lun-0  so we cant limit search to disk/by-id
-
-# ^^ HOW THIS WORKS:
-# key=${pooldisks[0]}                      # returns: LET key="sdb"
-# ASpooldisks[$key]=ata-VBOX_HARDDISK_blah # ASpooldisks["sdb"]="ata-*"  # LOOKUP and set!
-# key=${pooldisks[1]}                      # returns: LET key="sdc" 
-# ASpooldisks[$key]=pci-*                  # ASpooldisks["sdc"]="pci-*" or whatever 
-
-echo "key:$key: ASpooldisks $key == ${ASpooldisks[$key]}"
-# expected:
-# key:sdb: ASpooldisks sdb == pci-0000:00:16.0-sas-phy0-lun-0
-exit; # early
-fi
-
 
 ##################################################################
 # TEH MAIN THING
 declare -a pooldisks # regular indexed array
-inpooldisks=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..x}) # for 96 drives
+declare -a hotspares # regular indexed array
+
+# We actually have 103 drives total with hotspares
+# NOTE Technically we also have sdda (104) genned, but leaving it out for subtle emergency-use ZOMGWTF reasons
+
+if [ "$1" = "96" ] || [ "$1" = "" ]; then # assume 96
+  echo "Defining for 96 disks in pool b4 hotspares (7)"
+  inpooldisks=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..x}) # for 96 drives
 # 24 in 1st set, skipping sda=root and sdz=hotspare
 # 24 in 2nd + 3rd set + 4th set, (96) total
 # NOTE changed the name to not conflict since we get SOURCEd in the 96 script
+  hotspares=(sdz sday sdaz sdby sdbz sdcy sdcz) # 7, will be sitting idle for replaces
 
-#pooldisks=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..l}) # abcdefghijkl
+elif [ "$1" = "24" ]; then 
+  echo "Defining for $1 disks in pool b4 hotspares (1)" 
+  inpooldisks=(sd{b..y}) 
 # 24 in 1st set, skipping sda=root and sdz=hotspare
-# 24 in 2nd + 3rd set, 12 in 4th set, (84) total
+  hotspares=(sdz) # only 1, will be sitting idle for replaces so prolly need 2-4 vspares
 
-declare -a hotspares # regular indexed array
-hotspares=(sdz sday sdaz sdby sdbz sdcy sdcz) # 7, will be sitting idle for replaces
-# NOTE Technically we also have sdda genned, but leaving it out for subtle emergency-use ZOMGWTF reasons
+elif [ "$1" = "32" ]; then 
+  echo "Defining for $1 disks in pool b4 hotspares (4)" 
+  inpooldisks=(sd{b..y} sda{a..d}) # 24 + abcd efg
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+# +4 in 2nd set, can have 1 vdev of 28 or, 2 of 14, or 4 of 7; we dont want to have vdevs of <6 disks
+# 4 extra will used for hotspares
+  hotspares=(sdz sda{e..g}) # 4, will be sitting idle for replaces
+
+# groups of 7
+ pooldisks01=$(echo /dev/sd{b..h}) # a is rootdisk bcdefgh ijklmno pqrstuv wxy 
+ pooldisks02=$(echo /dev/sd{i..o})
+ pooldisks03=$(echo /dev/sd{p..v})
+ pooldisks04=$(echo /dev/sd{w..y}) # z is spare
+
+ pooldisks05=$(echo /dev/sda{a..d}) #abcd # Total 28
+
+ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04' '$pooldisks05
+# need entire set for reset
+
+elif [ "$1" = "48" ]; then 
+  echo "Defining for $1 disks in pool b4 hotspares (3)" 
+  inpooldisks=(sd{b..y} sda{a..x}) # abcdefghijklmnopqrstuvwx yz 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+# 24 in 2nd set  // 2 vdevs of 24, or 4v of 12d, or 6v of 8d, or possibly 8v of 6d minimum but that might be cutting it a bit fine
+  hotspares=(sdz sday sdaz) # 3, will be sitting idle for replaces
+
+# old and weird, if we only actually had to work with 48 total and still alloc HS - train of thought derailed by x32
+# ...ok so I'm tired and mai brain is terrible at math
+#  inpooldisks=(sd{b..y} sda{a..t}) # abcdefghijklmnopqrst uvw 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+# 20 in 2nd set = total of 44 // 2 vdevs of 22, or 4 of 11 # IGNOREME
+#  hotspares=(sdz sdau sdav sdaw) # 4, will be sitting idle for replaces
+
+elif [ "$1" = "72" ]; then 
+  echo "Defining for $1 disks in pool b4 hotspares (5)" 
+  inpooldisks=(sd{b..y} sda{a..x} sdb{a..x}) 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+# 24 in 2nd set
+# 24 in 3rd set  // 2 vdevs of 36d, or 4v of 18d, or 6v of 12d, or 8v of 9d, or 9v of 8d, or 12v of 6d
+  hotspares=(sdz sday sdaz sdby sdbz) # 5, will be sitting idle for replaces
+
+# old and busted
+#  inpooldisks=(sd{b..y} sda{a..x} sdb{a..t}) 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+# 24 in 2nd set
+# 20 in 3rd set = total of 68 // 2 vdevs of 34, or 4 of 17 # IGNOREME
+#  hotspares=(sdz sday sdaz sdbu) # 4, will be sitting idle for replaces
+
+else
+  echo "$0 - $1 not found in common configurations. Please define in code"
+  echo "Please hit ^C"
+  read
+  #exit 404; # will kill bash if we were sourced from terminal
+fi
+
 
 # echo ${pd[0]} = sdb; echo ${pd[24]} = sdy
 
@@ -70,7 +102,9 @@ declare -A AShotspares
 idx=0
 for disk in ${inpooldisks[@]}; do
   key=${inpooldisks[$idx]} # sdb
+#echo "$key" # DEBUG
   ASinpooldisks[$key]=$(ls -lR $DD |grep -w /$key |head -n 1 |awk '{print $9}')
+#echo "${ASinpooldisks[$key]}" # DEBUG
   let idx=idx+1
 done
   # ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J1NL656R -make this whatever this disk is in dev/disk/by-id 
@@ -84,16 +118,19 @@ done
 
 #echo "key:$key: ASinpooldisks $key == ${ASinpooldisks[$key]}"
 idx=0
-for disk in ${hotspares[@]}; do
+for hdisk in ${hotspares[@]}; do
   key=${hotspares[$idx]} # sdb
   AShotspares[$key]=$(ls -lR $DD |grep -w /$key |head -n 1 |awk '{print $9}')
   let idx=idx+1
 done
 
 echo "Dumping shortdisk == longdisk assoc array to $DRlogfile"
-for K in "${!ASinpooldisks[@]}"; do 
-  echo "$K == ${ASinpooldisks[$K]}" >> $DRlogfile
-#    echo "INTENT: ZPOOL DISK: $K == ${ASinpooldisks[$K]}" >> $DRlogfile
+#for K in "${!ASinpooldisks[@]}"; do 
+# ^ This was wrong, was getting too many disks instead of just the subset!
+
+for INP in "${inpooldisks[@]}"; do 
+#  echo "$INP == ${ASinpooldisks[$K]}" # DEBUG
+  echo "$INP == ${ASinpooldisks[$INP]}" >> $DRlogfile
 done
 
 for H in ${hotspares[@]}; do
@@ -145,19 +182,22 @@ function unavl () {
     echo "$zp $(zpool status -v $zp |grep -c UNAVAIL)"
   done
 }
+function sparesused () {
+  for zp in $(zpool list |grep -v CKPOINT |awk '{print $1}'); do
+    echo "$zp $(zpool status -v $zp |grep -c spare-)"
+  done
+}
 
-#exit;
-# TODO can we swapout a spare
-# this may not be useful, if rebooted all the UNAVAILs went awai!
+#exit; # we can't have an early EXIT in a sourced file! (unless err
+
+# DONE can we swapout a spare (after reboot, it came back)
 function swapspareback () {
 #echo ${hotspares[@]} # dump the whole thing
 #sdz sday sdaz sdby sdbz
 
+# NOTE UNAVAIL is only in effect before reboot! after drive comes back all we have is spare-*
+
 # NOTE /var/log/syslog - zed is not particularly helpful with replace events info, also not in ZP history
-# zpool status -v |grep -B2 sdz
-#spare-2           DEGRADED     0     0     0
-#sdd             UNAVAIL      0     0     0
-#sdz             ONLINE       0     0     0
 
 # zpool status -v |grep -A 1 UNAVAIL
 #sdb             UNAVAIL      0     0     0
@@ -173,14 +213,35 @@ function swapspareback () {
 #sdca  UNAVAIL  0  0  0  draid2-0-3  ONLINE  0  0  0
 #1     2        3  4  5  6
   fyl=/tmp/draid-swap-trans.tbl
-  zpool status -v |grep -A 1 UNAVAIL |grep -v -- -- |paste - - |column -t >$fyl
-  
-  for d in ${hotspares[@]}; do
-    chkdsk=$(grep -w $d $fyl |awk '{ print $1 }') # $d=sdz = $chkdsk=sdd
-    [ "$chkdsk" = "" ] && break;
-    fdisk -l $chkdsk || echo "$chkdsk still not responding"; continue # next iteration
+#  zpool status -v |grep -A 1 UNAVAIL |grep -v -- -- |paste - - |column -t >$fyl
+  zpool status -v |grep -A2 spare- |egrep -v -- '--|spare-' |paste - - |column -t |tee >$fyl
+   
+#  for d in ${hotspares[@]}; do
+  for d in $(awk '{print $1}' $fyl); do
+#    chkdsk=$(grep -w $d $fyl |awk '{ print $1 }') # $d=sdz = $chkdsk=sdd
+#    [ "$chkdsk" = "" ] && break;
+#    fdisk -l $chkdsk || echo "$chkdsk still not responding"; continue # next iteration
+
+# try the obvious, then try everything else
+    fdisk -l /dev/$d |grep /dev || \
+    for octry in /dev/disk/*; do
+      fdisk -l $octry/$d |grep /dev && break
+    done \
+    || continue # next iteration
+# give it the ol' college try using short and longform and fail out if we get nada    
     
-    echo "# zpool replace $d $chkdsk ## should work now but you may need to labelclear it 1st"
+#    echo "# zpool replace \$zp [longnumber] $d - should work now but you should zpool export and labelclear ${d}1 1st"
+# ^ not necessary
+
+    # get matching disk
+    mdsk=$(grep $d $fyl |awk '{print $6}')
+#sdb  ONLINE  0  0  0  draid2-0-0  ONLINE  0  0  0    
+#1    2       3  4  5  6
+
+#    zpool detach zdraidtest draid2-0-1
+    echo ":) $d is responding - swapping spare $mdsk back"
+    zpool detach zdraidtest $mdsk
+    zpool status -v |head
   done
 }
 
