@@ -78,10 +78,14 @@ source ~/bin/boojum/draid-pooldisks-assoc.sh $td
 # Flame the pool and start over from 0
 if [ "$1" = "reset" ]; then
   logger "$(date) - $0 - RESET issued - destroying $zp"
-  zpool destroy $zp || failexit 999 "Failed to destroy $zp"
+
+# no need to worry if its not imported / already destroyed
+  if [ $(zpool list |grep -c $zp) -gt 0 ]; then
+    zpool destroy $zp || failexit 999 "Failed to destroy $zp"
+  fi
 
   for d in $pooldisks; do
-    echo -e -n "o Clearing label for disk $d          \r"
+    echo -e -n "o Clearing label for disk $d                          \r"
     zpool labelclear -f "$d"1
   done
   echo ''
@@ -89,7 +93,8 @@ if [ "$1" = "reset" ]; then
 # echo ${hotspares[@]}
 # zpool status -v |egrep 'sdz|sday|sdaz|sdby|sdbz|sdcy|sdcz'
   for d in ${hotspares[@]}; do
-    echo -e -n "o Clearing label for Hotspare disk $d          \r"
+#echo $d # DEBUG
+    echo -e -n "o Clearing label for Hotspare disk $d                 \r"
     zpool labelclear -f "/dev/$d"1
   done
   echo ''
@@ -128,21 +133,21 @@ fi
 
 # TODO EDITME
 #iteration=OBM
-iteration=2
+iteration=1
 if [ "$iteration" = "1" ]; then 
 # compression=zstd-3
 # -o ashift=12
 # raidz level (usually 2)
-  rzl=2
+  rzl=1
 # Vspares - this is a 96-drive pool, you DON'T want to skimp!
   spr=4
 ( set -x
 time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
   $zp \
-   draid$rzl:8d:48'c':$spr's' $pooldisks01 $pooldisks02 $pooldisks03 $pooldisks04 $pooldisks05 $pooldisks06\
-     $pooldisks07 $pooldisks08 \
-   draid$rzl:8d:48'c':$spr's' $pooldisks09 $pooldisks10 $pooldisks11 $pooldisks12 $pooldisks13 $pooldisks14\
-     $pooldisks15 $pooldisks16 \
+   draid$rzl:8d:24'c':$spr's' $pooldisks01 $pooldisks02 $pooldisks03 $pooldisks04 \
+   draid$rzl:8d:24'c':$spr's' $pooldisks05 $pooldisks06 $pooldisks07 $pooldisks08 \
+   draid$rzl:8d:24'c':$spr's' $pooldisks09 $pooldisks10 $pooldisks11 $pooldisks12 \
+   draid$rzl:8d:24'c':$spr's' $pooldisks13 $pooldisks14 $pooldisks15 $pooldisks16 \
 || failexit 101 "Failed to create DRAID"
 )
 elif [ "$iteration" = "2" ]; then
@@ -166,6 +171,22 @@ rc=$?
  [ $(zpool list |grep -c "no pools") -eq 0 ] && \
    zpool add $zp spare ${hotspares[0]} ${hotspares[1]} ${hotspares[2]} ${hotspares[3]} 
 # NOTE we're still keeping a few pspares in reserve
+elif [ "$iteration" = "3" ]; then 
+# compression=zstd-3
+# -o ashift=12
+# raidz level (usually 2)
+  rzl=2
+# Vspares - this is a 96-drive pool, you DON'T want to skimp!
+  spr=4
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:8d:48'c':$spr's' $pooldisks01 $pooldisks02 $pooldisks03 $pooldisks04 $pooldisks05 $pooldisks06\
+     $pooldisks07 $pooldisks08 \
+   draid$rzl:8d:48'c':$spr's' $pooldisks09 $pooldisks10 $pooldisks11 $pooldisks12 $pooldisks13 $pooldisks14\
+     $pooldisks15 $pooldisks16 \
+|| failexit 101 "Failed to create DRAID"
+)
 else
 # One Big Mother
 # -o ashift=12
