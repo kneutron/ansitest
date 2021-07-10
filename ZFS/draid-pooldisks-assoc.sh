@@ -22,6 +22,10 @@ declare -a hotspares # regular indexed array
 # We actually have 103 drives total with hotspares
 # NOTE Technically we also have sdda (104) genned, but leaving it out for subtle emergency-use ZOMGWTF reasons
 
+# b c d e f g h i j  k  l m n o p q r s t u v w x y  z=spare, a=root
+# a b c d e f g h i j  k  l m n o p q r s t u v w x   y z=spare (sdaX sdbX sdcX)
+# 1 2 3 4 5 6 7 8 9 10 1112131415161718192021222324  25 26
+
 if [ "$1" = "96" ] || [ "$1" = "" ]; then # assume 96
   echo "Defining for 96 disks in pool b4 hotspares (7)"
   inpooldisks=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..x}) # for 96 drives
@@ -30,11 +34,36 @@ if [ "$1" = "96" ] || [ "$1" = "" ]; then # assume 96
 # NOTE changed the name to not conflict since we get SOURCEd in the 96 script
   hotspares=(sdz sday sdaz sdby sdbz sdcy sdcz) # 7, will be sitting idle for replaces
 
+# IRL with 2x5 HDDRACKs would do 8 disks in pool + 2 pspares
+elif [ "$1" = "8p2h" ]; then 
+  echo "Defining for 8 disks in pool + hotspares (2)" 
+  inpooldisks=(sd{b..i}) 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+  hotspares=(sdj sdk) # 1, will be sitting idle for replaces so prolly need 1 vspares
+
+elif [ "$1" = "10" ]; then 
+  echo "Defining for $1 disks in pool + hotspares (1)" 
+  inpooldisks=(sd{b..k}) 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+  hotspares=(sdl) # 1, will be sitting idle for replaces so prolly need 1 vspares
+
+elif [ "$1" = "12" ]; then 
+  echo "Defining for $1 disks in pool + hotspares (1)" 
+  inpooldisks=(sd{b..m}) 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+  hotspares=(sdn) # 1, will be sitting idle for replaces so prolly need 1 vspares
+
+elif [ "$1" = "16" ]; then 
+  echo "Defining for $1 disks in pool b4 hotspares (2)" 
+  inpooldisks=(sd{b..q}) 
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+  hotspares=(sdr sds) # 2, will be sitting idle for replaces so prolly need 1-2 vspares
+
 elif [ "$1" = "24" ]; then 
-  echo "Defining for $1 disks in pool b4 hotspares (1)" 
+  echo "Defining for $1 disks in pool b4 hotspares (2)" 
   inpooldisks=(sd{b..y}) 
 # 24 in 1st set, skipping sda=root and sdz=hotspare
-  hotspares=(sdz) # only 1, will be sitting idle for replaces so prolly need 2-4 vspares
+  hotspares=(sdz sdaa) # 2, will be sitting idle for replaces so prolly need 2-4 vspares
 
 elif [ "$1" = "32" ]; then 
   echo "Defining for $1 disks in pool b4 hotspares (4)" 

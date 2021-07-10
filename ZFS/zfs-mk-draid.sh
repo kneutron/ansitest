@@ -111,31 +111,36 @@ fi
 
 # TODO EDITME
 #iteration=OBM
-iteration=2
+iteration=1
 if [ "$iteration" = "1" ]; then 
 # raidz level (usually 2)
   rzl=1
 # Vspares - you DON'T want to skimp!
-  spr=1
+  spr=2
+#   draid$rzl:6d:8'c':$spr's' $pooldisks1 $pooldisks2 $pooldisks3 $pooldisks4 \
+#   draid$rzl:6d:8'c':$spr's' $pooldisks5 $pooldisks6 $pooldisks7 $pooldisks8 \
 ( set -x
 time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
   $zp \
-   draid$rzl:6d:8'c':$spr's' $pooldisks1 $pooldisks2 $pooldisks3 $pooldisks4 \
-   draid$rzl:6d:8'c':$spr's' $pooldisks5 $pooldisks6 $pooldisks7 $pooldisks8 \
+   draid$rzl:13d:16'c':$spr's' sd{b..q} \
 || failexit 101 "Failed to create DRAID"
 )
+ [ $(zpool list |grep -c "no pools") -eq 0 ] && \
+   zpool add $zp spare sdz sdcz
 elif [ "$iteration" = "2" ]; then 
-  td=16
+  td=10
 # raidz level (usually 2)
   rzl=1
 # Vspares - if youre using DRAID then you want at least 1!
   spr=1
 # b c d e f g h i j  k  l m n o p q r s t u v w x y  z=spare
-# 1 2 3 4 5 6 7 8 9 10 1112131415161718192021222324  25
+# a b c d e f g h i j  k  l m n o p q r s t u v w x  y  z=spare
+# 1 2 3 4 5 6 7 8 9 10 1112131415161718192021222324  25 26
 ( set -x
 time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
   $zp \
-   draid$rzl:14d:$td'c':$spr's' sda{b..q} \
+   draid$rzl:3d:5'c':$spr's' sd{b..f} \
+   draid$rzl:3d:5'c':$spr's' sd{g..k} \
 || failexit 101 "Failed to create DRAID"
 )
 else
@@ -169,6 +174,7 @@ zpool list
 zfs list
 
 df -hT |egrep 'ilesystem|zfs'
+zpool status -v|grep draid
 
 echo "NOTE - best practice is to export the pool and # zpool import -a -d $DBI"
 
