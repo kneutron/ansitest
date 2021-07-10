@@ -133,7 +133,7 @@ fi
 
 # TODO EDITME
 #iteration=OBM
-iteration=1
+iteration=8
 if [ "$iteration" = "1" ]; then 
 # compression=zstd-3
 # -o ashift=12
@@ -165,12 +165,6 @@ time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression
    draid$rzl:8d:24'c':$spr's' $pooldisks13 $pooldisks14 $pooldisks15 $pooldisks16 \
 || failexit 101 "Failed to create DRAID"
 )
-rc=$?
-[ $rc -gt 0 ] && exit $rc
-
- [ $(zpool list |grep -c "no pools") -eq 0 ] && \
-   zpool add $zp spare ${hotspares[0]} ${hotspares[1]} ${hotspares[2]} ${hotspares[3]} 
-# NOTE we're still keeping a few pspares in reserve
 elif [ "$iteration" = "3" ]; then 
 # compression=zstd-3
 # -o ashift=12
@@ -187,29 +181,81 @@ time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression
      $pooldisks15 $pooldisks16 \
 || failexit 101 "Failed to create DRAID"
 )
+elif [ "$iteration" = "4" ]; then 
+# raidz level (usually 2)
+  rzl=1
+# Vspares - this is a 96-drive pool, you DON'T want to skimp!
+  spr=4
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:18d:24'c':$spr's' $pooldisks01 $pooldisks02 $pooldisks03 $pooldisks04 \
+   draid$rzl:18d:24'c':$spr's' $pooldisks05 $pooldisks06 $pooldisks07 $pooldisks08 \
+   draid$rzl:18d:24'c':$spr's' $pooldisks09 $pooldisks10 $pooldisks11 $pooldisks12 \
+   draid$rzl:18d:24'c':$spr's' $pooldisks13 $pooldisks14 $pooldisks15 $pooldisks16 \
+|| failexit 101 "Failed to create DRAID"
+)
+elif [ "$iteration" = "6" ]; then 
+# sd{b..y} sda{a..x} sdb{a..x} sdc{a..x})
+# raidz level (usually 2)
+  rzl=1
+# Vspares - this is a 96-drive pool, you DON'T want to skimp!
+  spr=2
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:13d:16'c':$spr's' sd{b..q} \
+   draid$rzl:13d:16'c':$spr's' sda{a..p} \
+   draid$rzl:13d:16'c':$spr's' sdb{a..p} \
+   draid$rzl:13d:16'c':$spr's' sdc{a..p} \
+   draid$rzl:13d:16'c':$spr's' sd{r..y} sda{q..x} \
+   draid$rzl:13d:16'c':$spr's' sdb{r..y} sdc{q..x} \
+|| failexit 101 "Failed to create DRAID"
+)
+elif [ "$iteration" = "8" ]; then 
+# sd{b..y} sda{a..x} sdb{a..x} sdc{a..x})
+# raidz level (usually 2)
+  rzl=1
+# Vspares - this is a 96-drive pool, you DON'T want to skimp!
+  spr=2
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:9d:12'c':$spr's' sd{b..m} \
+   draid$rzl:9d:12'c':$spr's' sd{n..y} \
+   draid$rzl:9d:12'c':$spr's' sda{a..l} \
+   draid$rzl:9d:12'c':$spr's' sda{m..x} \
+   draid$rzl:9d:12'c':$spr's' sdb{a..l} \
+   draid$rzl:9d:12'c':$spr's' sdb{m..x} \
+   draid$rzl:9d:12'c':$spr's' sdc{a..l} \
+   draid$rzl:9d:12'c':$spr's' sdc{m..x} \
+|| failexit 101 "Failed to create DRAID"
+)
 else
 # One Big Mother
 # -o ashift=12
 # raidz level (usually 2)
   rzl=2
 # spares - this is a 96-drive pool, you DON'T want to skimp!
-  spr=6
+  spr=8
 ( set -x
   time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
     $zp \
-     draid$rzl:8d:$td'c':$spr's' $pooldisks \
+     draid$rzl:24d:$td'c':$spr's' $pooldisks \
   || failexit 101 "Failed to create DRAID"
 )
-rc=$?
-[ $rc -gt 0 ] && exit $rc
+#rc=$?
+#[ $rc -gt 0 ] && exit $rc
 
- [ $(zpool list |grep -c "no pools") -eq 0 ] && \
-   zpool add $zp spare ${hotspares[@]}
 fi
 
 rc=$?
 [ $rc -gt 0 ] && exit $rc
 # ^ Need this check because of subshell, will not exit early otherwise
+
+# add hotspares
+# [ $(zpool list |grep -c "no pools") -eq 0 ] && \
+#   zpool add $zp spare ${hotspares[@]}
 
 # cre8 datasets
 # requires external script in the same PATH
@@ -224,6 +270,7 @@ zpool list
 zfs list
 
 df -hT |egrep 'ilesystem|zfs'
+zpool status -v |grep draid
 
 echo "NOTE - best practice is to export the pool and # zpool import -a -d $DBI"
 

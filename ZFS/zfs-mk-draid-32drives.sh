@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Use this for 1-offs under 24 disks
+# Use this for 32 disks
 echo "$0 - 2021 Dave Bechtel - make a ZFS DRAID pool"
 echo "- pass arg1='reset' to destroy test pool"
 echo "- pass arg1='fail' and arg2=dev2fail to simulate failure"
@@ -26,20 +26,12 @@ function zps () {
   zpool status -v |awk 'NF>0'
 }
 
-pooldisks1=$(echo /dev/sdb /dev/sdc) # 2
-pooldisks2=$(echo /dev/sdd /dev/sde)
-pooldisks3=$(echo /dev/sdf /dev/sdg) # 6
-pooldisks4=$(echo /dev/sdh /dev/sdi)
-pooldisks5=$(echo /dev/sdj /dev/sdk) #10
-pooldisks6=$(echo /dev/sdl /dev/sdm)
-pooldisks7=$(echo /dev/sdn /dev/sdo) #14
-pooldisks8=$(echo /dev/sdp /dev/sdq)
-pooldisks9=$(echo /dev/sdr /dev/sds) #18
-pooldisksA=$(echo /dev/sdt /dev/sdu)
-pooldisksB=$(echo /dev/sdv /dev/sdw) #22
-pooldisksC=$(echo /dev/sdx /dev/sdy)
+pooldisks1=$(echo /dev/sd{b..i) # 8
+pooldisks2=$(echo /dev/sd{j..q})
+pooldisks3=$(echo /dev/sd{r..y}) 
+pooldisks4=$(echo /dev/sda{a..h}) # 32
 
-pooldisks=$(echo /dev/sd{b..y}) # a=root, z=spare
+pooldisks=$(echo /dev/sd{b..y} /dev/sda{a..h}) # a=root, z=spare
 # sdb sdc sdd sde sdf sdg sdh sdi sdj sdk sdl sdm sdn sdo sdp sdq sdr sds sdt sdu sdv sdw sdx sdy
 
 # extending to 32 disks
@@ -56,7 +48,7 @@ function failexit () {
 #source ~/bin/boojum/draid-pooldisks-assoc.sh $td
 
 declare -a hotspares # regular indexed array
-hotspares=(sdz) # sday sdaz sdby sdbz sdcy sdcz)
+hotspares=(sdz sdah sdai sdaj) # we have thru sdak genned
 
 
 # Flame the pool and start over from 0
@@ -111,8 +103,57 @@ fi
 
 # TODO EDITME
 #iteration=OBM
-iteration=2
+iteration=z24a
 if [ "$iteration" = "1" ]; then 
+# raidz level (usually 2)
+  rzl=1
+# Vspares - you DON'T want to skimp!
+  spr=4
+#   draid$rzl:6d:8'c':$spr's' $pooldisks1 $pooldisks2 $pooldisks3 $pooldisks4 \
+#   draid$rzl:6d:8'c':$spr's' $pooldisks5 $pooldisks6 $pooldisks7 $pooldisks8 \
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:27d:$td'c':$spr's' sd{b..y} sda{a..h} \
+|| failexit 101 "Failed to create DRAID"
+)
+# [ $(zpool list |grep -c "no pools") -eq 0 ] && \
+#   zpool add $zp spare ${hotspares[@]}
+elif [ "$iteration" = "2" ]; then 
+  td=32
+# raidz level (usually 2)
+  rzl=1
+# Vspares - if youre using DRAID then you want at least 1!
+  spr=2
+# b c d e f g h i j  k  l m n o p q r s t u v w x y  z=spare
+# a b c d e f g h i j  k  l m n o p q r s t u v w x  y  z=spare (sdaa..ax)
+# 1 2 3 4 5 6 7 8 9 10 1112131415161718192021222324  25 26
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:13d:16'c':$spr's' sd{b..q} \
+   draid$rzl:13d:16'c':$spr's' sd{r..y} sda{a..h} \
+|| failexit 101 "Failed to create DRAID"
+)
+elif [ "$iteration" = "4" ]; then 
+  td=32
+# raidz level (usually 2)
+  rzl=1
+# Vspares - if youre using DRAID then you want at least 1!
+  spr=2
+# b c d e f g h i j  k  l m n o p q r s t u v w x y  z=spare
+# a b c d e f g h i j  k  l m n o p q r s t u v w x  y  z=spare (sdaa..ax)
+# 1 2 3 4 5 6 7 8 9 10 1112131415161718192021222324  25 26
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:5d:8'c':$spr's' sd{b..i} \
+   draid$rzl:5d:8'c':$spr's' sd{j..q} \
+   draid$rzl:5d:8'c':$spr's' sd{r..y} \
+   draid$rzl:5d:8'c':$spr's' sda{a..h} \
+|| failexit 101 "Failed to create DRAID"
+)
+elif [ "$iteration" = "z21" ]; then 
 # raidz level (usually 2)
   rzl=2
 # Vspares - you DON'T want to skimp!
@@ -125,9 +166,43 @@ time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression
    draid$rzl:26d:$td'c':$spr's' sd{b..y} sda{a..h} \
 || failexit 101 "Failed to create DRAID"
 )
- [ $(zpool list |grep -c "no pools") -eq 0 ] && \
-   zpool add $zp spare sdz sdcz
-elif [ "$iteration" = "2" ]; then 
+# [ $(zpool list |grep -c "no pools") -eq 0 ] && \
+#   zpool add $zp spare ${hotspares[@]}
+elif [ "$iteration" = "z22" ]; then 
+  td=32
+# raidz level (usually 2)
+  rzl=2
+# Vspares - if youre using DRAID then you want at least 1!
+  spr=2
+# b c d e f g h i j  k  l m n o p q r s t u v w x y  z=spare
+# a b c d e f g h i j  k  l m n o p q r s t u v w x  y  z=spare (sdaa..ax)
+# 1 2 3 4 5 6 7 8 9 10 1112131415161718192021222324  25 26
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:12d:16'c':$spr's' sd{b..q} \
+   draid$rzl:12d:16'c':$spr's' sd{r..y} sda{a..h} \
+|| failexit 101 "Failed to create DRAID"
+)
+elif [ "$iteration" = "z24" ]; then 
+  td=32
+# raidz level (usually 2)
+  rzl=2
+# Vspares - if youre using DRAID then you want at least 1!
+  spr=2
+# b c d e f g h i j  k  l m n o p q r s t u v w x y  z=spare
+# a b c d e f g h i j  k  l m n o p q r s t u v w x  y  z=spare (sdaa..ax)
+# 1 2 3 4 5 6 7 8 9 10 1112131415161718192021222324  25 26
+( set -x
+time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression=lz4 \
+  $zp \
+   draid$rzl:4d:8'c':$spr's' sd{b..i} \
+   draid$rzl:4d:8'c':$spr's' sd{j..q} \
+   draid$rzl:4d:8'c':$spr's' sd{r..y} \
+   draid$rzl:4d:8'c':$spr's' sda{a..h} \
+|| failexit 101 "Failed to create DRAID"
+)
+elif [ "$iteration" = "z24a" ]; then 
   td=32
 # raidz level (usually 2)
   rzl=2
