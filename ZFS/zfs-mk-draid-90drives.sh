@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# OLD Version - use 96 drives
+
 echo "$0 - 2021 Dave Bechtel - make a ZFS DRAID pool"
 echo "- pass arg1='reset' to destroy test pool"
 echo "- pass arg1='fail' and arg2=dev2fail to simulate failure"
