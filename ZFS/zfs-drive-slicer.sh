@@ -2,14 +2,18 @@
 
 # Get me a set of disks for DRAID 
 # DONE [b..y] a[a..x] get slices of X disks and be able to verify with wc -w
+# REQUIRES: seq
 
 echo "$0 - 2021 Dave Bechtel"
-echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev, including the RAIDz level 1/2/3"
+echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev" 
+# NOTE arg2 ^^ should factor in the RAIDz level 1/2/3 desired to sustain X number of failed disks per vdev + vspares, 
+#  dont go too narrow or will lose capacity
+
 echo "NOTE output lines should be the same number of devices to balance"
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
 # regular array - STARTS AT 0
-declare -a fullset=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..x}) # Total 96, excluding spares
+declare -a fullset=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..x}) # Total 96, sets of 24 excluding spares
 # sdz, sday sdaz, sdby sdbz, sdcy sdcz == Reserved for spares (7)
 
 # integer
@@ -70,6 +74,7 @@ slice $1 $2
 # "idx" is our slider/window
 # If idx >= however many drives we need per vdev, it prints a "line continue" char and drops down a line - 
 #   giving us the exact short drive names needed to create per-vdev
+
 
 # Example for 60-bay Storinator from 45drives - gives us 56 usable disks in pool + 4 spares (sdz sday sdaz sdbi), and 4 vdevs
 # $0  56 14 |column -t
