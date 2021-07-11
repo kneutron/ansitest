@@ -37,6 +37,8 @@ function failexit () {
 #pooldisks2=$(echo /dev/sd{n..y})
 #pooldisks=$pooldisks1' '$pooldisks2 # need entire set for reset
 
+# NOTE Use in conjunction with ' zfs-drive-slicer.sh ' to create sets
+
 # groups of 6 for convenience, also evenly divides into 24, 48, 72, 96 
 # (but not 32 [28+4 spares], that gets handled in draid assoc)
 pooldisks01=$(echo /dev/sd{b..g}) # a is rootdisk
@@ -73,6 +75,7 @@ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04' '$pooldisks
 #sdaa sdab sdac sdad sdae sdaf sdag sdah
 
 # cre8 drive translation table - NOTE 32 disk config gets overridden vv
+# NOTE requires another script
 source ~/bin/boojum/draid-pooldisks-assoc.sh $td
 
 # Flame the pool and start over from 0
@@ -124,12 +127,6 @@ fi
 # zpool create <pool> draid[<parity>][:<data>d][:<children>c][:<spares>s] <vdevs...>
 # ex: draid2:4d:1s:11c
 
-# SLOW writing to zstd-3
-#   draid$rzl:8d:12'c':$spr's' $pooldisks1 \
-#   draid$rzl:8d:12'c':$spr's' $pooldisks2 \
-
-# cre8 drive translation table
-#source ~/bin/boojum/draid-pooldisks-assoc.sh 
 
 # TODO EDITME
 #iteration=OBM
@@ -166,8 +163,6 @@ time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression
 || failexit 101 "Failed to create DRAID"
 )
 elif [ "$iteration" = "3" ]; then 
-# compression=zstd-3
-# -o ashift=12
 # raidz level (usually 2)
   rzl=2
 # Vspares - this is a 96-drive pool, you DON'T want to skimp!
@@ -233,7 +228,6 @@ time zpool create -o autoreplace=on -o autoexpand=on -O atime=off -O compression
 )
 else
 # One Big Mother
-# -o ashift=12
 # raidz level (usually 2)
   rzl=2
 # spares - this is a 96-drive pool, you DON'T want to skimp!
@@ -244,21 +238,18 @@ else
      draid$rzl:24d:$td'c':$spr's' $pooldisks \
   || failexit 101 "Failed to create DRAID"
 )
-#rc=$?
-#[ $rc -gt 0 ] && exit $rc
-
 fi
 
 rc=$?
 [ $rc -gt 0 ] && exit $rc
 # ^ Need this check because of subshell, will not exit early otherwise
 
-# add hotspares
+# add hotspares - TODO uncomment if you want them auto-added
 # [ $(zpool list |grep -c "no pools") -eq 0 ] && \
 #   zpool add $zp spare ${hotspares[@]}
 
 # cre8 datasets
-# requires external script in the same PATH
+# NOTE requires external script in the same PATH
 # going with lz4 so not limited by CPU for compression
 zfs-newds.sh 11 $zp shrcompr
 zfs-newds.sh 10 $zp notshrcompr
@@ -272,7 +263,7 @@ zfs list
 df -hT |egrep 'ilesystem|zfs'
 zpool status -v |grep draid
 
-echo "NOTE - best practice is to export the pool and # zpool import -a -d $DBI"
+echo "NOTE - best practice is to export the pool and  # zpool import -a -d $DBI"
 
 date
 exit;
@@ -830,7 +821,7 @@ NOTE - best practice is to export the pool and # zpool import -a -d /dev/disk/by
 
 -----
 
-As expected, a raidz2 pool with 4 vspares can sustain 6 drive failures per vdev without data loss:
+As expected, a raidz2 pool with 4 vspares can sustain 6 drive failures *per vdev* without data loss:
 
   pool: zdraidtest
  state: DEGRADED
@@ -1203,7 +1194,7 @@ NOTE - best practice is to export the pool and # zpool import -a -d /dev/disk/by
 
 ---
 
-The 1st vdev on this pool below got hit by a bus but it is still going strong with all available spares in use
+The 1st vdev on this pool below got hit by a bus(!) but it is still going strong with all available spares in use
  --and still no data loss:
 
   pool: zdraidtest
@@ -1370,6 +1361,7 @@ action: Replace the device using 'zpool replace'.
 # unavl 
 zdraidtest 6
 
+...
         spares
           draid2-0-0          INUSE     currently in use
           draid2-0-1          INUSE     currently in use
