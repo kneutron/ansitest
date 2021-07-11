@@ -1,21 +1,25 @@
 #!/bin/bash
 
+# 2021 Dave Bechtel
 # NOTE VM MUST NOT BE RUNNING
+# This runs on virtualbox host to prep VM for upload
+# REQUIRES: virtualbox, 7zip, md5sum, sha1sum
+
 ls -alh
 vbm="VBoxManage" # Virtualbox
-# Shrinkydink
+# Shrinkydink rootdisk
 #time $vbm modifymedium --compact test-zfs-21-Draid-sata0-0-roothomeswap.vdi
 time $vbm modifymedium --compact test-zfs-21-Draid-sata0-0.vdi
 ls -alh
 
 # Cleanup
 /bin/rm -f Logs/*
-/bin/mv *~ ~/tmpdel
+mkdir -pv ~/tmpdel; /bin/mv *~ ~/tmpdel
 
 # use 7zip instead
 
 dirtobkp="test-zfs-21-Draid--xfs"
-outfile="$dirtobkp"'.7z'
+outfile="$dirtobkp.7z"
 
 cd ..
 /bin/rm -f $outfile
