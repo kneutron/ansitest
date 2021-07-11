@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# 2021 Dave Bechtel
 # Get me a set of disks for DRAID 
 # DONE [b..y] a[a..x] get slices of X disks and be able to verify with wc -w
+
+echo "$0 - 2021 Dave Bechtel"
+echo "Pass arg1=total disks in pool -- arg2=how many per vdev"
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
 # regular array - STARTS AT 0
