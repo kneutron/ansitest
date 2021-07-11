@@ -4,7 +4,8 @@
 # DONE [b..y] a[a..x] get slices of X disks and be able to verify with wc -w
 
 echo "$0 - 2021 Dave Bechtel"
-echo "Pass arg1=total disks in pool -- arg2=how many per vdev"
+echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev, including the RAIDz level 1/2/3"
+echo "NOTE output lines should be of the same number of devices to balance"
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
 # regular array - STARTS AT 0
@@ -36,17 +37,18 @@ echo ''
 
 if [ "$1"  = "" ];  then
 # Demo
-# copypasta not-including the '\' and verify with:  echo '[paste]' |wc -w
+echo "o Copypasta each line not-including the '\' and verify with:  echo '[paste]' |wc -w "
   slice 72 72
-  echo '===== ^^ 72 / 72'
+  echo '===== ^^ 72 / 72 -- One Big Mother vdev'
 
   slice 72 36
-  echo '===== ^^ 72 / 36'
+  echo '===== ^^ 72 / 36 -- 2 VDEVs'
 
   slice 72 24
-  echo '===== ^^ 72 / 24'
+  echo '===== ^^ 72 / 24 -- 3 VDEVs'
 # = sd{b..y} sda{a..l} \
 #sda{m..x} sdb{a..x}
+
 exit; # early
 fi
 
@@ -61,4 +63,10 @@ slice $1 $2
 # This is a decent method because we can give it arbitrary numbers of disks (up to total defined) 
 #   and divide as needed; try 26 2, 24 2, 32 4, 32 8
 # NOTE all output lines should have the same length - if you dont you wont have a balanced set of disks
-# e.g. 32 6 = invalid config (32 4 = valid) but we just give you output - sanity checks are up 2U
+# e.g. 32 6 = invalid config (32 4 = valid) but we just give you output -- real sanity checks are up 2U
+
+# HOW THIS WORKS: 
+# Imagine a set of disks sdb..sdcx , 96 in total, set along a slide rule
+# "idx" is our slider/window
+# If idx >= however many drives we need per vdev, it prints a "line continue" char and drops down a line - 
+#   giving us the exact short drive names needed to create per-vdev
