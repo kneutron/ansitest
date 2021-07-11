@@ -5,7 +5,7 @@
 
 echo "$0 - 2021 Dave Bechtel"
 echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev, including the RAIDz level 1/2/3"
-echo "NOTE output lines should be of the same number of devices to balance"
+echo "NOTE output lines should be the same number of devices to balance"
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
 # regular array - STARTS AT 0
@@ -70,3 +70,24 @@ slice $1 $2
 # "idx" is our slider/window
 # If idx >= however many drives we need per vdev, it prints a "line continue" char and drops down a line - 
 #   giving us the exact short drive names needed to create per-vdev
+
+# Example for 60-bay Storinator from 45drives - gives us 56 usable disks in pool + 4 spares (sdz sday sdaz sdbi), and 4 vdevs
+# $0  56 14 |column -t
+#sdb   sdc   sdd   sde   sdf   sdg   sdh   sdi   sdj   sdk   sdl   sdm   sdn   sdo   \
+#sdp   sdq   sdr   sds   sdt   sdu   sdv   sdw   sdx   sdy   sdaa  sdab  sdac  sdad  \
+#sdae  sdaf  sdag  sdah  sdai  sdaj  sdak  sdal  sdam  sdan  sdao  sdap  sdaq  sdar  \
+#sdas  sdat  sdau  sdav  sdaw  sdax  sdba  sdbb  sdbc  sdbd  sdbe  sdbf  sdbg  sdbh  \
+
+# Example for 45drives with 1 spare (sdz), 4 vdevs of 11:
+# $0  44 11 |column -t
+#sdb   sdc   sdd   sde   sdf   sdg   sdh   sdi   sdj   sdk   sdl   \
+#sdm   sdn   sdo   sdp   sdq   sdr   sds   sdt   sdu   sdv   sdw   \
+#sdx   sdy   sdaa  sdab  sdac  sdad  sdae  sdaf  sdag  sdah  sdai  \
+#sdaj  sdak  sdal  sdam  sdan  sdao  sdap  sdaq  sdar  sdas  sdat  \
+#
+# If you want more spares (5): (reserved sdz sdaq sdar sdas sdat) == 1 spare for every 8 drives
+# $0  40 10 |column -t
+#sdb   sdc   sdd   sde   sdf   sdg   sdh   sdi   sdj   sdk   \
+#sdl   sdm   sdn   sdo   sdp   sdq   sdr   sds   sdt   sdu   \
+#sdv   sdw   sdx   sdy   sdaa  sdab  sdac  sdad  sdae  sdaf  \
+#sdag  sdah  sdai  sdaj  sdak  sdal  sdam  sdan  sdao  sdap  \
