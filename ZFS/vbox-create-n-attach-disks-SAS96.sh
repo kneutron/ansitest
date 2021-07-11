@@ -2,6 +2,8 @@
 
 # 2021 Dave Bechtel - for testing ZFS DRAID 2.1.x
 # create ZFS data disks and attach them to existing VM
+# Runs on Virtualbox host OS
+
 # REF: http://www.allgoodbits.org/articles/view/54
 # REF: https://superuser.com/questions/741734/virtualbox-how-can-i-add-mount-a-iso-image-file-from-command-line
 #
@@ -15,12 +17,6 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 
 vmname=test-zfs-21-Draid--xfs
-
-#VBoxManage createvm --name "$vmname" --ostype 'Linux_64' --basefolder "$HOME" --register
-#VBoxManage modifyvm "$vmname" --description "NOTE this is just a temp VM used to conveniently register ISOs with vbox media manager - it was created with $0"
-
-#VBoxManage storagectl $vmname --name IDE --add ide --controller piix3 --portcount 2 --bootable on
-#VBoxManage storageattach "$vmname" --storagectl IDE --port 0 --device 0 --type dvddrive --medium emptydrive  #"X:\Folder\containing\the.iso"
 
 #4,000,797,696 - must be evenly div.by 512 = sector size
 nd=24
