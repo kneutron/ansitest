@@ -96,7 +96,7 @@ elif [ "$1" = "32RL" ]; then
  pooldisks01=$(echo /dev/sd{b..h}) # a is rootdisk bcdefgh ijklmno pqrstuv wxy 
  pooldisks02=$(echo /dev/sd{i..o})
  pooldisks03=$(echo /dev/sd{p..v}) # z is spare
- pooldisks04=$(echo /dev/sd{w..y}) /dev/sda{a..d}) #abcd # Total 28
+ pooldisks04=$(echo /dev/sd{w..y} /dev/sda{a..d}) #abcd # Total 28
 
  pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04
 # need entire set for reset
@@ -129,6 +129,60 @@ elif [ "$1" = "72" ]; then
 # 24 in 2nd set
 # 20 in 3rd set = total of 68 // 2 vdevs of 34, or 4 of 17 # IGNOREME
 #  hotspares=(sdz sday sdaz sdbu) # 4, will be sitting idle for replaces
+
+# BEGIN 45drives configs
+elif [ "$1" = "30RL" ]; then 
+  echo "(45drives config) Defining for 28 disks in pool b4 hotspares (2)" 
+  inpooldisks=(sd{b..y} sda{a..d}) # 24 + abcd = 28 # NOT ef, those are spares
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+# +4 in 2nd set, can have 1 vdev of 28 or, 2 of 14, or 4 of 7; we dont want to have vdevs of <6 disks
+# 4 extra will used for hotspares
+  hotspares=(sdz sda{e..f}) # 3, will be sitting idle for replaces
+
+# groups of 7
+ pooldisks01=$(echo /dev/sd{b..h}) # a is rootdisk bcdefgh ijklmno pqrstuv wxy 
+ pooldisks02=$(echo /dev/sd{i..o})
+ pooldisks03=$(echo /dev/sd{p..v}) # z is spare
+ pooldisks04=$(echo /dev/sd{w..y} /dev/sda{a..d}) #abcd # Total 28
+
+ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04
+# need entire set for reset
+
+elif [ "$1" = "45RL" ]; then 
+  echo "(45drives config) Defining for 40 disks in pool b4 hotspares (5)" 
+  inpooldisks=(sd{b..y} sda{a..p}) # 24 + 16 = 40 # NOT qrst, those are spares
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+#+16 in 2nd set, can have 1 vdev of 40 or, 2 of 20, or 4 of 10, or 5 of 8; we dont want to have vdevs of <6 disks
+# 4 extra will used for hotspares
+  hotspares=(sdz sda{q..t}) # 5, will be sitting idle for replaces
+
+# groups of 10
+ pooldisks01=$(echo /dev/sd{b..k}) # a is rootdisk; bcdefghijk lmnopqrstu vwxy  # z = spare
+ pooldisks02=$(echo /dev/sd{l..u})
+ pooldisks03=$(echo /dev/sd{v..y} /dev/sda{a..f}) 
+ pooldisks04=$(echo /dev/sda{g..p}) #abcd # Total 40
+
+ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04
+# need entire set for reset
+
+elif [ "$1" = "60RL" ]; then 
+  echo "(45drives config) Defining for 56 disks in pool b4 hotspares (4)" 
+  inpooldisks=(sd{b..y} sda{a..x} sdb{a..h}) # 24 + 24 + 8 = 56 # NOT sdz, sda{y..z} + sdbI, those are spares
+# 14 in 1st set, skipping sda=root and sdz=hotspare
+#+14 in 2nd set, 
+#+14 in 3rd set, 
+#+14 in 4th set, can have 1 vdev of 56 or, 2 of 28, or 4 of 14, or 7 of 8; we dont want to have vdevs of <6 disks
+# 4 extra will used for hotspares
+  hotspares=(sdz sday sdaz sdbi) # 4, will be sitting idle for replaces
+
+# groups of 14
+ pooldisks01=$(echo /dev/sd{b..o}) # a is rootdisk; bcdefghijklmno pqrstuvwxy  # z = spare
+ pooldisks02=$(echo /dev/sd{p..y} /dev/sda{a..d})
+ pooldisks03=$(echo /dev/sda{e..r} /dev/sda{s..x}) # sdy sdz spare
+ pooldisks04=$(echo /dev/sdb{a..h}) # sdi spare
+
+ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04
+# need entire set for reset
 
 else
   echo "$0 - $1 not found in common configurations. Please define in code"
