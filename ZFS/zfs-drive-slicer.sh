@@ -13,8 +13,8 @@ echo "NOTE output lines should be the same number of devices to balance"
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
 # regular array - STARTS AT 0
-declare -a fullset=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..x}) # Total 96, sets of 24 excluding spares
-# sdz, sday sdaz, sdby sdbz, sdcy sdcz == Reserved for spares (7)
+declare -a fullset=(sd{b..y} sda{a..x} sdb{a..x} sdc{a..x}) # Total 96, sets of 24 
+# NOTE ^^ intentionally has gaps -- sdz, sday sdaz, sdby sdbz, sdcy sdcz == Reserved for spares (7)
 
 # integer
 declare -i howmany sliceby idx x
@@ -96,3 +96,19 @@ slice $1 $2
 #sdl   sdm   sdn   sdo   sdp   sdq   sdr   sds   sdt   sdu   \
 #sdv   sdw   sdx   sdy   sdaa  sdab  sdac  sdad  sdae  sdaf  \
 #sdag  sdah  sdai  sdaj  sdak  sdal  sdam  sdan  sdao  sdap  \
+
+
+# HOWTO Verify output
+# $0  42 14 |column -t >/tmp/zfsds.txt
+
+# sed -i 's/\\//g' /tmp/zfsds.txt   # remove line-continuation chars
+
+# cat /tmp/zfsds.txt 
+#sdb   sdc   sdd   sde   sdf   sdg   sdh   sdi   sdj   sdk   sdl   sdm   sdn   sdo   
+#sdp   sdq   sdr   sds   sdt   sdu   sdv   sdw   sdx   sdy   sdaa  sdab  sdac  sdad  
+#sdae  sdaf  sdag  sdah  sdai  sdaj  sdak  sdal  sdam  sdan  sdao  sdap  sdaq  sdar  
+
+# while read line; do echo "$line" |wc -w; done < /tmp/zfsds.txt 
+#      14
+#      14
+#      14
