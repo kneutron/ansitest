@@ -5,6 +5,8 @@
 # working with 96 pooldisks, put in associative array
 # REMEMBER ARRAYS START AT 0
 
+# PROTIP Can use with zfs-drive-slicer.sh to define groups
+
 DRlogfile=/tmp/draid-pooldisks-assoc.log
 > $DRlogfile # clearit
 #source ~/bin/logecho.mrg
@@ -19,7 +21,7 @@ debugg=0
 declare -a pooldisks # regular indexed array
 declare -a hotspares # regular indexed array
 
-# We actually have 103 drives total with hotspares
+# We actually have 103 drives total with hotspares for the test VM
 # NOTE Technically we also have sdda (104) genned, but leaving it out for subtle emergency-use ZOMGWTF reasons
 
 # b c d e f g h i j  k  l m n o p q r s t u v w x y  z=spare, a=root
@@ -42,10 +44,10 @@ elif [ "$1" = "8p2h" ]; then
   hotspares=(sdj sdk) # 1, will be sitting idle for replaces so prolly need 1 vspares
 
 elif [ "$1" = "10" ]; then 
-  echo "Defining for $1 disks in pool + hotspares (1)" 
+  echo "Defining for $1 disks in pool + hotspares (2)" 
   inpooldisks=(sd{b..k}) 
 # 24 in 1st set, skipping sda=root and sdz=hotspare
-  hotspares=(sdl) # 1, will be sitting idle for replaces so prolly need 1 vspares
+  hotspares=(sdl sdm) # 2, will be sitting idle for replaces so prolly need 1 vspares
 
 elif [ "$1" = "12" ]; then 
   echo "Defining for $1 disks in pool + hotspares (1)" 
@@ -67,21 +69,36 @@ elif [ "$1" = "24" ]; then
 
 elif [ "$1" = "32" ]; then 
   echo "Defining for $1 disks in pool b4 hotspares (4)" 
-  inpooldisks=(sd{b..y} sda{a..d}) # 24 + abcd efg
+  inpooldisks=(sd{b..y} sda{a..h}) # 24 + abcd efgh = 32
+# 24 in 1st set, skipping sda=root and sdz=hotspare
+# +8 in 2nd set, can have 1 vdev of 32 or, 2 of 16, or 4 of 8; we dont want to have vdevs of <6 disks
+# 4 extra will used for hotspares
+  hotspares=(sdz sda{i..l}) # 4, will be sitting idle for replaces
+
+# groups of 8
+ pooldisks01=$(echo /dev/sd{b..i}) # a is rootdisk bcdefgh ijklmno pqrstuv wxy 
+ pooldisks02=$(echo /dev/sd{j..q})
+ pooldisks03=$(echo /dev/sd{r..y}) # z is spare
+ pooldisks04=$(echo /dev/sda{a..h}) 
+
+ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04
+# need entire set for reset
+
+elif [ "$1" = "32RL" ]; then 
+  echo "Defining for 28 disks in pool b4 hotspares (4)" 
+  inpooldisks=(sd{b..y} sda{a..d}) # 24 + abcd = 28 # NOT efgh, those are spares
 # 24 in 1st set, skipping sda=root and sdz=hotspare
 # +4 in 2nd set, can have 1 vdev of 28 or, 2 of 14, or 4 of 7; we dont want to have vdevs of <6 disks
 # 4 extra will used for hotspares
-  hotspares=(sdz sda{e..g}) # 4, will be sitting idle for replaces
+  hotspares=(sdz sda{e..h}) # 5, will be sitting idle for replaces
 
 # groups of 7
  pooldisks01=$(echo /dev/sd{b..h}) # a is rootdisk bcdefgh ijklmno pqrstuv wxy 
  pooldisks02=$(echo /dev/sd{i..o})
- pooldisks03=$(echo /dev/sd{p..v})
- pooldisks04=$(echo /dev/sd{w..y}) # z is spare
+ pooldisks03=$(echo /dev/sd{p..v}) # z is spare
+ pooldisks04=$(echo /dev/sd{w..y}) /dev/sda{a..d}) #abcd # Total 28
 
- pooldisks05=$(echo /dev/sda{a..d}) #abcd # Total 28
-
- pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04' '$pooldisks05
+ pooldisks=$pooldisks01' '$pooldisks02' '$pooldisks03' '$pooldisks04
 # need entire set for reset
 
 elif [ "$1" = "48" ]; then 
