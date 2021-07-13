@@ -4,12 +4,13 @@
 # DONE [b..y] a[a..x] get slices of X disks and be able to verify with wc -w
 # REQUIRES: seq
 
-echo "$0 - 2021 Dave Bechtel"
-echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev" 
-# NOTE arg2 ^^ should factor in the RAIDz level 1/2/3 desired to sustain X number of failed disks per vdev + vspares, 
-#  dont go too narrow or will lose capacity
-
-echo "NOTE output lines should be the same number of devices to balance"
+# Trick to put header outside of col -t
+>&2 echo "$0 - 2021 Dave Bechtel" 
+>&2 echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev" 
+>&2 echo "+ NOTE arg2 ^^ should factor in the RAIDz level 1/2/3 desired to sustain X number" 
+>&2 echo "+ of failed disks per vdev + vspares, dont go too narrow or will lose capacity" 
+>&2 echo "NOTE output lines should be the same number of devices to balance"
+>&2 echo "PROTIP: Pipe output to  column -t  to make it look nice" 
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
 # regular array - STARTS AT 0
@@ -112,3 +113,8 @@ slice $1 $2
 #      14
 #      14
 #      14
+
+
+# HOWTO get long-form disks:
+# use drive-slicer-get-longform.sh
+# ^ Requires output from this script
