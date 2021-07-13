@@ -77,7 +77,7 @@ slice $1 $2
 #   giving us the exact short drive names needed to create per-vdev
 
 
-# Example for 60-bay Storinator from 45drives - gives us 56 usable disks in pool + 4 spares (sdz sday sdaz sdbi), and 4 vdevs
+# Example for 60-bay Storinator from 45drives - gives us 56 usable disks in pool + 3 spares (sdz sday sdaz), and 4 vdevs
 # $0  56 14 |column -t
 #sdb   sdc   sdd   sde   sdf   sdg   sdh   sdi   sdj   sdk   sdl   sdm   sdn   sdo   \
 #sdp   sdq   sdr   sds   sdt   sdu   sdv   sdw   sdx   sdy   sdaa  sdab  sdac  sdad  \
@@ -99,7 +99,7 @@ slice $1 $2
 #sdag  sdah  sdai  sdaj  sdak  sdal  sdam  sdan  sdao  sdap  \
 
 
-# HOWTO Verify output
+# HOWTO Verify output from this script
 # $0  42 14 |column -t >/tmp/zfsds.txt
 
 # sed -i 's/\\//g' /tmp/zfsds.txt   # remove line-continuation chars
@@ -116,5 +116,6 @@ slice $1 $2
 
 
 # HOWTO get long-form disks:
-# use drive-slicer-get-longform.sh
+# $0  arg1 arg2  >/tmp/zfsds.txt
+# Then use  drive-slicer-get-longform.sh
 # ^ Requires output from this script
