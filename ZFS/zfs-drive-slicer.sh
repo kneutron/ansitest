@@ -11,6 +11,7 @@
 >&2 echo "+ of failed disks per vdev + vspares, dont go too narrow or will lose capacity" 
 >&2 echo "NOTE output lines should be the same number of devices to balance"
 >&2 echo "PROTIP: Pipe output to  column -t  to make it look nice" 
+>&2 echo "================================================================================="
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
 # regular array - STARTS AT 0
