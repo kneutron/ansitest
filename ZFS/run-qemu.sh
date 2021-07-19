@@ -1,5 +1,7 @@
 #!/bin/bash 
 
+# Provide a QEMU-based VM for DRAID testing (NOTE slower than virtualbox)
+# 2021 Dave Bechtel
 # NOTE Ctrl+Alt+G to ungrab maus
 # REF: https://qemu-project.gitlab.io/qemu/system/images.html#disk-images
 
