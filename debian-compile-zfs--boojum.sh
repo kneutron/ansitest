@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Part 1 of 2 scripts - this part *uninstalls* and unmounts all current zfs for code upgrade!
+# stops the Samba and Zed daemons, exports all zpools, and uninstalls existing ZFS packages so you start building with a clean slate
 
 #source ~/bin/failexit.mrg
 # failexit.mrg
