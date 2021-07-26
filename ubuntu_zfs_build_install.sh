@@ -5,6 +5,9 @@
 # This script is part 2 of 2 - run 'debian-compile-zfs--boojum.sh' first to completely uninstall existing ZFS and unmount everything 1st
 # FYI look for EDITME and change the point release
 
+# Downloads the source code for you, compiles it, makes DEB packages and installs them for you, then loads the new ZFS module version. 
+# At that point it's up to you to re-import your pools
+
 # Original script / Author attribution; mods by Dave Bechtel:
 # REF: https://gitlab.com/snippets/1861014
 ##Tested on Ubuntu 18.04LTS with ZFS on Linux 0.8.0
