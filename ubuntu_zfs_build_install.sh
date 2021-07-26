@@ -110,6 +110,7 @@ install_zfs(){
 	
 	##check zfs installed
 	dmesg |grep ZFS
+	zpool version
 #	lsinitramfs /initrd.img | grep zfs
 
 }
