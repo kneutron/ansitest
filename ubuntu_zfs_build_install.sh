@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Download ZFS on Linux from git, build and install.
+# Download ZFS on Linux source code from git, build and install.
 
 # This script is part 2 of 2 - run 'debian-compile-zfs--boojum.sh' first to completely uninstall existing ZFS and unmount everything 1st
 # FYI look for EDITME and change the point release
