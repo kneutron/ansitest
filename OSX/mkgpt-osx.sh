@@ -5,15 +5,8 @@
 # NOTE no wwn's here to worry about
 argg="$1"
 
-#source ~/bin/failexit.mrg
-# failexit.mrg
-function failexit () {
-  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
-  exit $1
-}
-
- #~/bin/boojum/
-dbi-commasep-osx.sh # run direct, don't SOURCE this
+source ~/bin/failexit.mrg
+ ~/bin/boojum/dbi-commasep-osx.sh # run direct, don't SOURCE this
 
 # find short form
 infile1=/tmp/dbi-commasep--boojum.csv
@@ -34,15 +27,18 @@ DBS=/var/run/disk/by-serial
 # fryserver will have multiple results per-device
 # if length = 5 we already have short "disk9", else search for long and GET shorty
 # ${#string}
+#set -x
 if [ ${#argg} -lt 6 ]; then
   sdev=$argg
 else
 # grep for what we were passed, take 1st result, print 1st field = shortdev
-  sdev=`grep $argg $infile2 |head -n1 |awk -F'=' '{ print $1 }'`
+  res=`grep $argg $infile2 |head -n1 |awk -F'=' '{ print $1 }'`
+  sdev=`echo $res |awk -F/ '{print $3}'`
+#  [ -e $sdev ] || failexit 999 "Short-form device $argg does not exist in /dev!"
 fi
 
-[ $(echo $sdev |grep -c "disk") -gt 0 ] || failexit 502 "Teh craziness happen - cannot find shortdev from $argg"
-[ -e /dev/$sdev ] || failexit 999 "Short-form device $argg does not exist in /dev!"
+[ `echo $sdev |grep -c "disk"` -gt 0 ] || failexit 502 "Teh craziness happen - cannot find shortdev from $argg"
+  [ -e /dev/$sdev ] || failexit 999 "Short-form device $argg does not exist in /dev!"
 
 smartctl -a /dev/$sdev |head -n 16
 #fdisk -l /dev/$sdev |awk 'NF>0' 2>/dev/null
@@ -62,7 +58,7 @@ read
 
 (set -x
  zpool labelclear /dev/$sdev
-# zpool labelclear -f /dev/$sdev''s1  ## ONLY ENABLE IF NEEDED
+ zpool labelclear -f /dev/$sdev''s1  ## ONLY ENABLE IF NEEDED
 
 # diskutil partitionDisk $sdev GPT 1  ## no way to do this easily
  gpt destroy $sdev && gpt create $sdev
@@ -74,6 +70,8 @@ read
 diskutil list $sdev
 
 exit;
+
+2021.0731 fixed for disk10 and above (iscsi)
 
 2017.1207 mod to find drive using short dev/sdX or long dev/disk/by-id or by-path
 # TODO handle wwn BUT deny -part9
