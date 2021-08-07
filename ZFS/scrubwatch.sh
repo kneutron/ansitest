@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # might as well do the whole thing, not just watch :)
+# NOTE pass arg1="s" to Select pool (will prompt)
 sdate=$(date)
 
 # failexit.mrg
@@ -18,10 +19,11 @@ if [ "$1" = "s" ]; then
   declare -a zplist=( $(zpool list |grep -v ALLOC |awk '{print $1}') )
   IFS=$OIFS
   
-  # dump array
+  # dump array - REF: https://opensource.com/article/18/5/you-dont-know-bash-intro-bash-arrays
   for i in ${!zplist[@]}; do
      echo "$i ${zplist[$i]}"
   done
+
   echo -n "Enter number of zpool: "
   read zpn
   zp=${zplist[$zpn]}
@@ -33,23 +35,16 @@ fi
 
 zpool scrub $zp
 
-# find disk(s)
-#result=`getdrive-byids 1 |grep $1`
-# TODO - iostat on drives
-
-#tmpvar=1
-
 mv ~/scrublog.log ~/scrublog-prev.log
-> ~/scrublog.log
+> ~/scrublog.log # Clearit
 
-#while [ $tmpvar -gt 0 ]; do
 # do forever
 while :; do
   clear
   
   echo "Pool: $zp - scrub started: $sdate"
 # E WORKY! - note, egrep 4 canceled not breakloop
-  zpool status $zp |tee -a ~/scrublog.log |grep -A 2 'scrub in progress' || break 2
+  zpool status -v $zp |awk 'NF>0' |tee -a ~/scrublog.log |grep -A 2 'scrub in progress' || break 2
 #  zpool iostat -y -T d -v $1 2 3 &
   zpool iostat -y -v $zp 2 3 &
 
@@ -74,14 +69,9 @@ zpool status
  state: ONLINE
  scan: none requested
 config:
-
-        NAME                                          STATE     READ WRITE
-CKSUM
-        tank0                                         ONLINE       0     0
-0
-          gptid/8194f816-80cd-11e1-8a71-00221516e8b8  ONLINE       0     0
-0
-
+        NAME                                          STATE     READ WRITE CKSUM
+        tank0                                         ONLINE       0     0 0
+          gptid/8194f816-80cd-11e1-8a71-00221516e8b8  ONLINE       0     0 0
 errors: No known data errors
 
   pool: tank1
@@ -90,7 +80,6 @@ errors: No known data errors
     146G scanned out of 1.24T at 177M/s, 1h47m to go
     0 repaired, 11.56% done
 config:
-
         NAME              STATE     READ WRITE CKSUM
         tank1             ONLINE       0     0     0
           raidz1-0        ONLINE       0     0     0
@@ -98,5 +87,4 @@ config:
             label/zdisk2  ONLINE       0     0     0
             label/zdisk3  ONLINE       0     0     0
             label/zdisk4  ONLINE       0     0     0
-
 errors: No known data errors
