@@ -51,7 +51,7 @@ cd /usr/local/src
 compile_zfs(){
 	##https://github.com/zfsonlinux/zfs/wiki/Custom-Packages#debian-and-ubuntu
 	installcompilepackages(){
-		apt-get install -y build-essential autoconf libtool gawk alien fakeroot gdebi wget
+		apt-get install -y build-essential autoconf libtool gawk alien fakeroot gdebi wget dkms
 		apt-get install -y zlib1g-dev uuid-dev libattr1-dev libblkid-dev libselinux-dev libudev-dev libaio-dev
 		apt-get install -y parted lsscsi ksh libssl-dev libelf-dev
 		apt-get install -y linux-headers-$(uname -r)
