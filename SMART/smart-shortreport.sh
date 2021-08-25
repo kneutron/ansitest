@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PATH=/sbin:/var/root/bin:/var/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
+PATH=/sbin:/root/bin:/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
 
 # will run ~5 min after smart stage2 and list only attributes that backblaze keeps track of
 
