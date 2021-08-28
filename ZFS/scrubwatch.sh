@@ -10,9 +10,10 @@ function failexit () {
   exit $1
 }
 
-if [ "$1" = "s" ]; then
+if [ "$1" = "s" ] || [ "$1" = "" ]; then
 # select ; REF: https://www.baeldung.com/linux/reading-output-into-array
-  [ $(zpool list) = "no pools available" ] && failexit 404 "No zfs pools"
+  tmptest=$(zpool list |head -n 1)
+  [ $"tmptest" = "no pools available" ] && failexit 404 "No zfs pools"
 
   OIFS=$IFS
   IFS=$'\n'
