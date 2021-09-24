@@ -14,7 +14,8 @@ mv -v $logfile $logfile-old
 chmod 750 $logfile
 
 # xxx TODO EDITME
-zver="2.0.4"
+#zver="2.0.4"
+zver="2.1.1"
 
 firstrun=1
 # if set to 1, will install prereq packages - set 0 to skip
