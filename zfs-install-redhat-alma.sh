@@ -100,7 +100,7 @@ if [ "$firstrun" -gt 0 ]; then
 
 # REF: https://openzfs.github.io/openzfs-docs/Developer%20Resources/Custom%20Packages.html
 
-  yum install -y kernel-devel kernel-headers wget curl lsof
+  yum install -y kernel-devel kernel-headers wget curl lsof ncompress
   yum groupinstall -y "Development Tools"
 
   dnf install -y gcc make autoconf automake libtool rpm-build kernel-rpm-macros dkms libtirpc-devel \
