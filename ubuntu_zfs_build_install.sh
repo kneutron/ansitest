@@ -1,37 +1,28 @@
 #!/bin/bash
-
-# Download ZFS on Linux source code from git, build and install.
-
-# This script is part 2 of 2 - run 'debian-compile-zfs--boojum.sh' first to completely uninstall existing ZFS and unmount everything 1st
-# FYI look for EDITME and change the point release
-
-# Downloads the source code for you, compiles it, makes DEB packages and installs them for you, then loads the new ZFS module version. 
-# At that point it's up to you to re-import your pools
-
-# Original script / Author attribution; mods by Dave Bechtel:
-# REF: https://gitlab.com/snippets/1861014
+##Script to download ZFS on Linux from git, build and install.
 ##Tested on Ubuntu 18.04LTS with ZFS on Linux 0.8.0
-# Tested on Ubuntu 20.04LTS with ZOL 0.8.6 and 2.0.4
-
-# ZFS on Linux release page: https://github.com/zfsonlinux/zfs/releases
+##ZFS on Linux release page: https://github.com/zfsonlinux/zfs/releases
 
 #set -e
 set -x
 
-##define variables
-# xxx TODO EDITME
-firstrun=1
-pointrel="2.1.0"
-# pointrel="2.0.5"
-# pointrel="0.8.6" # for older installs
+# failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
 
-# xxx TODO EDITME - this is for chown later if creating encrypted pool
+
+##define variables
+# EDITME
+firstrun=1
+pointrel="2.1.2"
+
 user=dave
 
 poolname=ztestpoolencr
 poolmount=/mnt/"$poolname"/
 
-# file-based encrypted pool, change location if needed
 DISKID=/mnt/imacdual/zdisk1
 
 zfskeyloc=/home/"$user"/zfskey
@@ -51,11 +42,18 @@ cd /usr/local/src
 compile_zfs(){
 	##https://github.com/zfsonlinux/zfs/wiki/Custom-Packages#debian-and-ubuntu
 	installcompilepackages(){
-		apt-get install -y build-essential autoconf libtool gawk alien fakeroot gdebi wget dkms
-		apt-get install -y zlib1g-dev uuid-dev libattr1-dev libblkid-dev libselinux-dev libudev-dev libaio-dev
-		apt-get install -y parted lsscsi ksh libssl-dev libelf-dev
-		apt-get install -y linux-headers-$(uname -r)
-		apt-get install -y python3 python3-dev python3-setuptools python3-cffi python3-distutils
+		apt-get -y install build-essential autoconf libtool gawk alien fakeroot gdebi wget
+		apt-get -y install zlib1g-dev uuid-dev libattr1-dev libblkid-dev libselinux-dev libudev-dev libaio-dev
+		apt-get -y install parted lsscsi ksh libssl-dev libelf-dev
+		apt-get -y install linux-headers-$(uname -r)
+		apt-get -y install python3 python3-dev python3-setuptools python3-cffi python3-distutils
+
+# REF: https://openzfs.github.io/openzfs-docs/Developer%20Resources/Building%20ZFS.html
+ apt-get -y install build-essential autoconf automake libtool gawk alien \
+  fakeroot dkms libblkid-dev uuid-dev libudev-dev libssl-dev zlib1g-dev \
+  libaio-dev libattr1-dev libelf-dev linux-headers-$(uname -r) python3 \
+  python3-dev python3-setuptools python3-cffi libffi-dev python3-packaging
+  git libcurl4-openssl-dev
 	}
 	
 	compile(){
@@ -67,7 +65,7 @@ compile_zfs(){
 #			mv zfs-0.8.0{,-rc3}
 			cd zfs-$pointrel #0.8.0-rc3
 			./configure --prefix=/usr || exit $?
-			make -s -j $(nproc) && make deb-utils deb-dkms && echo "ZFS packages are ready" || echo "ZFS compilation error"
+			make -s -j $(nproc) && make deb-utils deb-dkms && echo "ZFS packages are ready" || failexit 999 "ZFS compilation error"
 		}
 		
 		master(){
@@ -77,8 +75,7 @@ compile_zfs(){
 			./configure --prefix=/usr
 			make -s -j$(nproc) && make deb-utils deb-dkms && echo "ZFS packages are ready" || echo "ZFS compilation error"
 		}
-
-# run this:
+		
 		pointrelease
 #		master
 	}
@@ -170,8 +167,7 @@ createdatapool(){
 ##--------		
 if [ "$firstrun" -gt 0 ]; then
   apt update
-  compile_zfs
-  install_zfs
+  compile_zfs && install_zfs
 fi
 
 #createdatapool
