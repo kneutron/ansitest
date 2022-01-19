@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Author: dave.bechtel kingneutron@gmail , 2022
+# Author: dave.bechtel kingneutron@gmail , +%Y2022
 # Utility script to translate server names to cloud service / physical location and type (sandbox, dev, prod, etc)
 # Current version: 1.2 2022.0119.1300
 # Requires: bash v3.2.57 or later
@@ -59,7 +59,7 @@ dbg="Oracle Dataguard"
 gms="Golden Master Server"
 mgm="Management"
 oem="OEM"
-web="GTN Webserver"
+web="Webserver"
 xym="XYMon Monitoring"
 
 # Env
