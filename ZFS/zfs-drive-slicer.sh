@@ -9,6 +9,8 @@
 >&2 echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev" 
 >&2 echo "+ NOTE arg2 ^^ should factor in the RAIDz level 1/2/3 desired to sustain X number" 
 >&2 echo "+ of failed disks per vdev + vspares, dont go too narrow or will lose capacity" 
+>&2 echo "NOTE it is Highly Recommended to export the pool after creation with shortnames"
+>&2 echo "+ and re-import with -d /dev/disk/by-id or other long form names" 
 >&2 echo "NOTE output lines should be the same number of devices to balance"
 >&2 echo "PROTIP: Pipe output to  column -t  to make it look nice" 
 >&2 echo "================================================================================="
