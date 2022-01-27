@@ -12,7 +12,8 @@
 >&2 echo "NOTE it is Highly Recommended to export the pool after creation with shortnames"
 >&2 echo "+ and re-import with -d /dev/disk/by-id or other long form names" 
 >&2 echo "NOTE output lines should be the same number of devices to balance"
->&2 echo "PROTIP: Pipe output to  column -t  to make it look nice" 
+>&2 echo "PROTIP: Pipe output to  column -t  to make it look nice"
+>&2 echo "Omit the trailing slash on last line when copying to clipboard"
 >&2 echo "================================================================================="
 
 # REF: https://tldp.org/LDP/abs/html/arrays.html
@@ -27,6 +28,9 @@ function slice () {
  howmany=$1
  sliceby=$2
  idx=0
+ prefix="raidz2 "
+ [ "$sliceby" = "2" ] && prefix="mirror "
+ printf "${prefix} "  # print initial
  for x in $(seq 0 1 $howmany); do
    [ $x -ge $howmany ] && break
 
@@ -37,6 +41,7 @@ function slice () {
 
    if [ $idx -ge $sliceby ]; then
      echo ' \'
+     printf "${prefix} " 
      idx=0
    fi
  done
@@ -122,3 +127,5 @@ slice $1 $2
 # $0  arg1 arg2  >/tmp/zfsds.txt
 # Then use  drive-slicer-get-longform.sh
 # ^ Requires output from this script
+
+# 2022.0126 added default raidz2/mirror prefix; output is not perfect but does the job
