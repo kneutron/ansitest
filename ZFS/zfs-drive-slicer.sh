@@ -129,3 +129,25 @@ slice $1 $2
 # ^ Requires output from this script
 
 # 2022.0126 added default raidz2/mirror prefix; output is not perfect but does the job
+
+# 2022.0127 LOL so basically I reinvented xargs
+# Easier to work with sets of 24 to divide by 8
+#(echo sd{b..y} sda{a..x} sdb{a..x} sdc{a..x} |xargs -n 8 echo raidz2 ) |column -t
+#raidz2  sdb   sdc   sdd   sde   sdf   sdg   sdh   sdi
+#raidz2  sdj   sdk   sdl   sdm   sdn   sdo   sdp   sdq
+#raidz2  sdr   sds   sdt   sdu   sdv   sdw   sdx   sdy
+#raidz2  sdaa  sdab  sdac  sdad  sdae  sdaf  sdag  sdah
+#raidz2  sdai  sdaj  sdak  sdal  sdam  sdan  sdao  sdap
+#raidz2  sdaq  sdar  sdas  sdat  sdau  sdav  sdaw  sdax
+#raidz2  sdba  sdbb  sdbc  sdbd  sdbe  sdbf  sdbg  sdbh
+#raidz2  sdbi  sdbj  sdbk  sdbl  sdbm  sdbn  sdbo  sdbp
+#raidz2  sdbq  sdbr  sdbs  sdbt  sdbu  sdbv  sdbw  sdbx
+#raidz2  sdca  sdcb  sdcc  sdcd  sdce  sdcf  sdcg  sdch
+#raidz2  sdci  sdcj  sdck  sdcl  sdcm  sdcn  sdco  sdcp
+#raidz2  sdcq  sdcr  sdcs  sdct  sdcu  sdcv  sdcw  sdcx
+
+#echo sd{b..y} sda{a..x} sdb{a..x} sdc{a..x} |xargs -n 2 echo mirror |head -n 2
+#mirror sdb sdc
+#mirror sdd sde
+
+# Oh well, at least I add a line-continue :)
