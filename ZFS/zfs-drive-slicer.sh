@@ -150,4 +150,10 @@ slice $1 $2
 #mirror sdb sdc
 #mirror sdd sde
 
-# Oh well, at least I add a line-continue :)
+# redirect output to >tmp.txt
+# add a line-continue char at the end
+# $ while read line; do printf "%s" "$line \\";echo ''; done < tmp.txt
+#raidz2 sdb sdc sdd sde sdf sdg sdh sdi \
+#raidz2 sdj sdk sdl sdm sdn sdo sdp sdq \
+
+# Oh well, at least I add a line-continue and start/limit with a known number of drives :)
