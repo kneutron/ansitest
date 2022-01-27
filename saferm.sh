@@ -2,6 +2,10 @@
 
 # safe delete with find and rm, logged
 # 2019 Dave Bechtel
+# EDIT BEFORE USING!!
+
+# to stderr only
+>&2 echo "NOTE use this script at your own risk, I take NO responsibility for data loss!"
 
 #source ~/bin/failexit.mrg
 # failexit.mrg
