@@ -11,7 +11,9 @@
 >&2 echo "Pass arg1=total disks in pool -- arg2=how many disks per vdev" 
 >&2 echo "+ NOTE arg2 ^^ should factor in the RAIDz level 1/2/3 desired to sustain X number" 
 >&2 echo "+ of failed disks per vdev + vspares, dont go too narrow or will lose capacity" 
->&2 echo "NOTE output lines NEED to be the same number of devices to balance"
+>&2 echo "NOTE it is Highly Recommended to export the pool after creation with shortnames"
+>&2 echo "+ and re-import with -d /dev/disk/by-id or other long form names to avoid issues" 
+>&2 echo "NOTE output lines NEED to be the same number of devices to balance the pool!"
 >&2 echo "DO NOT FORGET to prefix these lines with raidz2, mirror or whatever is applicable!"
 >&2 echo "PROTIP: Pipe output to  column -t  to make it look nice" 
 >&2 echo "=================================================================================="
@@ -143,12 +145,21 @@ slice $arg1 $arg2
 #...
 #mirror sdt sdu \
 
-# Triple mirroring
+# Triple mirroring:
 # $ ./zfs-drive-slicer-xargs-simplified.sh 15 3 |while read line; do printf "%s" "mirror $line \\";echo ''; done
 #mirror sdb sdc sdd \
 #mirror sde sdf sdg \
 #...
 #mirror sdn sdo sdp \
+
+# should-be faster awk solution:
+# ./zfs-drive-slicer-xargs-simplified.sh 90 10 |awk '{ print "raidz2 ", $0, "\\"}'
+
+# same thing a different way:
+# edit in place and subsitute the needed text before printing
+# ./zfs-drive-slicer-xargs-simplified.sh 90 10 |awk '{ sub(/^/, "raidz2 "); sub(/$/, " \\"); print }'
+# ^ regexp - for every line, at beginning of line, prefix with "raidz2 "
+# $ regexp - find end of line and print literal backslash, finally display edited line
 
 
 # 2022.0127 substantially refactored to use xargs and cut for simplicity
