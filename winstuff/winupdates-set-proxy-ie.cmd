@@ -2,7 +2,7 @@
  rem to have Win updates use Squid - Win7
 Netsh winhttp import proxy source=ie
 pause
-s
+
 @echo off
  rem Win8 syntax:
  rem netsh winhttp import proxy source=ie
