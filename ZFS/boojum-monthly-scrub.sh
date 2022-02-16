@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # NOTE runs from /etc/crontab
+# example for osx:
+# # 12:01am 15-17 every month, run zfs scrub 1 day for 1 pool - TODO expand if more pools
+#1  0  15  *  *  /var/root/bin/boojum/boojum-monthly-scrub.sh > /var/root/boojum-monthly-scrub.log 2>>/var/root/boojum-scrub-errs.log
+#1  0  16  *  *  /var/root/bin/boojum/boojum-monthly-scrub.sh > /var/root/boojum-monthly-scrub.log 2>>/var/root/boojum-scrub-errs.log
+#1  0  17  *  *  /var/root/bin/boojum/boojum-monthly-scrub.sh > /var/root/boojum-monthly-scrub.log 2>>/var/root/boojum-scrub-errs.log
+
 # based on DOM 14/15/16/17, scrub 1 of N pools && wait4scrub
 # NOTE tabwidth=2
 
