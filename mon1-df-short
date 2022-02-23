@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# called by mon1, show in xterm window without getting too wide
+
+df -T -h |grep -v tmpfs |awk '{$1="";$3=""; print}' |column -t |sort -h -k 3
