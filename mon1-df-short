@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# called by mon1, show in xterm window without getting too wide
+# called by mon1, show in xterm window or text console without getting too wide - useful with zfs
 # Save to /usr/local/bin
 
-# Hides some fields and sorts on field 3
+# Hides some fields and sorts on field 3 (free space)
 df -T -h |grep -v tmpfs |awk '{$1="";$3=""; print}' |column -t |sort -h -k 3
