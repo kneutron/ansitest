@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# called by mon1, show in xterm window or text console without getting too wide - useful with zfs
+# called by mon1 or topscrn, show in xterm window or text console without getting too wide - useful with zfs
 # Save to /usr/local/bin
 
 # Hides some fields and sorts on field 3 (free space)
