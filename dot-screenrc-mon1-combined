@@ -1,0 +1,34 @@
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f %t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%Y-%m-%d %{W}%c %{g}]'
+# Default screens
+# bashme/aliases not work :(
+
+# REF: https://fordodone.com/2016/02/24/start-screen-session-with-4-way-split-screen/
+split
+resize -5
+split -v
+focus down
+split -v
+
+screen -t BWM		0	/usr/bin/bwm-ng -t 2000
+screen -t TOP		1	/usr/bin/top -d 15
+screen -t IOSTAT	2	/usr/bin/iostat -k 5
+screen -t MON1SHORT	3	/usr/bin/watch -n 61 /home/dave/bin/mon1-df-short
+
+# switch back to 1st window
+#select 0
+
+#	7 screen -t server	2 	sh me@myserver
+#	8 screen -t IRC	7	irssi
+#	9 screen -t Mail	8	mutt
+
+focus up
+focus left
+select 0
+focus down
+select 1
+focus up
+focus right
+select 2
+focus down
+select 3
