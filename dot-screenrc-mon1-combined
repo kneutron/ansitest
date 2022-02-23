@@ -13,7 +13,7 @@ split -v
 screen -t BWM		0	/usr/bin/bwm-ng -t 2000
 screen -t TOP		1	/usr/bin/top -d 15
 screen -t IOSTAT	2	/usr/bin/iostat -k 5
-screen -t MON1SHORT	3	/usr/bin/watch -n 61 /home/dave/bin/mon1-df-short
+screen -t MON1SHORT	3	/usr/bin/watch -n 61 /usr/local/bin/mon1-df-short
 
 # switch back to 1st window
 #select 0
