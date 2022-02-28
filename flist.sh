@@ -1,8 +1,7 @@
-#!/bin/bash5
+#!/bin/bash
 
-# NOTE this is adapted from an old version from original cubietruck!  Mar 26  2014 flist
+# Go thru .tar.gz, .tar.bz2 in dir and list them to flist--file.txt
 
-# Go thru .tar.gz, .tar.bz2 in dir and list them to flist-file
 function process () {
 #set -x
   args="$*"
