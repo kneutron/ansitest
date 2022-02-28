@@ -1,8 +1,11 @@
-#!/bin/bash
+#!/bin/bash5
 
-# Go thru .tar.gz, .tar.bz2 in dir and list them to flist--file.txt
+# NOTE this is adapted from an old version from original cubietruck!  Mar 26  2014 flist
+
+# Go thru .tar.gz, .tar.bz2 in dir and list them to flist-file
 function process () {
-  args=$*
+#set -x
+  args="$*"
   echo $args
 
 # if doing rezip, renice bzip2
@@ -11,8 +14,13 @@ renice +1 `pidof bzip2` 2>/dev/null
 # Preserve existing output
   if [ -e "flist--$bn.txt" ]; then                                                                       
     echo "o Skipped $bn"
-  else                                                                                                    
-    time $compr -cd $args |tar tvf - > flist--$bn.txt
+  else                  
+    echo "Processing $bn"                                                                                  
+    if [ "$compr" = "" ]; then
+      time tar tvf $i > flist--$bn.txt
+    else
+      time $compr -cd $args |tar tvf - > flist--$bn.txt
+    fi
   fi
 }
 #function processbz2 () {
@@ -68,16 +76,15 @@ for i in *.tar; do
   [ "$i" == "*.tar" ] && break;
   bn=`basename $i .tar`
   compr=""
-#  process $i 
-  time tar tvf $i > flist--$bn.txt
+  process $i 
+#  time tar tvf $i > flist--$bn.txt
 done
 
 for i in *.tar1; do
   [ "$i" == "*.tar1" ] && break;
   bn=`basename $i .tar1`
   compr=""
-#  process $i 
-  time tar tvf $i > flist--$bn.txt
+  process $i 
+#  time tar tvf $i > flist--$bn.txt
 done
-
         
