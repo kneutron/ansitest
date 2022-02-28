@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# NOTE this is an old version from original cubietruck!  Mar 26  2014 flist
-
-# Go thru .tar.gz, .tar.bz2 in dir and list them to flist-file
+# Go thru .tar.gz, .tar.bz2 in dir and list them to flist--file.txt
 function process () {
   args=$*
   echo $args
@@ -12,7 +10,7 @@ renice +1 `pidof bzip2` 2>/dev/null
 
 # Preserve existing output
   if [ -e "flist--$bn.txt" ]; then                                                                       
-    echo '* Skipped '$bn
+    echo "o Skipped $bn"
   else                                                                                                    
     time $compr -cd $args |tar tvf - > flist--$bn.txt
   fi
