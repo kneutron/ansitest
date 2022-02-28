@@ -1,4 +1,6 @@
-#!/bin/bash5
+#!/bin/bash
+
+# if we have a "hanging" flist with no corresponding tar, del
 
 debugg=0
 
@@ -16,13 +18,11 @@ function failexit () {
 todel=/tmp/todel-flist.txt
 >$todel # clearit
 
-# if flist with no tar, del
-
 declare -i fl tr # integer
 fl=$(ls flist* |wc -l |awk '{print $1}')
 tr=$(ls *tar* |grep -v flist |wc -l |awk '{print $1}')
 echo "Flists: $fl -- Tars: $tr"
-[[ $fl == $tr ]] && failexit 0 "Flists match tars, evyting OK"
+[[ $fl == $tr ]] && failexit 0 "Flists match tars, all OK"
 
 # regular array
 declare -a flists=$(ls flist*)
