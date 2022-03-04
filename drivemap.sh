@@ -2,7 +2,8 @@
 
 # for linux; tested with a 104-disk VM (SATA + SAS)
 # Author: dave.bechtel kingneutron@gmail.com
-# Useful for finding the short name of your disk in a ZFS pool
+# Builds a searchable disk "translation table"
+# Useful for finding the short name of your disk (or serial number) in a ZFS pool
 # NOTE should be re-run if a disk is physically replaced because the descriptive name may change
 
 outf=/tmp/drivemap.txt
