@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# free up cache RAM
+# free up cache RAM - run as root
 # http://linux-mm.org/Drop_Caches
 
 # uname -a
@@ -8,7 +8,7 @@
 
 [ `uname -a |grep -ci darwin` -gt 0 ] && exit 1;
 
-sync
+time sync
 
 free
 echo 1 > /proc/sys/vm/drop_caches # free pagecache
