@@ -1,0 +1,4 @@
+:highlight ExtraWhiteSpace ctermbg=red guibg=red
+:match ExtraWhiteSpace /\s\+$/
+" Useful for YAML - REF: https://www.reddit.com/r/bash/comments/tlst8x/i_am_sick_and_tired_of_python_lovers_always_using/i1yey7b/?context=3
+
