@@ -18,7 +18,7 @@ echo '========' >> $outf
 ls -lR /dev/disk |grep -w /sd[a-z][a-z] |sed 's^../..^/dev^' |awk 'NF>0 {print $11" "$10" "$9}' |column -t |sort \
  >>$outf
 
-#less $outf
+ls -l $outf
 
 # To search outfile:
 # grep ata-VBOX_HARDDISK_VB0fffe26a-25e5ad55 /tmp/drivemap.txt
