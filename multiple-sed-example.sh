@@ -1,9 +1,20 @@
 #!/bin/bash
 
 # convert short disk names to long OTF, should also work fine with zpool iostat
+
+# yes, this works without line continuation :)
+
+subst='s/sdp/ata-ST4000VN000-1H4168_Z3073Z7/;
+s/sdo/ata-ST4000VN000-1H4168_Z3076XV/;
+s/sdn/ata-ST4000VN008-2DR166_ZDHB3DR/;
+s/sdm/ata-ST4000VN008-2DR166_ZDHB41B/;
+s/sdd/ata-ST4000VN008-2DR166_ZDHBCLL/;
+s/sdc/ata-ST4000VN008-2DR166_ZDHBDGP/'
+
+# awk NF omits blank lines
 zpool status -v \
  |awk 'NF>0' \
- |sed 's/sdp/ata-ST4000VN000-1H4168_Z3073Z7/;s/sdo/ata-ST4000VN000-1H4168_Z3076XV/;s/sdn/ata-ST4000VN008-2DR166_ZDHB3DR/;s/sdm/ata-ST4000VN008-2DR166_ZDHB41B/;s/sdd/ata-ST4000VN008-2DR166_ZDHBCLL/;s/sdc/ata-ST4000VN008-2DR166_ZDHBDGP/'
+ |sed "$subst"
 
 exit;
 
