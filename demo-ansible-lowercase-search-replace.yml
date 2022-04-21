@@ -1,0 +1,24 @@
+---
+- name: Demo lowercase and search/replace in var
+  hosts: localhost
+  gather_facts: false
+  vars:
+    answers: "no so YES no"
+
+# mastering ansible 4th ed. 2021, p.202
+# REF: https://stackoverflow.com/questions/55927273/how-ansible-assign-values-to-variables
+# REF: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/debug_module.html
+
+# replace all no with yes and lowercase it all
+  tasks:
+    - name: do the thing
+      debug: 
+        msg: 
+        - "Original: {{ answers }}"
+        - "Expected result: {{ answers | replace('no', 'yes') | lower }}"
+
+    - set_fact: my_result="{{ answers | replace('no', 'yes') | lower }}"
+
+    - name: show result
+      debug:
+        msg: "{{ my_result }}"
