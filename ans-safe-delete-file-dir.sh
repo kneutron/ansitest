@@ -25,4 +25,14 @@ do
 done
 
 echo "Processing servers: $1"
-ansible $1 -m file -a "dest=$2 state=absent" --become
+time ansible $1 -m file -a "dest=$2 state=absent" --become
+
+exit;
+
+Example usage - On target server:
+
+# mkdir -pv /tmp/complexdir
+# cd /tmp/complexdir && \
+# for d in {1..50}; do mkdir -pv $d/$d; done
+
+# $0 targetserver /tmp/complexdir # the whole directory tree should be GONE from /tmp after running this script
