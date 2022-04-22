@@ -19,7 +19,7 @@ function failexit () {
 }
 
 # xxx TODO editme - assumes swap is on sda1
-rootdev=/dev/sda2 # for VM
+rootdev=/dev/sda2 # for VM - assuming sda1 is swap
 rdevonly=${rootdev%[[:digit:]]}
 umount $rootdev # failsafe
 
