@@ -1,0 +1,46 @@
+2022.April Dave Bechtel
+
+HOWTO bare-metal backup/restore your Linux root partition
+GOAL: Test your restores!
+
+Before starting, edit BKPDEST.mrg and define where you want backup files/dirs to live.
+
+First run bkpcrit script, then bkpsys-2fsarchive.  
+NOTE: You need the fsarchiver package installed.
+
+You can use the mkrestoredvdiso script to create a UDF ISO containing your
+fsarchive backup and add a 2nd DVD Drive to the VM with the ISO mounted.
+
+Now you can test your restore into a Virtualbox VM by setting it up the same
+way (use EFI boot if you have it on the host but be aware that this probably
+needs further testing) and give it at least 4GB of RAM if you're using
+64-bit.  
+
+PROTIP: Have a "super grub disc" ISO handy just in case you have trouble
+booting the VM after restore.
+
+
+RESTORING:
+
+Boot the VM into a recovery environment like systemrescuecd and use
+Midnight Commander or scp to copy the RESTORE-fsarchive-root script into the
+VM to the /tmp directory.  Have your restore UDF ISO (which contains your
+fsarchive backup file) mounted on the 2nd virtual DVD drive.
+
+chmod +x the script, fdisk /dev/sda and setup your partitions appropriately 
+and you should be able to restore the backup and boot from it.  
+
+May seem complicated, but I've done dozens of P2V restores with these
+home-grown scripts based on a recommendation from the Crunchbang forum back
+in the day.
+
+Dave
+
+
+Utility ISOs:
+
+https://distrowatch.com/table.php?distribution=systemrescue
+
+https://distrowatch.com/table.php?distribution=supergrub
+
+https://distrowatch.com/table.php?distribution=rescatux
