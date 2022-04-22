@@ -12,6 +12,15 @@
 
 # TODO include /home and restore that? IF EXIST
 
+# If you prefer not to use an ISO to restore from, systemrescuecd has sshfs:
+#
+# sshfs -C -o Ciphers=chacha20-poly1305@openssh.com  loginid@ipaddress:/path/to/backupfile \
+#  /mnt/path \
+#  -o follow_symlinks || \
+# sshfs -C -o Ciphers=aes128-gcm@openssh.com  loginid@ipaddress:/path/to/backupfile \
+#  /mnt/path \
+#  -o follow_symlinks 
+
 # failexit.mrg
 function failexit () {
   echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
@@ -23,6 +32,7 @@ rootdev=/dev/sda2 # for VM - assuming sda1 is swap
 rdevonly=${rootdev%[[:digit:]]}
 umount $rootdev # failsafe
 
+# xxx comment out references to cdrom2 if not using it
 cdr=/mnt/cdrom2
 mkdir -pv $cdr
 rootdir=/mnt/tmp2
