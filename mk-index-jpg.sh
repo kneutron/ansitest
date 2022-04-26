@@ -38,6 +38,11 @@ date
 
 exit;
 
+To open all the resulting index files (on OSX):
+
+for f in $(find . -name 0montage\*); do open $f; done
+# ^ Adapt to your Linux filemanager or you can use imagemagick ' display '
+
 Use "find * " to only process subdirs, not curdir
 
 REF: https://opensource.com/article/18/5/gnu-parallel
