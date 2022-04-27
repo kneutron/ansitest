@@ -1,4 +1,6 @@
-#!/bin/bash5
+#!/bin/bash
+
+# NOTE need bash >3.2.57 on OSX for this
 
 # Paste a vertical list of servers separated by newline
 # ^ pass them as comma-separated server(s) to ansible; reboot and wait up to 10 min
