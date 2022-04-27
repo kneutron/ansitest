@@ -1,0 +1,15 @@
+---
+
+- hosts: '{{target}}'
+  tasks:
+  - name: reboot and wait
+    become: yes
+    reboot:
+      reboot_timeout: 600
+      
+- - name: check uptime
+    register: uptimeoutput
+    command: "uptime"
+    
+  - debug:
+      var: uptimeoutput.stdout_lines
