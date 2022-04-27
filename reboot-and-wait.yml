@@ -7,7 +7,7 @@
     reboot:
       reboot_timeout: 600
       
-- - name: check uptime
+  - name: check uptime
     register: uptimeoutput
     command: "uptime"
     
