@@ -3,9 +3,6 @@
 # MODIFIED FOR MAC OSX
 # NOTE - THIS *ONLY* KEEPS SNAPSHOTS FOR (7) DAYS!!
 
-# =LLC= © (C)opyright 2016 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
-## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
-## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
 #
 # this runs from cron root - scheduled mon,wed,fri @ 11:45pm
 # and keeps 7 days of rotating snapshots
