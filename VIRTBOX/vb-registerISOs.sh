@@ -22,8 +22,7 @@ function registeriso () {
 }
 
 # xxx TODO EDITME, this is where your ISOs live
-cd /Volumes/zsgtera4/shrcompr-zsgt2B/ISO
-registeriso
+cd /Volumes/zsgtera4/shrcompr-zsgt2B/ISO && registeriso
 
 # shared drive, use if mounted
 if [ $(df |grep /mnt/imac5 |wc -l) -gt 0 ]; then
