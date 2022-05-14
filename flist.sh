@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/bash5
 
-# Go thru .tar.gz, .tar.bz2 in dir and list them to flist--file.txt
+# NOTE this is adapted from an old version from original cubietruck!  Mar 26  2014 flist
 
+# Go thru .tar.gz, .tar.bz2 in dir and list them to flist-file
 function process () {
 #set -x
   args="$*"
@@ -16,9 +17,9 @@ renice +1 `pidof bzip2` 2>/dev/null
   else                  
     echo "Processing $bn"                                                                                  
     if [ "$compr" = "" ]; then
-      time tar tvf $i > flist--$bn.txt
+      time tar tvf $i > flist--$bn.txt 2>flist-errors--$bn.txt
     else
-      time $compr -cd $args |tar tvf - > flist--$bn.txt
+      time $compr -cd $args |tar tvf - >flist--$bn.txt 2>flist-errors--$bn.txt
     fi
   fi
 }
@@ -86,4 +87,7 @@ for i in *.tar1; do
   process $i 
 #  time tar tvf $i > flist--$bn.txt
 done
+
+# Cleanup
+find . -type f -name flist-errors\* -empty -print -delete
         
