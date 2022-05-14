@@ -32,8 +32,8 @@ sysctl net.ipv4.tcp_mem='98304 131072 196608'
 
 # determine interfaces found OTF xxx 2017.0319
 #for e in `ifconfig -a |grep flags |awk '{print $1}'`; do
-# fix for cubietruck 2019
-for e in `ifconfig -a |grep flags |awk -F: '{print $1}'`; do
+
+for e in $(ifconfig -a |grep flags |awk -F: '{print $1}'); do
   ifconfig $e txqueuelen 5000
 #ifconfig eth1 txqueuelen 5000
 done
@@ -42,11 +42,7 @@ ifconfig -a > /root/ifconfig-a.txt
 ip a >> /root/ifconfig-a.txt
 chmod 500 /root/ifconfig-a.txt
 
-# use faster usb wireless if connected
-#fwifi=`lsmod |grep -c rt2800usb`
-#[ "$fwifi" -gt 0 ] && /root/bin/boojum/wireless-commandline.sh &
 
 #http://datatag.web.cern.ch/datatag/howto/tcp.html
 #sysctl sys.net.core.netdev_max_backlog=2000 # unknown
 ##sysctl net.ipv4.tcp_sack=0 
-
