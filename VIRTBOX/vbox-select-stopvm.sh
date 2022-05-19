@@ -60,7 +60,7 @@ fi
 # auto-lowercase it for convenience
 vmn=${vmn,,}
 if [ "$vmn" = "all" ]; then
-  STOPALLVMS # external script, needs to be in PATH
+  STOPALLVMS.sh # external script, needs to be in PATH
   exit;
 
 elif [ $(echo $vmn |grep -c ',') -gt 0 ]; then
