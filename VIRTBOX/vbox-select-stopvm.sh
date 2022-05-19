@@ -50,11 +50,11 @@ if [ "$1" = "s" ] || [ "$1" = "" ]; then
 
   echo -n "Enter comma-separated number(s) of VM to stop, or all: "
   read vmn
+  echo "You selected $vmn"
 else
   vm=$1
 fi
 
-echo "You selected $vmn"
 [ $debugg -gt 0 ] && set -x
 
 # auto-lowercase it for convenience
@@ -109,12 +109,13 @@ elif [ $(echo $vmn |grep -c ',') -gt 0 ]; then
 
 else
 # Single VM
-  vm=${vmlist[$vmn]} # get name from array
+#  vm=${vmlist[$vmn]} # get name from array
   vm=$(echo $vm |tr -d '"' |awk '{print $1}') # take out quotes and only print name
 
   [ "$vm" = "" ] && failexit 101 "Invalid VM"
   stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # remove brackets
-
+  [ "$stopthis" = "" ] && failexit 101 "Invalid VM $vm"
+  
   stopvm $stopthis
 fi
 
