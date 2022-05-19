@@ -2,7 +2,7 @@
 
 # Select from a list of running virtualbox VMs, which to stop - can handle multiple like 1,3,5
 
-# REQUIRES VboxManage, tr, awk, sed, bash version > 3.2.57(1)-release
+# REQUIRES VboxManage, tee, tr, awk, sed, bash version > 3.2.57(1)-release
 
 #NOTE running vms that are still "coming up" from disk-saved state are NOT
 # considered as "running" until they are all the way up!
