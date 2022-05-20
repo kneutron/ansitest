@@ -41,13 +41,19 @@ function startvm () {
 if [ "$1" = "s" ] || [ "$1" = "" ]; then
 # select ; REF: https://www.baeldung.com/linux/reading-output-into-array
   runtest=$($vbm list runningvms)
-  [ "$runtest" = "" ] && failexit 44 "No VMs are running under ID $(whoami)"
+  if [ "$runtest" = "" ]; then
+    echo "FYI: No VMs are currently running under ID $(whoami)"
+  else
+    echo "( $(echo "$runtest" |grep -c \}) ) VMs are currently running" # ya, its a hack :B
+  fi
 
   OIFS=$IFS
   IFS=$'\n'
 # populate array with list of known VMs
   declare -a vmlist=( $($vbm list vms |tr -d '"' |sort) )
 #LiveCD--64 {hexnum}
+
+  maxvmnum=${#vmlist[@]} # of elements in array
 
   IFS=$OIFS
 
@@ -85,7 +91,6 @@ elif [ $test4comma -gt 0 ]; then
     
 # self-shortening loop, like bash "shift"
   stopafterme=0
-  maxvmnum=${#vmlist[@]} # of elements in array
   
   while [ ${#procthese} -gt 0 ]; do
 # check length 
@@ -169,3 +174,5 @@ exit;
 
 # In all cases we should pass the UUID to stop/start in case of dup vm names to avoid confusion...
 # + standardized date format in logfile
+
+# fixed single-vm treatment, check if single-vm index number outside known, dont failexit if no vms are running
