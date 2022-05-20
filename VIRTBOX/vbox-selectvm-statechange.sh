@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# NOTE this is a slightly older version, see the verticalsort one for top-down sorting and Extra Sanity checking ==author
 # Select from a list of known virtualbox VMs, which to stop/start - can handle multiple like 1,3,5
 
 # REQUIRES VboxManage, tr, awk, sed, bash version > 3.2.57(1)-release
