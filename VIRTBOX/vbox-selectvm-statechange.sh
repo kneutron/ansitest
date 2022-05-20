@@ -69,12 +69,14 @@ fi
 
 # auto-lowercase it for convenience
 vmn=${vmn,,}
+test4comma=$(echo $vmn |grep -c ',')
+
 if [ "$vmn" = "all" ]; then
 # we are assuming there is no concievable way an end-user would want to XOR the state of every.single.vm
   STOPALLVMS.sh # external script, needs to be in PATH
   exit;
 
-elif [ $(echo $vmn |grep -c ',') -gt 0 ]; then
+elif [ $test4comma -gt 0 ]; then
 # vmn is comma-separated, multiple "1,3,5"
   procthese="$vmn"
 # SANITY
@@ -127,8 +129,16 @@ elif [ $(echo $vmn |grep -c ',') -gt 0 ]; then
   done
 
 else
-# Single VM
-#  vm=${vmlist[$vmn]} # get name from array
+# Single VM, either a number or passed as arg
+  if [ "${#vmn}" -gt 0 ]; then 
+# check length 
+    vm=${vmlist[$vmn]} # get name from array
+    if [ $vmn -gt $maxvmnum ]; then
+      echo "Invalid VM number $procthisvmnum , outside max known: $maxvmnum" |tee -a $logf
+      failexit 250 "Invalid VM index number"
+    fi
+  fi
+
   vm=$(echo $vm |tr -d '"' |awk '{print $1}') # take out quotes and only print name
 
   # take out brackets and only print uuid
