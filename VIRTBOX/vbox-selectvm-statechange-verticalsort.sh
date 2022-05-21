@@ -1,8 +1,11 @@
-#!/bin/bash
+#!/bin/bash5
+
+# Script version: 20220520@2210
+# xxx TODO editme ^^
 
 # Select from a list of known virtualbox VMs, which to stop/start - can handle multiple like 1,3,5
 
-# REQUIRES VboxManage, tr, pr, awk, sed, bash version > 3.2.57(1)-release
+# REQUIRES VboxManage, tr, pr, grep, awk, sed, tee, bash version > 3.2.57(1)-release
 
 #NOTE running vms that are still "coming up" from disk-saved state are NOT
 # considered as "running" until they are all the way up!
@@ -72,7 +75,7 @@ echo "o-> Utility to change the state of a virtualbox VM - stop if running, star
 
   echo -n "Enter comma-separated number(s) of VM to XOR, or all to stop-all: "
   read vmn
-  echo "You selected $vmn"
+#  echo "You selected $vmn"
 else
   vm="$1"
 fi
@@ -95,11 +98,12 @@ elif [ $test4comma -gt 0 ]; then
   while [ $(echo "$procthese" |grep -c ',,') -gt 0 ]; do
     procthese=$(echo "$procthese" |sed 's/,,/,/g') # get rid of multiple commas JIC
   done
-#  procthese=$(echo $procthese |sed 's/,,/,/g') # get rid of multiple commas JIC
+
   procthese=$(echo $procthese |sed 's/ //g') # get rid of spaces
   procthese=$(echo $procthese |sed 's/^,//g') # get rid of leading comma (extraneous)
   procthese=$(echo $procthese |sed 's/,$//g') # get rid of trailing comma (extraneous)
 
+  echo "After sanity checks, will be processing: $procthese"
     
 # self-shortening loop, like bash "shift"
   stopafterme=0
@@ -122,31 +126,31 @@ elif [ $test4comma -gt 0 ]; then
     regexp='^[0-9]+$' # yes, I know it should probably go outside the loop but easier to read
     if ! [[ $procthisvmnum =~ $regexp ]] ; then
       echo "Error: $procthisvmnum is Not a number" |tee -a $logf
+
       procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad input
-#      [ $(echo $procthese |grep -c ',') -le 1 ] && let stopafterme=1 # no more commas, last one
       [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
 
-#    if [ $procthisvmnum -gt $maxvmnum ]; then 
-# we are zero-indexed, remember
+# we are zero-indexed, remember so -1 less than what we know
     if [ $procthisvmnum -ge $maxvmnum ]; then 
-      echo "Invalid VM number $procthisvmnum , outside max known: $maxvmnum" |tee -a $logf
+      let whatweknow=$maxvmnum-1
+      echo "Invalid VM number $procthisvmnum , outside max known: $whatweknow" |tee -a $logf
+
       procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad number
-#      [ $(echo $procthese |grep -c ',') -le 1 ] && let stopafterme=1 # no more commas, last one
       [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
     
     vm=${vmlist[$procthisvmnum]} # get name + uuid from "known" array
 [ "$vm" = "" ] && failexit 45 "$vm not found in list!"    
+
     vmuuid=$(echo $vm |tr -d '{}' |awk '{print $2}') # take out brackets and only print uuid
     vm=$(echo $vm |tr -d '"' |awk '{print $1}') # take out quotes and only print name, note we are changing the vbl so uuid has 2b b4
 
 # check cur list of Running vms against known array info
     stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # get vm uuid + remove brackets
     if [ "$stopthis" = "" ]; then
-# start it
       startvm $vmuuid # $vm
     else
       stopvm $vmuuid # $stopthis 
@@ -157,7 +161,6 @@ elif [ $test4comma -gt 0 ]; then
 #    procthese=$(echo ${procthese#*,*}) # 1,3,5 take out the 1, BUG subshell processes last one twice if "0" is last!
     procthese=${procthese#*,*} # 1,3,5 take out the 1, (CHOMP)
     [ $(echo "$procthese" |awk -F "," '{print NF-1}') -eq 0 ] && let stopafterme=1 # no more commas, last one
-#    [ $(echo $procthese |grep -c ',') -eq 0 ] && let stopafterme=1 # no more commas, last one
 #    [ $(echo $procthese |grep -c ',') -eq 0 ] && break; # no more commas, last one
 #3,5
   done
@@ -168,13 +171,14 @@ else
 # check length, user entered selection
 
 # sanity - REF: https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
-    re='^[0-9]+$'
+    re='^[0-9]+$' # why is varname different here? for debugging
     if ! [[ $vmn =~ $re ]] ; then
       failexit 10 "Error: $vmn is Not a number" 
     fi
 
-    if [ $vmn -gt $maxvmnum ]; then
-      echo "Invalid VM number $procthisvmnum , outside max known: $maxvmnum" |tee -a $logf
+    if [ $vmn -ge $maxvmnum ]; then
+      let whatweknow=$maxvmnum-1
+      echo "Invalid VM number $vmn , outside max known: $whatweknow" |tee -a $logf
       failexit 250 "Invalid VM index number"
     fi
 
@@ -190,13 +194,11 @@ else
 
   stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # remove brackets
   if [ "$stopthis" = "" ]; then
-# start it
     startvm $vmuuid # $vm
   else
     stopvm $vmuuid # $stopthis 
   fi
 
-#  stopvm $stopthis
 fi
 
 date;
@@ -207,24 +209,27 @@ exit;
 
 # 2022.0520 Dave Bechtel
 # Adapted from: vbox-selectvm-statechange / vbox-select-stopvm.sh
-# Script version: 20220520@1800
-# xxx TODO editme ^^
 
 # The script is smart enough to XOR a VM if you pass it the UUID (without the brackets) or vmname as arg :)
 
-# In all cases, we should pass the UUID to stop/start in case of dup vm names to avoid confusion...
-# + standardized date format in logfile
+# FIX In all cases, we should pass the UUID to stop/start in case of dup vm names to avoid confusion...
+# FIX + standardized date format in logfile
 
 # fixed single-vm treatment, check if single-vm index number outside known, dont failexit if no vms are running
-# Feature: display sorted vertically with ' pr -2 ' instead of paste
 
+# Feature: display sorted vertically with ' pr -2 ' instead of paste
 # NOTE this one uses vertical-sorted display and haz Extra Sanity
 
 # The script will not care if you put in the same number two or more times.
+# The script does NOT process ranges, like 1-3 or 1..3 -- only comma-separated
 
 # tested crazy input like ,,,,,,,,,99,,,,,31,,,gob,,0,,,,,,,, and added sedloop + stopafterme check before continue
 
-# BUG - counting more than 1 comma with grep -c fails: - fixed with awk REF: https://stackoverflow.com/questions/10817439/counting-commas-in-a-line-in-bash
+# BUG - counting more than 1 comma in 1 line with grep -c fails:
+# + fixed with awk REF: https://stackoverflow.com/questions/10817439/counting-commas-in-a-line-in-bash
 # tmp=",5,0"
 #echo $tmp |grep -c ',' # not reliable!
 #1
+
+# Made max-known vm number more palatable when displaying if we-cant-do-that
+# updated requires: list of external progs
