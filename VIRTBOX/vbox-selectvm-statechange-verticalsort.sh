@@ -92,8 +92,14 @@ elif [ $test4comma -gt 0 ]; then
 # vmn is comma-separated, multiple "1,3,5"
   procthese="$vmn"
 # SANITY
-  procthese=$(echo $procthese |sed 's/,,/,/g') # get rid of multiple commas JIC
+  while [ $(echo "$procthese" |grep -c ',,') -gt 0 ]; do
+    procthese=$(echo "$procthese" |sed 's/,,/,/g') # get rid of multiple commas JIC
+  done
+#  procthese=$(echo $procthese |sed 's/,,/,/g') # get rid of multiple commas JIC
   procthese=$(echo $procthese |sed 's/ //g') # get rid of spaces
+  procthese=$(echo $procthese |sed 's/^,//g') # get rid of leading comma (extraneous)
+  procthese=$(echo $procthese |sed 's/,$//g') # get rid of trailing comma (extraneous)
+
     
 # self-shortening loop, like bash "shift"
   stopafterme=0
@@ -117,6 +123,8 @@ elif [ $test4comma -gt 0 ]; then
     if ! [[ $procthisvmnum =~ $regexp ]] ; then
       echo "Error: $procthisvmnum is Not a number" |tee -a $logf
       procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad input
+#      [ $(echo $procthese |grep -c ',') -le 1 ] && let stopafterme=1 # no more commas, last one
+      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
 
@@ -125,6 +133,8 @@ elif [ $test4comma -gt 0 ]; then
     if [ $procthisvmnum -ge $maxvmnum ]; then 
       echo "Invalid VM number $procthisvmnum , outside max known: $maxvmnum" |tee -a $logf
       procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad number
+#      [ $(echo $procthese |grep -c ',') -le 1 ] && let stopafterme=1 # no more commas, last one
+      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
     
@@ -144,9 +154,11 @@ elif [ $test4comma -gt 0 ]; then
     
     [ $stopafterme -gt 0 ] && break;
     
-    procthese=$(echo ${procthese#*,*}) # 1,3,5 take out the 1,
+#    procthese=$(echo ${procthese#*,*}) # 1,3,5 take out the 1, BUG subshell processes last one twice if "0" is last!
+    procthese=${procthese#*,*} # 1,3,5 take out the 1, (CHOMP)
+    [ $(echo "$procthese" |awk -F "," '{print NF-1}') -eq 0 ] && let stopafterme=1 # no more commas, last one
 #    [ $(echo $procthese |grep -c ',') -eq 0 ] && let stopafterme=1 # no more commas, last one
-    [ $(echo $procthese |grep -c ',') -eq 0 ] && break; # no more commas, last one
+#    [ $(echo $procthese |grep -c ',') -eq 0 ] && break; # no more commas, last one
 #3,5
   done
 
@@ -195,7 +207,7 @@ exit;
 
 # 2022.0520 Dave Bechtel
 # Adapted from: vbox-selectvm-statechange / vbox-select-stopvm.sh
-# Script version: 20220520@1805
+# Script version: 20220520@1800
 # xxx TODO editme ^^
 
 # The script is smart enough to XOR a VM if you pass it the UUID (without the brackets) or vmname as arg :)
@@ -209,3 +221,10 @@ exit;
 # NOTE this one uses vertical-sorted display and haz Extra Sanity
 
 # The script will not care if you put in the same number two or more times.
+
+# tested crazy input like ,,,,,,,,,99,,,,,31,,,gob,,0,,,,,,,, and added sedloop + stopafterme check before continue
+
+# BUG - counting more than 1 comma with grep -c fails: - fixed with awk REF: https://stackoverflow.com/questions/10817439/counting-commas-in-a-line-in-bash
+# tmp=",5,0"
+#echo $tmp |grep -c ',' # not reliable!
+#1
