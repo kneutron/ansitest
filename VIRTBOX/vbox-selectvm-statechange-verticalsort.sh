@@ -1,4 +1,4 @@
-#!/bin/bash5
+#!/bin/bash
 
 # Script version: 20220520@2210
 # xxx TODO editme ^^
