@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# NOTE this is a slightly older version, see the verticalsort one for top-down sorting and Extra Sanity checking ==author
+echo "NOTE this is a slightly older version, see the verticalsort one for top-down sorting and Extra Sanity checking ==author"
+
+exit;
+
+# THIS SCRIPT HAS KNOWN BUGS AND IS NOT MAINTAINED -- XXX 20220521
+
 # Select from a list of known virtualbox VMs, which to stop/start - can handle multiple like 1,3,5
 
 # REQUIRES VboxManage, tr, awk, sed, bash version > 3.2.57(1)-release
