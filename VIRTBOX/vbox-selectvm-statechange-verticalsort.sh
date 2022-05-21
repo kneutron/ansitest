@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# Script version: 20220520@2210
+# Script version:
+scrver="2022_0521@1030"
 # xxx TODO editme ^^
 
 # Select from a list of known virtualbox VMs, which to stop/start - can handle multiple like 1,3,5
 
 # REQUIRES VboxManage, tr, pr, grep, awk, sed, tee, bash version > 3.2.57(1)-release
 
-#NOTE running vms that are still "coming up" from disk-saved state are NOT
-# considered as "running" until they are all the way up!
+#NOTE running vms that are still "coming up" from disk-saved state are NOT considered as "running"
+# until they are all the way up!
 
 # This script will XOR the state of a VM - if running, it will Stop it; if not running, it will Start it.
 # Entering "all" will STOP all running VMs
@@ -22,20 +23,18 @@ debugg=0
 # failexit.mrg
 function failexit () {
   echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
-  exit $1
+  exit "$1"
 }
 
 function stopvm () {
-  echo "$(date) - $(whoami) Stopping VM ${vm} / ${vmuuid}" |tee -a $logf
-#[ $debugg -eq 0 ] && time $vbm controlvm $stopthis savestate && echo "$vm is now stopped - $(date)" |tee -a $logf
-[ $debugg -eq 0 ] && time $vbm controlvm $vmuuid savestate && echo "$(date) - $vm is now stopped" |tee -a $logf
+  echo "$(date) - $(whoami) Stopping VM ${vm} / ${vmuuid}" |tee -a "$logf"
+[ $debugg -eq 0 ] && time $vbm controlvm ${vmuuid} savestate && echo "$(date) - $vm is now stopped" |tee -a "$logf"
 # Dont actually stop any if debugging
 }
 
 function startvm () {
-  echo "$(date) - $(whoami) Starting VM ${vm} / ${vmuuid}" |tee -a $logf
-#[ $debugg -eq 0 ] && time $vbm startvm ${vm} && echo "$vm is now running - $(date)" |tee -a $logf
-[ $debugg -eq 0 ] && time $vbm startvm $vmuuid && echo "$(date) - $vm is now running" |tee -a $logf
+  echo "$(date) - $(whoami) Starting VM ${vm} / ${vmuuid}" |tee -a "$logf"
+[ $debugg -eq 0 ] && time $vbm startvm ${vmuuid} && echo "$(date) - $vm is now running" |tee -a "$logf"
 # Dont actually start any if debugging
 }
 
@@ -50,24 +49,23 @@ if [ "$1" = "s" ] || [ "$1" = "" ]; then
     echo "( $(echo "$runtest" |grep -c \}) ) VMs are currently running" # ya, its a hack :B
   fi
 
-  OIFS=$IFS
+  OIFS="$IFS"
   IFS=$'\n'
 # populate array with list of known VMs
   declare -a vmlist=( $($vbm list vms |tr -d '"' |sort) )
 #LiveCD--64 {hexnum}
 
   maxvmnum=${#vmlist[@]} # of elements in array
-
-  IFS=$OIFS
+  IFS="$OIFS"
 
 cols=$(stty size |awk '{print $2}') # columns / terminal size - REF: https://stackoverflow.com/questions/1780483/lines-and-columns-environmental-variables-lost-in-a-script
-echo "o-> Utility to change the state of a virtualbox VM - stop if running, start if not running <-o"  
+echo "o-> Utility to change the state of a virtualbox VM - stop if running, start if not running v.$scrver-$debugg <-o"  
   # dump array - REF: https://opensource.com/article/18/5/you-dont-know-bash-intro-bash-arrays
   for i in ${!vmlist[@]}; do
      echo "$i ${vmlist[$i]}"
   done |tr -d '"{}' |pr -2 -t -w $cols |awk 'NF>0'
-# Remove quotes and brackets from output, filter thru 'pr', no blank lines
-# ISSUE - interesting, $COLUMNS is not avail at runtime! but we can get from stty size awk=2
+# Remove quotes and brackets from output, vertical output with 'pr', no blank lines
+# ISSUE - interesting, $COLUMNS is not avail at runtime! but we can get from stty size field 2
 # FEATURE: fancy display in 2 columns sorted vertically  
 
 #  done |tr -d '"{}' |awk '{print $1" "$2" "$3}' |paste - - |column -t
@@ -104,63 +102,75 @@ elif [ $test4comma -gt 0 ]; then
   procthese=$(echo $procthese |sed 's/,$//g') # get rid of trailing comma (extraneous)
 
   echo "After sanity checks, will be processing: $procthese"
-    
+
+# REF: https://stackoverflow.com/questions/918886/how-do-i-split-a-string-on-a-delimiter-in-bash#tab-top 
+  oIFS="$IFS"
+  IFS=","
+  declare -a dothese=($procthese)
+  IFS="$oIFS"
+   
 # self-shortening loop, like bash "shift"
-  stopafterme=0
+#  stopafterme=0
   
-  while [ ${#procthese} -gt 0 ]; do
+#  while [ ${#procthese} -gt 0 ]; do
 # check length 
 
-    if [ "${procthese:0:1}" = "," ]; then
+# xxx new
+  for procthisvmnum in "${dothese[@]}" ;do
+#    if [ "${procthese:0:1}" = "," ]; then
 # if 1st char , skip it and gimme the rest    
 #[ $debugg -gt 0 ] && echo "TRIPPED 1stchar comma"
-      procthese=${procthese:1}
+#      procthese=${procthese:1}
 #    else
 #[ $debugg -gt 0 ] && echo "NOTRIP 1stchar comma" 
-    fi
+#    fi
 
-    procthisvmnum=${procthese%%,*} # Deletes longest match of $substring from back of $string; 1,3,5 = get 1
-[ "$procthisvmnum" = "" ] && failexit 99 "procthisvmnum is blank!"
+#    procthisvmnum=${procthese%%,*} # Deletes longest match of $substring from back of $string; 1,3,5 = get 1
+#[ "$procthisvmnum" = "" ] && failexit 99 "procthisvmnum is blank!"
  
 # sanity - REF: https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
     regexp='^[0-9]+$' # yes, I know it should probably go outside the loop but easier to read
     if ! [[ $procthisvmnum =~ $regexp ]] ; then
-      echo "Error: $procthisvmnum is Not a number" |tee -a $logf
+      echo "Error: $procthisvmnum is Not a number" |tee -a "$logf"
 
-      procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad input
-      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
+#      procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad input
+#      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
 
 # we are zero-indexed, remember so -1 less than what we know
     if [ $procthisvmnum -ge $maxvmnum ]; then 
       let whatweknow=$maxvmnum-1
-      echo "Invalid VM number $procthisvmnum , outside max known: $whatweknow" |tee -a $logf
+      echo "Invalid VM number $procthisvmnum , outside max known: $whatweknow" |tee -a "$logf"
 
-      procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad number
-      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
+#      procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad number
+#      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
     
     vm=${vmlist[$procthisvmnum]} # get name + uuid from "known" array
+[ $debugg -gt 0 ] && echo "vm: $vm" 
 [ "$vm" = "" ] && failexit 45 "$vm not found in list!"    
 
     vmuuid=$(echo $vm |tr -d '{}' |awk '{print $2}') # take out brackets and only print uuid
+[ $debugg -gt 0 ] && echo "vmuuid: $vmuuid" 
     vm=$(echo $vm |tr -d '"' |awk '{print $1}') # take out quotes and only print name, note we are changing the vbl so uuid has 2b b4
 
-# check cur list of Running vms against known array info
-    stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # get vm uuid + remove brackets
+# check cur list of Running vms against known array info - BUGFIX check for uuid, not name!
+#    stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # get vm uuid + remove brackets
+    stopthis=$(VBoxManage list runningvms |awk '/'$vmuuid'/ {print $2}' |tr -d '{}') # get vm uuid + remove brackets
+[ $debugg -gt 0 ] && echo "stopthis / vmuuid: $stopthis / $vmuuid"
     if [ "$stopthis" = "" ]; then
       startvm $vmuuid # $vm
     else
       stopvm $vmuuid # $stopthis 
     fi
     
-    [ $stopafterme -gt 0 ] && break;
+#    [ $stopafterme -gt 0 ] && break;
     
 #    procthese=$(echo ${procthese#*,*}) # 1,3,5 take out the 1, BUG subshell processes last one twice if "0" is last!
-    procthese=${procthese#*,*} # 1,3,5 take out the 1, (CHOMP)
-    [ $(echo "$procthese" |awk -F "," '{print NF-1}') -eq 0 ] && let stopafterme=1 # no more commas, last one
+#    procthese=${procthese#*,*} # 1,3,5 take out the 1, (CHOMP)
+#    [ $(echo "$procthese" |awk -F "," '{print NF-1}') -eq 0 ] && let stopafterme=1 # no more commas, last one
 #    [ $(echo $procthese |grep -c ',') -eq 0 ] && break; # no more commas, last one
 #3,5
   done
@@ -178,21 +188,24 @@ else
 
     if [ $vmn -ge $maxvmnum ]; then
       let whatweknow=$maxvmnum-1
-      echo "Invalid VM number $vmn , outside max known: $whatweknow" |tee -a $logf
+      echo "Invalid VM number $vmn , outside max known: $whatweknow" |tee -a "$logf"
       failexit 250 "Invalid VM index number"
     fi
 
     vm=${vmlist[$vmn]}
 # get name by number from array - NOTE if this equates to 0 somehow, it still works - was BUG if you enter random text as selection
+    vmuuid=$(echo $vm |tr -d '{}' |awk '{print $2}') # take out brackets and only print uuid
   fi
 
   vm=$(echo $vm |tr -d '"' |awk '{print $1}') # take out quotes and only print name
 
   # take out brackets and only print uuid
-  vmuuid=$($vbm list vms |grep ${vm} |awk '{print $2}' |tr -d '{}')
+  [ "$vmuuid" = "" ] && vmuuid=$($vbm list vms |grep ${vm} |awk '{print $2}' |tr -d '{}')
   [ "$vmuuid" = "" ] && failexit 46 "Cannot find uuid for $vm / unknown VM?"
 
-  stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # remove brackets
+ # stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # remove brackets
+  stopthis=$(VBoxManage list runningvms |awk '/'$vmuuid'/ {print $2}' |tr -d '{}') # remove brackets
+# BUGFIX search running for uuid, not name  
   if [ "$stopthis" = "" ]; then
     startvm $vmuuid # $vm
   else
@@ -203,33 +216,51 @@ fi
 
 date;
 
-ls -lh $logf
+ls -lh "$logf"
 
 exit;
 
 # 2022.0520 Dave Bechtel
 # Adapted from: vbox-selectvm-statechange / vbox-select-stopvm.sh
 
-# The script is smart enough to XOR a VM if you pass it the UUID (without the brackets) or vmname as arg :)
+# Feature: display sorted vertically with ' pr -2 ' instead of paste
+# NOTE this one uses vertical-sorted display and haz Extra Sanity
+
+# The script:
+# o Smart enough to XOR a VM if you pass it the UUID (without the brackets) or vmname as arg :)
+# o Will not care if you put in the same number two or more times(!)
+# o Does NOT process ranges, like 1-3 or 1..3 -- only comma-separated
+
+
+# helpful aliases:
+alias vb='wmctrl -s 2; virtualbox &'
+alias vbm='VBoxManage '
+alias vb-listvms="VBoxManage list vms |tr -d '\"{}' |awk '{print \$1,\$2}' |sort |column -t"
+alias vb-listvms-short="VBoxManage list vms |tr -d '\"{}' |awk '{print \$1}' |sort |paste - - |column -t"
+alias vb-listvmsv="VBoxManage list vms |tr -d '\"{}' |awk '{print \$1,\"/ \"\$2}' |sort |pr -2 -t -w $(stty size|cut -d' ' -f2) |awk 'NF>0'"
+alias vb-listrunning='VBoxManage list runningvms'
+alias vb-listrunningnobracket="echo $(VBoxManage list runningvms |awk '{print $2}' |tr -d '{}')"
+
 
 # FIX In all cases, we should pass the UUID to stop/start in case of dup vm names to avoid confusion...
 # FIX + standardized date format in logfile
 
 # fixed single-vm treatment, check if single-vm index number outside known, dont failexit if no vms are running
 
-# Feature: display sorted vertically with ' pr -2 ' instead of paste
-# NOTE this one uses vertical-sorted display and haz Extra Sanity
+# tested crazy input like ,,,,,,,,,99,,,,,31,,,gob,,0,,,,,,,, and added sedloop 
 
-# The script will not care if you put in the same number two or more times.
-# The script does NOT process ranges, like 1-3 or 1..3 -- only comma-separated
-
-# tested crazy input like ,,,,,,,,,99,,,,,31,,,gob,,0,,,,,,,, and added sedloop + stopafterme check before continue
-
-# BUG - counting more than 1 comma in 1 line with grep -c fails:
+# BUGfixed - counting more than 1 comma in 1 line with grep -c fails:
 # + fixed with awk REF: https://stackoverflow.com/questions/10817439/counting-commas-in-a-line-in-bash
 # tmp=",5,0"
 #echo $tmp |grep -c ',' # not reliable!
 #1
 
-# Made max-known vm number more palatable when displaying if we-cant-do-that
-# updated requires: list of external progs
+# FIX Made max-known vm number more palatable when displaying if we-cant-do-that
+# + Updated requires: list of external progs
+
+# display version+debugg on run
+
+#FIXED BUG: ,,,,0,,,, starts/stops!!
+#TESTING BUGFIX: mixing up similarly-named VMs / uuids
+
+# 2022.0521 chomping 1, onthefly fromthe front is buggy - sep into array after sanity = works better, no doubling
