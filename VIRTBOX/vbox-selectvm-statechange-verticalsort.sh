@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script version:
-scrver="2022_0521@1030"
+scrver="2022_0521@1345"
 # xxx TODO editme ^^
 
 # Select from a list of known virtualbox VMs, which to stop/start - can handle multiple like 1,3,5
@@ -40,6 +40,8 @@ function startvm () {
 
 
 ########## MAIN
+echo "o-> Utility to change state of a virtualbox VM -stop if running, +start if not running | v.$scrver-$debugg <-o"  
+
 if [ "$1" = "s" ] || [ "$1" = "" ]; then
 # select ; REF: https://www.baeldung.com/linux/reading-output-into-array
   runtest=$($vbm list runningvms)
@@ -59,10 +61,14 @@ if [ "$1" = "s" ] || [ "$1" = "" ]; then
   IFS="$OIFS"
 
 cols=$(stty size |awk '{print $2}') # columns / terminal size - REF: https://stackoverflow.com/questions/1780483/lines-and-columns-environmental-variables-lost-in-a-script
-echo "o-> Utility to change the state of a virtualbox VM - stop if running, start if not running v.$scrver-$debugg <-o"  
   # dump array - REF: https://opensource.com/article/18/5/you-dont-know-bash-intro-bash-arrays
   for i in ${!vmlist[@]}; do
-     echo "$i ${vmlist[$i]}"
+     chkrun=$(echo $runtest |grep -c $(echo ${vmlist[$i]} |awk '{print $2}') ) # check is this uuid in running?
+     if [ $chkrun -gt 0 ]; then
+        echo "$i + ${vmlist[$i]}" # Prefix with "+" to indicate running
+     else
+       echo "$i - ${vmlist[$i]}" # - = not running
+     fi
   done |tr -d '"{}' |pr -2 -t -w $cols |awk 'NF>0'
 # Remove quotes and brackets from output, vertical output with 'pr', no blank lines
 # ISSUE - interesting, $COLUMNS is not avail at runtime! but we can get from stty size field 2
@@ -71,7 +77,7 @@ echo "o-> Utility to change the state of a virtualbox VM - stop if running, star
 #  done |tr -d '"{}' |awk '{print $1" "$2" "$3}' |paste - - |column -t
 # Old way - fancy display in 2 columns; $1=number of entry, $2=nameofvm, $3=vmUUID
 
-  echo -n "Enter comma-separated number(s) of VM to XOR, or all to stop-all: "
+  echo -n "+=ON; Enter comma-separated number(s) of VM to XOR, or all to stop-all: "
   read vmn
 #  echo "You selected $vmn"
 else
@@ -109,32 +115,14 @@ elif [ $test4comma -gt 0 ]; then
   declare -a dothese=($procthese)
   IFS="$oIFS"
    
-# self-shortening loop, like bash "shift"
-#  stopafterme=0
-  
-#  while [ ${#procthese} -gt 0 ]; do
-# check length 
-
 # xxx new
   for procthisvmnum in "${dothese[@]}" ;do
-#    if [ "${procthese:0:1}" = "," ]; then
-# if 1st char , skip it and gimme the rest    
-#[ $debugg -gt 0 ] && echo "TRIPPED 1stchar comma"
-#      procthese=${procthese:1}
-#    else
-#[ $debugg -gt 0 ] && echo "NOTRIP 1stchar comma" 
-#    fi
 
-#    procthisvmnum=${procthese%%,*} # Deletes longest match of $substring from back of $string; 1,3,5 = get 1
-#[ "$procthisvmnum" = "" ] && failexit 99 "procthisvmnum is blank!"
- 
 # sanity - REF: https://stackoverflow.com/questions/806906/how-do-i-test-if-a-variable-is-a-number-in-bash
     regexp='^[0-9]+$' # yes, I know it should probably go outside the loop but easier to read
     if ! [[ $procthisvmnum =~ $regexp ]] ; then
       echo "Error: $procthisvmnum is Not a number" |tee -a "$logf"
 
-#      procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad input
-#      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
 
@@ -143,8 +131,6 @@ elif [ $test4comma -gt 0 ]; then
       let whatweknow=$maxvmnum-1
       echo "Invalid VM number $procthisvmnum , outside max known: $whatweknow" |tee -a "$logf"
 
-#      procthese=$(echo $procthese |sed 's/'$procthisvmnum'//') # take out the bad number
-#      [ $(echo "$procthese" |awk -F "," '{print NF-1}') -le 1 ] && let stopafterme=1 # no more commas, last one
       continue; # next iteration
     fi
     
@@ -154,7 +140,7 @@ elif [ $test4comma -gt 0 ]; then
 
     vmuuid=$(echo $vm |tr -d '{}' |awk '{print $2}') # take out brackets and only print uuid
 [ $debugg -gt 0 ] && echo "vmuuid: $vmuuid" 
-    vm=$(echo $vm |tr -d '"' |awk '{print $1}') # take out quotes and only print name, note we are changing the vbl so uuid has 2b b4
+    vm=$(echo "$vm" |tr -d '"' |awk '{print $1}') # take out quotes and only print name, note we are changing the vbl so uuid has 2b b4
 
 # check cur list of Running vms against known array info - BUGFIX check for uuid, not name!
 #    stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # get vm uuid + remove brackets
@@ -165,14 +151,6 @@ elif [ $test4comma -gt 0 ]; then
     else
       stopvm $vmuuid # $stopthis 
     fi
-    
-#    [ $stopafterme -gt 0 ] && break;
-    
-#    procthese=$(echo ${procthese#*,*}) # 1,3,5 take out the 1, BUG subshell processes last one twice if "0" is last!
-#    procthese=${procthese#*,*} # 1,3,5 take out the 1, (CHOMP)
-#    [ $(echo "$procthese" |awk -F "," '{print NF-1}') -eq 0 ] && let stopafterme=1 # no more commas, last one
-#    [ $(echo $procthese |grep -c ',') -eq 0 ] && break; # no more commas, last one
-#3,5
   done
 
 else
@@ -197,10 +175,10 @@ else
     vmuuid=$(echo $vm |tr -d '{}' |awk '{print $2}') # take out brackets and only print uuid
   fi
 
-  vm=$(echo $vm |tr -d '"' |awk '{print $1}') # take out quotes and only print name
+  vm=$(echo "$vm" |tr -d '"' |awk '{print $1}') # take out quotes and only print name
 
   # take out brackets and only print uuid
-  [ "$vmuuid" = "" ] && vmuuid=$($vbm list vms |grep ${vm} |awk '{print $2}' |tr -d '{}')
+  [ "$vmuuid" = "" ] && vmuuid=$($vbm list vms |grep "$vm" |awk '{print $2}' |tr -d '{}')
   [ "$vmuuid" = "" ] && failexit 46 "Cannot find uuid for $vm / unknown VM?"
 
  # stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # remove brackets
@@ -261,6 +239,9 @@ alias vb-listrunningnobracket="echo $(VBoxManage list runningvms |awk '{print $2
 # display version+debugg on run
 
 #FIXED BUG: ,,,,0,,,, starts/stops!!
-#TESTING BUGFIX: mixing up similarly-named VMs / uuids
+#FIXED: mixing up similarly-named VMs / uuids
 
-# 2022.0521 chomping 1, onthefly fromthe front is buggy - sep into array after sanity = works better, no doubling
+# 2022.0521 chomping 1, onthefly from the front is buggy - sep into array after sanity = works better, no doubling
+
+# v20220521.1345 + added feature to display "+" if VM running, - if not
+# -removed extraneous comments / oldcode
