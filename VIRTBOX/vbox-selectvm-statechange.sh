@@ -27,7 +27,7 @@ function failexit () {
   echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
   exit $1
 }
-
+ 
 function stopvm () {
   echo "$(date) - $(whoami) Stopping VM ${vm} / ${vmuuid}" |tee -a $logf
 #[ $debugg -eq 0 ] && time $vbm controlvm $stopthis savestate && echo "$vm is now stopped - $(date)" |tee -a $logf
