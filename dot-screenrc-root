@@ -2,6 +2,7 @@ hardstatus alwayslastline
 hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f %t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{R}%Y-%m-%d %{W}%c %{g}]'
 # red for root date = warn/readability xxx 2020.0605
 # color ref: https://www.gnu.org/software/screen/manual/screen.html#String-Escapes
+# NOTE rename to /root/.screenrc
 # Default screens
 # bashme/aliases not work :(
 defscrollback 2000
@@ -9,7 +10,7 @@ defscrollback 2000
 screen -t shell1	0	/bin/bash
 screen -t shell2	1	/bin/bash
 screen -t shell3	2	/bin/bash
-screen -t shell4	3	/usr/local/bin/bash
+#screen -t shell4	3	/usr/local/bin/bash
 # bash5 xxx 2020.0605
 
 
