@@ -3,7 +3,7 @@ hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f %t%?(%u
 # cyan for non-root date = readability xxx 2020.0605
 # color ref: https://www.gnu.org/software/screen/manual/screen.html#String-Escapes
 # Default screens
-# bashme/aliases not work :(
+# NOTE rename to $HOME/.screenrc
 defscrollback 2000
 
 screen -t shell1	0	/bin/bash
