@@ -1,0 +1,18 @@
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f %t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{c}%Y-%m-%d %{W}%c %{g}]'
+# cyan for non-root date = readability xxx 2020.0605
+# color ref: https://www.gnu.org/software/screen/manual/screen.html#String-Escapes
+# Default screens
+# bashme/aliases not work :(
+defscrollback 2000
+
+screen -t shell1	0	/bin/bash
+screen -t shell2	1	/bin/bash
+screen -t shell3	2	/bin/bash
+
+# switch back to 1st window
+select 0
+
+#	7 screen -t server	2 	sh me@myserver
+#	8 screen -t IRC	7	irssi
+#	9 screen -t Mail	8	mutt
