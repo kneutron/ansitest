@@ -6,7 +6,7 @@
 # Useful for finding the short name of your disk (or serial number) in a ZFS pool
 # NOTE should be re-run if a disk is physically replaced because the descriptive name may change
 
-outf=/tmp/drivemap.txt
+outf=$HOME/drivemap.txt
 
 # Replace ../.. with /dev and reverse columns so shortdev is 1st
 # Use 'sort -k 3' if $9 $10 $11
@@ -19,6 +19,7 @@ ls -lR /dev/disk |grep -w /sd[a-z][a-z] |sed 's^../..^/dev^' |awk 'NF>0 {print $
  >>$outf
 
 ls -l $outf
+cp -v $outf /tmp
 
 # To search outfile:
 # grep ata-VBOX_HARDDISK_VB0fffe26a-25e5ad55 /tmp/drivemap.txt
