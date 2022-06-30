@@ -1,5 +1,5 @@
 #!/bin/bash
-#d2f=$(ls -l /sys/dev/block |awk '/'$1'/ {print $9}')
+# arg = shortname disk e.g. sdc , omit the /dev
 
 echo "Failing $1"
 echo offline > /sys/block/$1/device/state 
