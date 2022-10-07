@@ -36,6 +36,9 @@ df -hT |grep zfs
 
 echo "$(date) - Removing existing ZFS packages"
 time apt-get remove --purge -y libzfs2linux zfs-dkms zfsutils-linux spl spl-dkms  libnvpair* libuutil* libzpool*
+
+[ "$1" = "nuke" ] && apt-get remove $(dpkg -l |grep zfs |awk '{printf $2" "}')
+
 [ $(dpkg -l |egrep -c 'libzfs2linux|zfs-dkms|zfsutils-linux|spl-dkms|libnvpair|libuutil|libzpool') -gt 0 ] && failexit 199 "! ZFS packages are still installed!"
 
 # call downloaded script, should be in /root/bin or /usr/local/bin // accessible by PATH
