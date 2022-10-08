@@ -4,10 +4,6 @@
 zypper ref
 zypper update
 
-#debsort
-#mv -f -v ~/DEBInstalled.list ~/DEBInstalled.list.prev ; \
-#  dpkg -l >~/DEBInstalled.list 
-
 rpmsortinst &
 
 # only updt if locatedb >24H old
@@ -26,5 +22,6 @@ if [ $timediff -ge 86400 ]; then
 else
  echo "NOTE Skipping updatedb, timediff is only $timediff"
 fi
+
 #squiderr
 #efibootmgr
