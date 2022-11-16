@@ -7,6 +7,9 @@ function failexit () {
   exit $1
 }
 
+# Proof of concept, mount /var/cache/apt to a networked location with more free space so can DL packages for Debian/derived upgrade
+# Useful for raspberry pi SDCARD, other systems you should be able to add another disk (virtual) or use USB external disk
+
 /bin/mv -v /var/cache/apt /var/cache/apt-old
 mkdir -pv /var/cache/apt
 
@@ -28,7 +31,4 @@ read
 time rsync -av --remove-source-files --delete-after --max-delete=1 --prune-empty-dirs --progress \
   /var/cache/apt-old/* /var/cache/apt/
 
-#echo "Enter to compress old files (frees up space), or ^C"
-#read
-#time gzip -rv *
 ls -alh /var/cache/apt
