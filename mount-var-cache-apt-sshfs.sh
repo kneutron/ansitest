@@ -1,14 +1,17 @@
 #!/bin/bash
 # REF: https://superuser.com/questions/32884/sshfs-mount-without-compression-or-encryption
 
+# Proof of concept, mount /var/cache/apt to a networked location with more free space so can DL packages for Debian/derived upgrade
+# Useful for raspberry pi SDCARD, other systems you should be able to add another disk (virtual) or use USB external disk
+# REQUIRES: sshfs, rsync
+
 # failexit.mrg
 function failexit () {
   echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
   exit $1
 }
 
-# Proof of concept, mount /var/cache/apt to a networked location with more free space so can DL packages for Debian/derived upgrade
-# Useful for raspberry pi SDCARD, other systems you should be able to add another disk (virtual) or use USB external disk
+[ $(which sshfs |wc -l) -gt 0 ] || (apt-get update; apt-get install -y sshfs rsync)
 
 /bin/mv -v /var/cache/apt /var/cache/apt-old
 mkdir -pv /var/cache/apt
