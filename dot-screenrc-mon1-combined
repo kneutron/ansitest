@@ -1,7 +1,8 @@
 hardstatus alwayslastline
 hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f %t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%Y-%m-%d %{W}%c %{g}]'
 # Default screens
-# bashme/aliases not work :(
+# Provides a 4-panel text monitor, should work fine on plain TTY as well as xterm
+# REQUIRES: bwm-ng, sysstat, watch
 
 # REF: https://fordodone.com/2016/02/24/start-screen-session-with-4-way-split-screen/
 split
