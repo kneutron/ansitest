@@ -1,0 +1,70 @@
+Find field 7 = bash without grep
+
+# awk -F: '$7 ~ /bash/' /etc/passwd 
+_mbsetupuser:*:248:248:Setup User:/var/setup:/bin/bash
+
+REF: https://www.ubuntupit.com/useful-awk-command-in-linux-and-bsd/
+
+---
+
+Find/replace all "-" with "&" in ls -l but 1st column only, leave filename alone 
+REF: https://www.gnu.org/software/gawk/manual/html_node/String-Functions.html
+REF: https://www.reddit.com/r/linuxquestions/comments/y6g6ep/i_wanna_replace_something_in_the_output_of_the/
+
+Linux: ls -l |awk '{gsub(/-/, "\&",$1)}1'
+drwxr&s&&x 2 dave 1001 4096 Jun 28 10:04 bin
+drwxr&xr&x 34 dave dave 4096 Oct 17 23:59 squid-reports
+
+OSX: ls -l |awk '{gsub(/-/, "\\&",$1)}1' # needs double-escape for some rsn
+
+---
+
+REF: https://www.reddit.com/r/bash/comments/y8yibd/newbie_question_how_to_extract_the_first_columm/
+
+# 1   2  3
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+awk -F: '{ if ($3 >= 1000 && $3 <= 60000) { print $1 } }' /etc/passwd
+
+---
+
+REF: https://www.reddit.com/r/commandline/comments/z27zft/csv_manipulation/
+awk split on multiple chars
+
+tmp="S202491,surname, firstname,fname202@email.com,Cyber Security"
+
+$ echo "$tmp" |awk -F'[,@]' '{ print $4","$4"@"$5","$2","$3 }'
+^ chars contained in []
+fname202,fname202@email.com,surname, firstname
+
+---
+
+REF: https://stackoverflow.com/questions/28905083/how-to-sum-a-column-in-awk
+add numbers (sum)
+
+awk -F',' '{sum+=$4;}END{print sum;}' testawk.txt
+
+$ tar tzvf zfs-2.1.7.tar.gz |head
+#1	    2 3		4	5
+-rw-r--r--  0 buildbot buildbot  855 Dec  1 18:07 zfs-2.1.7/config/always-arch.m4
+-rw-r--r--  0 buildbot buildbot 5722 Dec  1 18:07 zfs-2.1.7/config/always-compiler-options.m4
+-rw-r--r--  0 buildbot buildbot  148 Dec  1 18:07 zfs-2.1.7/config/always-cppcheck.m4
+-rw-r--r--  0 buildbot buildbot  211 Dec  1 18:07 zfs-2.1.7/config/always-parallel.m4
+-rw-r--r--  0 buildbot buildbot 2235 Dec  1 18:07 zfs-2.1.7/config/always-python.m4
+-rw-r--r--  0 buildbot buildbot 3675 Dec  1 18:07 zfs-2.1.7/config/always-pyzfs.m4
+-rw-r--r--  0 buildbot buildbot  539 Dec  1 18:07 zfs-2.1.7/config/always-sed.m4
+-rw-r--r--  0 buildbot buildbot  370 Dec  1 18:07 zfs-2.1.7/config/always-shellcheck.m4
+
+# sum up file sizes in tar for size after extract
+tar tzvf zfs-2.1.7.tar.gz |awk '{sum+=$5;}END{print sum;}' 
+65756349
+
+# REF: https://unix.stackexchange.com/questions/249116/how-to-use-awk-to-format-numbers-with-a-thousands-separator
+# commasep
+tar tzvf zfs-2.1.7.tar.gz |awk '{sum+=$5;}END{print sum;}' |LC_ALL=en_US.UTF-8 awk '{ printf("%'"'"'d\n", $0) }'
+65,756,349
+
+# allin1
+tar tzvf zfs-2.1.7.tar.gz |LC_ALL=en_US.UTF-8 awk '{sum+=$5;}END{printf "%'"'"'d\n", sum;}' 
+65,756,349
+
+---
