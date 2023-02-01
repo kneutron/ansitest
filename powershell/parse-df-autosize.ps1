@@ -147,3 +147,6 @@ if ($demo -gt 0) {
     | Format-Table -AutoSize -Property Type, Used, Avail, Usepct, MountedOn
 
 }
+
+# Alt method:
+# (gdf -hT) -replace '\s+',',' | convertfrom-csv |Where-Object Type -like 'zfs' |Format-Table
