@@ -1,3 +1,5 @@
+Result of calling   parse-df-autosize.ps1 1
+
 /dev/disk6s1
 zfs
 54G
@@ -16,9 +18,6 @@ zhgstera6/tmpdel-xattrsa                       zfs  2.1T 56G  2.0T       3 /Volu
 zhgstera6/virtbox-virtmachines                 zfs  2.7T 679G 2.0T      26 /Volumes/zhgstera6/virtbox-virtmachines
 zhgstera6/virtbox-virtmachines-linux           zfs  2.2T 152G 2.0T       7 /Volumes/zhgstera6/virtbox-virtmachines-lin…
 zhgstera6/virtbox-virtmachines/nocompr-freebsd zfs  2.0T 9.1G 2.0T       1 /Volumes/zhgstera6/virtbox-virtmachines/noc…
-/dev/disk5s2                                   apfs 1.3T 192G 911G      18 /Volumes/enki-bkp
-/dev/disk4s1                                   apfs 56G  36G  21G       64 /Volumes/hgst6-enki
-zint500/enki                                   zfs  112G 33G  80G       29 /Volumes/zint500/enki
 
 Select only zfs filesystems:
 
@@ -26,7 +25,6 @@ Filesystem                                     Type Size Used Avail Usepct Mount
 ----------                                     ---- ---- ---- ----- ------ ---------
 /dev/disk6s1                                   zfs  54G  448K 54G        1 /Volumes/zsam53
 zsam53/dot-thunderbird-linux                   zfs  56G  2.2G 54G        4 /Volumes/zsam53/dot-thunderbird-linux
-zsam53/dvdrips-shr-zsam53                      zfs  54G  480K 54G        1 /Volumes/zsam53/dvdrips-shr-zsam53
 zsam53/imac513-installed-old-zsam53            zfs  54G  776M 54G        2 /Volumes/zsam53/imac513-installed-old-zsam53
 zsam53/notshrcompr-zsam53                      zfs  121G 68G  54G       56 /Volumes/zsam53/notshrcompr-zsam53
 zsam53/notshrnotcompr                          zfs  54G  368K 54G        1 /Volumes/zsam53/notshrnotcompr
@@ -34,13 +32,11 @@ zsam53/shrcompr-zsam53                         zfs  118G 65G  54G       55 /Volu
 zsam53/tmpdel-zsam53                           zfs  69G  16G  54G       23 /Volumes/zsam53/tmpdel-zsam53
 zsam53/virtbox-gz2                             zfs  80G  26G  54G       33 /Volumes/zsam53/virtbox-gz2
 /dev/disk7s1                                   zfs  80G  464K 80G        1 /Volumes/zint500
-zint500/dvdrips-shr-zint500                    zfs  84G  4.0G 80G        5 /Volumes/zint500/dvdrips-shr-zint500
 zint500/notshrcompr-zint500                    zfs  136G 56G  80G       42 /Volumes/zint500/notshrcompr-zint500
 zint500/notshrnotcompr                         zfs  80G  816K 80G        1 /Volumes/zint500/notshrnotcompr
 zint500/shrcompr-zint500                       zfs  119G 39G  80G       33 /Volumes/zint500/shrcompr-zint500
 zint500/virtbox-virtmachines                   zfs  114G 35G  80G       30 /Volumes/zint500/virtbox-virtmachines
 /dev/disk8s1                                   zfs  2.0T 440K 2.0T       1 /Volumes/zhgstera6
-zhgstera6/dvdrips-shr                          zfs  2.5T 485G 2.0T      20 /Volumes/zhgstera6/dvdrips-shr
 zhgstera6/notshrcompr-zhgst6                   zfs  2.4T 367G 2.0T      16 /Volumes/zhgstera6/notshrcompr-zhgst6
 zhgstera6/notshrcompr-zhgst6/bkp-bookmarks     zfs  2.1T 39G  2.0T       2 /Volumes/zhgstera6/notshrcompr-zhgst6/bkp-b…
 zhgstera6/osx-home-moved                       zfs  2.0T 32G  2.0T       2 /Volumes/zhgstera6/osx-home-moved
@@ -50,14 +46,12 @@ zhgstera6/tmpdel-xattrsa                       zfs  2.1T 56G  2.0T       3 /Volu
 zhgstera6/virtbox-virtmachines                 zfs  2.7T 679G 2.0T      26 /Volumes/zhgstera6/virtbox-virtmachines
 zhgstera6/virtbox-virtmachines-linux           zfs  2.2T 152G 2.0T       7 /Volumes/zhgstera6/virtbox-virtmachines-lin…
 zhgstera6/virtbox-virtmachines/nocompr-freebsd zfs  2.0T 9.1G 2.0T       1 /Volumes/zhgstera6/virtbox-virtmachines/noc…
-zint500/enki                                   zfs  112G 33G  80G       29 /Volumes/zint500/enki
 
 Select only FS Available over 79GB:
 
 Filesystem                                     Type       Size       Used      Avail Usepct MountedOn
 ----------                                     ----       ----       ----      ----- ------ ---------
 /dev/disk7s1                                   zfs    83724472        464   83724008      1 /Volumes/zint500
-zint500/dvdrips-shr-zint500                    zfs    87890840    4166832   83724008      5 /Volumes/zint500/dvdrips-s…
 zint500/notshrcompr-zint500                    zfs   142126744   58402736   83724008     42 /Volumes/zint500/notshrcom…
 /dev/disk5s1                                   apfs 1367372244   74245788  954983400      8 /Volumes/sgtera2
 /dev/disk5s3                                   apfs 1757997244  186156492 1159451908     14 /Volumes/bkp-zsam53
@@ -66,7 +60,6 @@ zint500/notshrnotcompr                         zfs    83724824        816   8372
 zint500/shrcompr-zint500                       zfs   124439416   40715408   83724008     33 /Volumes/zint500/shrcompr-…
 zint500/virtbox-virtmachines                   zfs   119537384   35813376   83724008     30 /Volumes/zint500/virtbox-v…
 /dev/disk8s1                                   zfs  2113186796        440 2113186356      1 /Volumes/zhgstera6
-zhgstera6/dvdrips-shr                          zfs  2621601772  508415416 2113186356     20 /Volumes/zhgstera6/dvdrips…
 zhgstera6/notshrcompr-zhgst6                   zfs  2497488764  384302408 2113186356     16 /Volumes/zhgstera6/notshrc…
 zhgstera6/notshrcompr-zhgst6/bkp-bookmarks     zfs  2153362060   40175704 2113186356      2 /Volumes/zhgstera6/notshrc…
 zhgstera6/osx-home-moved                       zfs  2146647624   33461268 2113186356      2 /Volumes/zhgstera6/osx-hom…
@@ -76,8 +69,6 @@ zhgstera6/tmpdel-xattrsa                       zfs  2171429816   58243460 211318
 zhgstera6/virtbox-virtmachines                 zfs  2824754564  711568208 2113186356     26 /Volumes/zhgstera6/virtbox…
 zhgstera6/virtbox-virtmachines-linux           zfs  2272031988  158845632 2113186356      7 /Volumes/zhgstera6/virtbox…
 zhgstera6/virtbox-virtmachines/nocompr-freebsd zfs  2122720524    9534168 2113186356      1 /Volumes/zhgstera6/virtbox…
-/dev/disk5s2                                   apfs 1367372244  200974196  954983400     18 /Volumes/enki-bkp
-zint500/enki                                   zfs   117404748   33680740   83724008     29 /Volumes/zint500/enki
 
 Select only FS with 50%+ available:
 
@@ -86,17 +77,14 @@ Filesystem                Type      Size      Used    Avail Usepct MountedOn
 /dev/disk3s2              hfs  195618588 157649264 37713324     81 /
 zsam53/notshrcompr-zsam53 zfs  126126680  70401656 55725024     56 /Volumes/zsam53/notshrcompr-zsam53
 zsam53/shrcompr-zsam53    zfs  123276060  67551036 55725024     55 /Volumes/zsam53/shrcompr-zsam53
-/dev/disk4s1              apfs  58593752  37410184 21066248     64 /Volumes/hgst6-enki
 
 Display only certain fields df-short sorted by largest avail space:
 
 Type       Used      Avail Usepct MountedOn
 ----       ----      ----- ------ ---------
-apfs   37410184   21066248     64 /Volumes/hgst6-enki
 hfs   157649264   37713324     81 /
 zfs         448   55725024      1 /Volumes/zsam53
 zfs     2203220   55725024      4 /Volumes/zsam53/dot-thunderbird-linux
-zfs         480   55725024      1 /Volumes/zsam53/dvdrips-shr-zsam53
 zfs      794256   55725024      2 /Volumes/zsam53/imac513-installed-old-zsam53
 zfs    70401656   55725024     56 /Volumes/zsam53/notshrcompr-zsam53
 zfs         368   55725024      1 /Volumes/zsam53/notshrnotcompr
@@ -106,16 +94,12 @@ zfs    27138656   55725024     33 /Volumes/zsam53/virtbox-gz2
 zfs    35813376   83724008     30 /Volumes/zint500/virtbox-virtmachines
 zfs    40715408   83724008     33 /Volumes/zint500/shrcompr-zint500
 zfs         816   83724008      1 /Volumes/zint500/notshrnotcompr
-zfs    33680740   83724008     29 /Volumes/zint500/enki
 zfs    58402736   83724008     42 /Volumes/zint500/notshrcompr-zint500
-zfs     4166832   83724008      5 /Volumes/zint500/dvdrips-shr-zint500
 zfs         464   83724008      1 /Volumes/zint500
 apfs  136349760  954983400     13 /Volumes/ccc-bkp-sam52-imac5-old
-apfs  200974196  954983400     18 /Volumes/enki-bkp
 apfs   74245788  954983400      8 /Volumes/sgtera2
 apfs  186156492 1159451908     14 /Volumes/bkp-zsam53
 zfs    40175704 2113186356      2 /Volumes/zhgstera6/notshrcompr-zhgst6/bkp-bookmarks
-zfs   508415416 2113186356     20 /Volumes/zhgstera6/dvdrips-shr
 zfs    31194304 2113186356      2 /Volumes/zhgstera6/shrcompr-gz3
 zfs  1213443112 2113186356     37 /Volumes/zhgstera6/shrcompr-zhgst6
 zfs    58243460 2113186356      3 /Volumes/zhgstera6/tmpdel-xattrsa
@@ -133,7 +117,6 @@ Filesystem                                     MountedOn                        
 /dev/disk3s2                                   /                                                            81
 /dev/disk6s1                                   /Volumes/zsam53                                               1
 zsam53/dot-thunderbird-linux                   /Volumes/zsam53/dot-thunderbird-linux                         4
-zsam53/dvdrips-shr-zsam53                      /Volumes/zsam53/dvdrips-shr-zsam53                            1
 zsam53/imac513-installed-old-zsam53            /Volumes/zsam53/imac513-installed-old-zsam53                  2
 zsam53/notshrcompr-zsam53                      /Volumes/zsam53/notshrcompr-zsam53                           56
 zsam53/notshrnotcompr                          /Volumes/zsam53/notshrnotcompr                                1
@@ -141,7 +124,6 @@ zsam53/shrcompr-zsam53                         /Volumes/zsam53/shrcompr-zsam53  
 zsam53/tmpdel-zsam53                           /Volumes/zsam53/tmpdel-zsam53                                23
 zsam53/virtbox-gz2                             /Volumes/zsam53/virtbox-gz2                                  33
 /dev/disk7s1                                   /Volumes/zint500                                              1
-zint500/dvdrips-shr-zint500                    /Volumes/zint500/dvdrips-shr-zint500                          5
 zint500/notshrcompr-zint500                    /Volumes/zint500/notshrcompr-zint500                         42
 /dev/disk5s1                                   /Volumes/sgtera2                                              8
 /dev/disk5s3                                   /Volumes/bkp-zsam53                                          14
@@ -150,7 +132,6 @@ zint500/notshrnotcompr                         /Volumes/zint500/notshrnotcompr  
 zint500/shrcompr-zint500                       /Volumes/zint500/shrcompr-zint500                            33
 zint500/virtbox-virtmachines                   /Volumes/zint500/virtbox-virtmachines                        30
 /dev/disk8s1                                   /Volumes/zhgstera6                                            1
-zhgstera6/dvdrips-shr                          /Volumes/zhgstera6/dvdrips-shr                               20
 zhgstera6/notshrcompr-zhgst6                   /Volumes/zhgstera6/notshrcompr-zhgst6                        16
 zhgstera6/notshrcompr-zhgst6/bkp-bookmarks     /Volumes/zhgstera6/notshrcompr-zhgst6/bkp-bookmarks           2
 zhgstera6/osx-home-moved                       /Volumes/zhgstera6/osx-home-moved                             2
@@ -160,16 +141,12 @@ zhgstera6/tmpdel-xattrsa                       /Volumes/zhgstera6/tmpdel-xattrsa
 zhgstera6/virtbox-virtmachines                 /Volumes/zhgstera6/virtbox-virtmachines                      26
 zhgstera6/virtbox-virtmachines-linux           /Volumes/zhgstera6/virtbox-virtmachines-linux                 7
 zhgstera6/virtbox-virtmachines/nocompr-freebsd /Volumes/zhgstera6/virtbox-virtmachines/nocompr-freebsd       1
-/dev/disk5s2                                   /Volumes/enki-bkp                                            18
-/dev/disk4s1                                   /Volumes/hgst6-enki                                          64
-zint500/enki                                   /Volumes/zint500/enki                                        29
 
 Sort by percent-used field with only certain columns displayed:
 
 Type       Used      Avail Usepct MountedOn
 ----       ----      ----- ------ ---------
 hfs   157649272   37713316     81 /
-apfs   37410184   21066248     64 /Volumes/hgst6-enki
 zfs    70401656   55725024     56 /Volumes/zsam53/notshrcompr-zsam53
 zfs    67551036   55725024     55 /Volumes/zsam53/shrcompr-zsam53
 zfs    58402736   83724008     42 /Volumes/zint500/notshrcompr-zint500
@@ -177,17 +154,13 @@ zfs  1213443112 2113186356     37 /Volumes/zhgstera6/shrcompr-zhgst6
 zfs    40715408   83724008     33 /Volumes/zint500/shrcompr-zint500
 zfs    27138656   55725024     33 /Volumes/zsam53/virtbox-gz2
 zfs    35813376   83724008     30 /Volumes/zint500/virtbox-virtmachines
-zfs    33680740   83724008     29 /Volumes/zint500/enki
 zfs   711568208 2113186356     26 /Volumes/zhgstera6/virtbox-virtmachines
 zfs    15908176   55725024     23 /Volumes/zsam53/tmpdel-zsam53
-zfs   508415416 2113186356     20 /Volumes/zhgstera6/dvdrips-shr
-apfs  200974196  954983400     18 /Volumes/enki-bkp
 zfs   384302408 2113186356     16 /Volumes/zhgstera6/notshrcompr-zhgst6
 apfs  186156492 1159451908     14 /Volumes/bkp-zsam53
 apfs  136349760  954983400     13 /Volumes/ccc-bkp-sam52-imac5-old
 apfs   74245788  954983400      8 /Volumes/sgtera2
 zfs   158845632 2113186356      7 /Volumes/zhgstera6/virtbox-virtmachines-linux
-zfs     4166832   83724008      5 /Volumes/zint500/dvdrips-shr-zint500
 zfs     2203220   55725024      4 /Volumes/zsam53/dot-thunderbird-linux
 zfs    58243460 2113186356      3 /Volumes/zhgstera6/tmpdel-xattrsa
 zfs      794256   55725024      2 /Volumes/zsam53/imac513-installed-old-zsam53
@@ -197,7 +170,6 @@ zfs    31194304 2113186356      2 /Volumes/zhgstera6/shrcompr-gz3
 zfs     9534168 2113186356      1 /Volumes/zhgstera6/virtbox-virtmachines/nocompr-freebsd
 zfs         464   83724008      1 /Volumes/zint500
 zfs         440 2113186356      1 /Volumes/zhgstera6
-zfs         480   55725024      1 /Volumes/zsam53/dvdrips-shr-zsam53
 zfs         368   55725024      1 /Volumes/zsam53/notshrnotcompr
 zfs         448   55725024      1 /Volumes/zsam53
 zfs         816   83724008      1 /Volumes/zint500/notshrnotcompr
