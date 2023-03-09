@@ -14,6 +14,8 @@ function failexit () {
   exit $1
 }
 
+set -u # disallow unset vars 
+
 # xxxxx TODO CHANGEME
 dest=/mnt/tmp
 
