@@ -1,0 +1,55 @@
+﻿#!/bin/bash
+# Used with make-a-cdset, to burn "songlisting" as ISO mountable-filesystem
+# on track 1.  Therefore all music tracks start at track 2.
+
+usecd='/mnt/cdtemp'
+echo $usecd
+mount $usecd
+cd $usecd/audio
+#cd /mnt/driveg/cdtemp/audio/alt-trax
+
+# Use -dummy to test!!
+if [ -n $1 ]; then
+ addto=$1
+fi
+
+echo $addto
+
+mkisofs -v -f -l -J -r -o isofiletmp.raw /root/bin/songlisting.txt
+
+ls
+echo Preparing to make dual-mode ISO songlisting and audio -- Pk:
+read
+
+#  stupid-ass mkisosize won't do it to std output!!
+#function getisosize
+#{
+# isosize=$8
+# echo $isosize
+#}
+#mkisofs -R -q -print-size /root/bin/songlisting >/root/bin/tmpfile
+#getisosize </root/bin/tmpfile
+#
+#echo "isosize=."$isosize"."
+#read
+
+# Multisession - won't mount data track
+#cdrecord $addto -v speed=4 dev=1,0,0 -multi -nopad \
+#  -data isofiletmp 
+#
+#cdrecord $addto -eject -v speed=4 dev=1,0,0 -nopad \
+#  -audio *.wav 
+
+# -dao
+# -pad /nopad
+# dev=1,0,0
+
+# minbuf=50 fs=30MB
+
+time \
+  cdrecord $addto dev=$CDR_DEVICE -tao -eject -v fs=25m minbuf=70 -pad \
+    speed=$CDR_SPEED \
+    -data isofiletmp.raw \
+    -audio *.wav 
+
+/bin/rm isofiletmp.raw
