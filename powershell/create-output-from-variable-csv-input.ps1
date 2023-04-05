@@ -6,6 +6,7 @@ Mod for powershell on OSX, should also run on Linux
 
 # Define the path to the directory containing the text lists
 $directoryPath = "$HOME/csv-var-inputs" # "C:\path\to\directory"
+$Outfile = "$HOME/variable-table-output.csv"
 
 # Get a list of all the csv files in the directory
 $listPaths = Get-ChildItem $directoryPath -Filter *.csv | Select-Object -ExpandProperty FullName
@@ -25,6 +26,9 @@ foreach ($listPath in $listPaths) {
         if ($names.ContainsKey($name)) {
 # If the name already exists in the hashtable, add the list name to the existing entry
             $names[$name] += ", $($listPath |Split-Path -Leaf)"
+#            -Leaf
+#            Indicates that this cmdlet returns only the last item or container in the path. 
+#            For example, in the path C:\Test\Logs\Pass1.log, it returns only Pass1.log.            
         } else {
 # If the name doesn't exist in the hashtable, create a new entry with the list name
             $names[$name] = $($listPath |Split-Path -Leaf)
@@ -60,5 +64,22 @@ foreach ($name in $names.Keys) {
 }
 
 $tablesort = $table |Sort-Object Name 
-$tablesort |Export-Csv "$HOME/variable-table-output.csv" -NoTypeInformation
-ls -lh "$HOME/variable-table-output.csv"
+$tablesort |Format-Table
+$tablesort |Export-Csv $Outfile -NoTypeInformation
+ls -lh $Outfile
+
+<#
+Example output:
+
+Name   DVDs.csv hats.csv pants.csv shirts.csv
+----   -------- -------- --------- ----------
+Bob                      X         X
+Jane                     X         X
+Mary   X        X        X         X
+Paul   X                 X         
+Peter  X                 X         X
+Sam             X                  
+Ted             X        X         X
+Trevor          X                  
+
+#>
