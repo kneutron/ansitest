@@ -11,13 +11,22 @@ NOTE: You need the fsarchiver package installed.
 You can use the mkrestoredvdiso script to create a UDF ISO containing your
 fsarchive backup and add a 2nd DVD Drive to the VM with the ISO mounted.
 
+As an alternative, you can use sshfs or Samba mount a directory that has 
+the backup .fsa file that will be restored, the restore script may need
+a minor bit of editing for that.
+
 Now you can test your restore into a Virtualbox VM by setting it up the same
 way (use EFI boot if you have it on the host but be aware that this probably
 needs further testing) and give it at least 4GB of RAM if you're using
-64-bit.  
+64-bit.  An easy way to restore an EFI boot is to just dd the EFI partition
+from the original install into the VM. 
 
-PROTIP: Have a "super grub disc" ISO handy just in case you have trouble
-booting the VM after restore.
+For EFI, sda should be partitioned GPT and the VM's disk partition table should match the original install.
+It doesn't have to be 1:1 but the root filesystem and probably /home
+should be the same size or larger.
+
+PROTIP: Have a "super grub disc" and a ReFIND ISO handy just in case you have trouble
+booting the VM after restore. See links below
 
 
 RESTORING:
@@ -44,3 +53,6 @@ https://distrowatch.com/table.php?distribution=systemrescue
 https://distrowatch.com/table.php?distribution=supergrub
 
 https://distrowatch.com/table.php?distribution=rescatux
+
+http://www.rodsbooks.com/refind/getting.html
+
