@@ -76,6 +76,9 @@ zpool add $zp mirror $PWD/zd1 $PWD/zd2
 zps
 
 echo "$(date) - Shrinkydink $zp"
+
+# Show how much before committing
+time zpool remove -n $zp mirror-0
 time zpool remove $zp mirror-0
 
 date
