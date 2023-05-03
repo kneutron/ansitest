@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# p2660-64
+#setupcon --force -f 
+#-v
+
+# p26604--32
+##consolechars -f Cyr_a8x8
+#consolechars -f Lat15-Fixed16
+
+# p2700--64 ubuntu 10.04 aug 2010
+cd /usr/share/consolefonts
+#setfont Lat15-Fixed13.psf.gz
+#setfont Lat15-Fixed16
+setfont Lat15-Terminus20x10
+# for dell e6540 2023.0418
+
