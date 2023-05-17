@@ -1,4 +1,4 @@
-#!/usr/bin/env bash5
+#!/usr/bin/env bash
 
 # 2023 Kingneutron
 # Simulate a large zpool in GB vs TB to do free-space-available calc rough approximations
