@@ -1,0 +1,145 @@
+#!/bin/bash
+
+# Useful invocation:
+#  getdrive-byids 1 |column -t |sort -k 2
+
+# SOURCE this to set vars
+# TODO - dont forget to modify etc/rc.local and root/bin/sleepnow-safe  !!
+
+dbi=/dev/disk/by-id
+dbp=/dev/disk/by-path
+
+# usb3 thumb - as of 2020.0711 switched to 250GB from 64GB
+export Dlinuxroot=$dbi/ata-Samsung_Portable_SSD_T5_S3UJNP0K70201
+#export Dlinuxroot=$dbi/usb-KingSpec_Z3_DD5641988387387762-0:0
+#export Dlinuxroot=$dbi/ata-ST3320613AS_6SZ06ZHP # -> ../../sda
+
+# WD RED drive, 4K/sectors - xxx exported/removed 2016.0818 and replaced with zseatera2 4x2TB RAID10
+#export Dzredtera1a=$dbi/ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J1NL656R #-> ../../sdd
+#export Dzredtera1b=$dbi/ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J6KTJC0J #-> ../../sdb
+#export Dzredtera1c=$dbi/ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J4KD08T6 #->../../sda
+#export Dzredtera1d=$dbi/ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J3CK81ZP # sdh
+##export Dzredtera1d=$dbi/ata-WDC_WD10EZEX-00KUWA0_WD-WCC1S5925723 #->../../sde
+## ^ WD BLUE Drive, 4k/sec
+
+# TODO revisit if sane
+#declare -a ZPzredtera1
+#ZPzredtera1[1]=$Dzredtera1a
+#ZPzredtera1[2]=$Dzredtera1b
+#ZPzredtera1[3]=$Dzredtera1c
+#ZPzredtera1[4]=$Dzredtera1d
+#echo '!'${ZPredtera[1]}
+
+# returned drive due to curtailed warranty 2016.0622
+#export Dzbigred3comprA=$dbi/ata-WDC_WD30EFRX-68EUZN0_WD-WCC4NHHSKX6K
+# 6x2TB raidz2
+export Dzseatera2A=$dbi/ata-ST2000VN000-1HJ164_W72127
+export Dzseatera2B=$dbi/ata-ST2000VN000-1HJ164_W7212L
+export Dzseatera2C=$dbi/ata-ST2000VN000-1HJ164_W523GA
+export Dzseatera2D=$dbi/ata-ST2000VN000-1HJ164_W5238T
+#export Dzseatera2E=$dbi/ata-ST2000VN000-1HJ164_W523LE2H # xxx 2017.0921 command timeout/slow spinup?
+export Dzseatera2E=$dbi/ata-ST2000VN004-2E4164_Z521TR
+export Dzseatera2F=$dbi/ata-ST2000VN000-1HJ164_Z520DL
+
+export Dzseatera10BKP=$dbi/ata-TOSHIBA_HDWG11A_Y1A0A01AFB # original was RMAd April 8, 2022 - replacement
+# now on macpro mediasonic 4bay
+
+# zseatera4 - replacing older-drives out-of-warranty zseatera2 April 2022
+# 6x4TB Raidz2 with 2 older out-of-warranty drives
+export Dzseatera4A=$dbi/ata-ST4000VN008-2DR166_ZDHBRB
+export Dzseatera4B=$dbi/ata-ST4000VN008-2DR166_ZDHB41
+export Dzseatera4C=$dbi/ata-ST4000VN008-2DR166_ZDHBCL
+export Dzseatera4D=$dbi/ata-ST4000VN008-2DR166_ZDHBDG
+#export Dzseatera4E=$dbi/ata-ST4000VN000-1H4168_Z3073Z7X
+export Dzseatera4E=$dbi/ata-ST4000VN008-2DR166_ZDHBB8 # RMA replacement 2022.0521
+export Dzseatera4F=$dbi/ata-ST4000VN006-3CW104_ZW604X # Replaced failing disk XVL 2023.0315
+
+
+# 4TB mir expanded to zRAID10 2017.0421
+#export Dzseatera4A=$dbi/ata-ST4000VN000-2AH166_WDH0SB5N
+#export Dzseatera4B=$dbi/ata-ST4000VN000-1H4168_Z3076XVL 
+# 4TB last 2 replaced with 2x6TB 2021.may
+export Dztoshtera6A=$dbi/ata-HGST_HUS726060ALE614_K8HUH6
+export Dztoshtera6B=$dbi/ata-TOSHIBA_HDWG460_Z1D0A038FR
+#export Dztoshtera6B=$dbi/ata-HGST_HUS726060ALE614_K8JAPR
+export Dztoshtera6C=$dbi/ata-TOSHIBA_HDWG160_11V0A06JFB
+export Dztoshtera6D=$dbi/ata-TOSHIBA_HDWG160_11V0A06CFB
+
+#export Dzseatera4mirA=$dbi/ata-ST4000VN000-1H4168_Z3073Z7X
+export Dzseatera4mirA=$dbi/ata-ST4000VN008-2DR166_ZGY005
+export Dzseatera4mirB=$dbi/ata-ST4000VN000-1H4168_Z3076X
+
+export Dzredtera1A=$dbi/ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J2HEAE
+export Dzredtera1B=$dbi/ata-WDC_WD10EFRX-68PJCN0_WD-WCC4JETV8N
+export Dzredtera1C=$dbi/ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J6YCDJ
+
+
+export Dsasbay1A=$dbi/ata-ST1000LM024_HN-M101MBB_S2RQJ9CC9033  # old p2300m 1tb 2.5" - orig win10
+export Dsasbay1B=$dbi/ata-HGST_HTS721010A9E630_JR1003D4G2XD # 2022.0225 HGST 
+#export Dsasbay1C=$dbi/ata-APPLE_HDD_HTS547550A9E384_J266004BG96GPG # C's old MACbook drive 500GB 2018.0827
+#export Dsasbay1C=$dbi/ata-ST1000LM035-1RK172_WES34Q9Q # SMR 1TB used to be miltera
+export Dsasbay1D=$dbi/ata-Samsung_SSD_860_PRO_512GB_S5GBNS0NB0106 # orig int. imac513 internal
+# LABEL=xfstest4zfs
+
+export Dzhgstlap=$dbi/ata-HGST_HTS721010A9E630_JR10004M1TJY
+
+# may not be attached
+#tmp="ata-ST6000VN001-2BB186_ZR112FRW"; [ -e "$dbi/$tmp" ] && export Dzsgtera6bkp="$dbi/$tmp" # raw disk
+tmp="usb-JMicron_Generic_0123456789ABCDEF-0:0"; [ -e "$dbi/$tmp" ] && export Dzsgtera6bkp="$dbi/$tmp" # Usb3
+
+tmp="ata-WDC_WD2500JS-00MHB0_WD-WCANKE677050"; [ -e "$dbi/$tmp" ] && export Dzwd250fw="$dbi/$tmp"
+
+tmp="ata-WDC_WD5003AZEX-00MK2A0_WD-WCC3FLHCNDYR"; [ -e "$dbi/$tmp" ] && export Dzwd500black="$dbi/$tmp"
+
+#export Dzpavredtera1A=$dbi/ata-WDC_WD10EFRX-68PJCN0_WD-WCC4JETV86
+#export Dzpavredtera1B=$dbi/ata-WDC_WD10EFRX-68PJCN0_WD-WCC4JETV8N
+#export Dzpavredtera1C=$dbi/ata-WDC_WD10EFRX-68FYTN0_WD-WCC4J6YCDJ
+
+#export Dwdtera6=$dbi/usb-WD_Elements_25A3_57583231443339445A4C41-0:0 #-> ../../sdk
+export Dzwd6t=$dbi/usb-WD_Elements_25A3_5758343144343935374C50-0:0
+
+# from p3300 xxx 2018.0818
+#export Dp3300zredpool2A=$dbi/ata-WDC_WD20EFRX-68EUZN0_WD-WCC4M1JDAP
+#export Dp3300zredpool2B=$dbi/ata-WDC_WD20EFRX-68EUZN0_WD-WCC4MCYPD0
+
+# unable to import with newer features, leave asleep
+#export Dp3300zmixed3A=$dbi/ata-ST3000VN007-2E4166_Z6A0GX
+#export Dp3300zmixed3B=$dbi/ata-WDC_WD30EURX-73T0FY0_WD-WMC4N0F2DK
+
+
+
+# combined with zseatera2 2017.0416
+#export Dsgtera2A=$dbi/ata-ST2000VN000-1HJ164_W523LE
+#export Dsgtera2B=$dbi/ata-ST2000VN000-1HJ164_Z520DL
+
+# EXTERNAL
+tmp="$dbi/usb-PHD_3.0_Silicon-Power_1401630907005#000B-0:0"; [ -e "$dbi/$tmp" ] && export Dmilterausb3="$dbi/$tmp"
+#export Dmilterausb3="$dbi/usb-PHD_3.0_Silicon-Power_1401630700415#000B-0:0"
+
+
+export devdvd=$dbi/ata-HL-DT-ST_DVDRAM_GH24NSB0_K2EG1QE32 #-> ../../sr0
+export blurayburner=$dbi/ata-HL-DT-ST_BD-RE_BH16NS40_K9JD27D57 # -> ../../sr0
+
+#echo ${tmp##*=}
+#/dev/disk/by-id/scsi-SATA_WDC_WD7502AAEX-_WD-WCAW305682
+
+#set -x
+unset dbi dbp tmp DBI
+if [ "$1" = "1" ]; then
+  # populate array with results of command
+
+  declare -a tmparray
+  
+  tmparray=(`set|grep by-id`) # DUMP
+
+  for i in "${tmparray[@]}"; do
+    secpart=${i##*=}
+    tmpsec=`ls -l $secpart 2>/dev/null`
+    tmpsec=${tmpsec##*/}
+    [ "$tmpsec" = "" ] || echo $i '=' $tmpsec
+# dont bother printing nothere drives    
+  done |column -t
+
+  # destroy array
+  unset tmparray[@]
+fi

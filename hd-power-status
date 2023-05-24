@@ -1,0 +1,5 @@
+#!/bin/bash
+# query drives for spindown state
+#hdparm -C /dev/sd? |awk 'NF>0'
+hdparm -C /dev/sd? 2>/dev/null |awk 'NF>0' |paste - - 
+date

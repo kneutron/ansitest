@@ -1,12 +1,15 @@
 #!/bin/bash
 
-# for linux; tested with a 104-disk VM (SATA + SAS)
+# Useful for finding the short name of your disk in a ZFS pool, especially if a device is failing
+# For linux; tested with a 104-disk VM (SATA + SAS)
 # Author: dave.bechtel kingneutron@gmail.com
-# Builds a searchable disk "translation table"
-# Useful for finding the short name of your disk (or serial number) in a ZFS pool
 # NOTE should be re-run if a disk is physically replaced because the descriptive name may change
 
-outf=$HOME/drivemap.txt
+# REQUIRES: lsscsi grep sed awk column
+# external scripts in /root/bin or $PATH: hd-power-status getdrive-byids
+
+#outf=/tmp/drivemap.txt
+outf=/root/drivemap.txt
 
 # Replace ../.. with /dev and reverse columns so shortdev is 1st
 # Use 'sort -k 3' if $9 $10 $11
@@ -18,8 +21,23 @@ echo '========' >> $outf
 ls -lR /dev/disk |grep -w /sd[a-z][a-z] |sed 's^../..^/dev^' |awk 'NF>0 {print $11" "$10" "$9}' |column -t |sort \
  >>$outf
 
+echo '=====' >>$outf
+lsscsi -s >>$outf
+echo '=====' >>$outf
+lsscsi -st >>$outf # sata/sas/usb
+echo '=====' >>$outf
+lsscsi -sv >>$outf # sata/sas/usb
+
+echo '=====' >>$outf
+gbi="getdrive-byids 1 |column -t"
+function hdps () {
+ $gbi |awk 'NF>0'
+ hd-power-status |awk 'NR%2{printf "%s ",$0;next;}1' |awk 'NF>0'
+}
+
+hdps |sort -k 2 >>$outf
+
 ls -l $outf
-cp -v $outf /tmp
 
 # To search outfile:
 # grep ata-VBOX_HARDDISK_VB0fffe26a-25e5ad55 /tmp/drivemap.txt
