@@ -2,7 +2,7 @@
 
 # grab dates when smart tests will complete, convert to seconds, sort and display latest time
 
-PATH=/sbin:/var/root/bin:/var/root/bin/boojum:/root/bin:/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
+PATH=/sbin:/root/bin:/root/bin/boojum:/usr/local/bin:/usr/local/sbin:/usr/sbin:/bin:/usr/bin:/usr/X11R6/bin
 
 # TODO comment if smart already running
 monthly-smart.sh
