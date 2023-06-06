@@ -15,6 +15,7 @@ function hdps1 () {
 }
 
 hdps1 >/tmp/hdps1.txt
+lsblk -f |grep zfs |awk '{print $1" "$2" "$4}' >/tmp/lsblk.tmp.txt
 
 IFS=$'\n' # newline
 for line in $(grep 'drive state' /tmp/hdps1.txt); do 
@@ -24,6 +25,7 @@ for line in $(grep 'drive state' /tmp/hdps1.txt); do
   mdrive=$(echo "$mdrive" |tr '\n' ' ') # newlines to spaces
   echo "$line"
   echo "$drive -- $mdrive"
+  grep $drive /tmp/lsblk.tmp.txt
 done 
 
 
@@ -54,3 +56,25 @@ sde -- ata-ST4000VN008-2DR166_ZGY005 wwn-0x5000c500a29833 pci-0000:02:00.0-sas-p
 sdf -- ata-ST1000LM024_HN-M101MBB_S2RQJ9CC9033 wwn-0x50004cf2084c33 pci-0000:02:00.0-sas-phy7-lun-0 
 /dev/sdg:        drive state is:  active/idle
 sdg -- ata-Samsung_Portable_SSD_T5_S3UJNP0K70201 wwn-0x5002538d000000 pci-0000:03:00.0-usb-0:1:1.0-scsi-0:0:0:0 
+
+lsblk -f
+NAME    FSTYPE     FSVER LABEL     UUID                                 FSAVAIL FSUSE% MOUNTPOINT
+sda
+├─sda1  zfs_member 5000  zbigvai16 3832113204766083175
+└─sda9
+sdb
+├─sdb1  zfs_member 5000  zbigvai16 3832113204766083175
+└─sdb9
+├─sdh8  xfs              linuxhome 465d4d04-08c1-49b7-bb04-918fc07a7135   15.8G     1% /home
+
+# lsblk -f |grep zfs
+├─sda1  zfs_member 5000  zbigvai16 3832113204766083175
+├─sdb1  zfs_member 5000  zbigvai16 3832113204766083175
+├─sdc1  zfs_member 5000  zseatera2 14110241486385673733
+├─sdd1  zfs_member 5000  zseatera2 14110241486385673733
+├─sde1  zfs_member 5000  zmixed3   17065421584496359800
+├─sdf1  zfs_member 5000  zmixed3   17065421584496359800
+├─sdg1  zfs_member 5000  zmixed3   17065421584496359800
+└─sdh11 zfs_member 5000  zwdred1   7646178756496738642
+├─sdi1  zfs_member 5000  zmixed3   17065421584496359800
+├─sdj1  zfs_member 5000  zseatera2 14110241486385673733
