@@ -1,9 +1,9 @@
 #!/bin/bash
 
-ff
+ff # fix fontsize
 
 useprog=open
-[ -e `which openvt` ] && useprog=openvt
+[ -e $(which openvt) ] && useprog=openvt
 # open 4-pane screen on vt10
 setterm -blank 0 2>/dev/null
 
@@ -15,4 +15,4 @@ setterm -blank 0 2>/dev/null
   split-window -h \; \
   send-keys 'iostat -k 5' C-m \;
   split-window -h \; \
-  send-keys 'watch -n 61 /Users/dave/bin/mon1-df-short' ) &
+  send-keys 'watch -n 61 /home/dave/bin/mon1-df-short' ) &
