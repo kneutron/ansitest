@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# burn blu-ray disc from UDF image
+
+source ~/bin/failexit.mrg
+
+# might as well fix possible missing dev OTF here
+# scsi 9:0:0:0: CD-ROM            HL-DT-ST BD-RE  BH16NS40  1.00 PQ: 0 ANSI: 5
+# sr 9:0:0:0: [sr1] scsi3-mmc drive: 0x/48x writer dvd-ram cd/rw xa/form2 cdda tray
+[ -e /dev/bluray ] || ln /dev/sr1 /dev/bluray -sfn
+# dev disk by-id: ata-HL-DT-ST_BD-RE_BH16NS40_K9JD27D5727 -> ../../sr1
+
+
+umount /mnt/bluray-ondisk 
+[ -e /mnt/bluray-ondisk/NOTHERE ] || failexit 99 "! Error - unable to umount mnt/bluray-ondisk - ABORT"
+#umount /mnt/cdrom
+
+#cd /ssdzfs/dv || exit 99
+cd /mnt/bluraytemp25 || failexit 199 "! Error - unable to cd mnt/bluraytemp25"
+
+ls -alh *.udf
+df -h /mnt/bluraytemp25
+pwd
+
+echo "PK to burn!"
+read
+
+time growisofs -speed=6 -overburn -Z \
+  /dev/bluray=/mnt/bluraytemp25/bdiscimage.udf
+# /dev/bluray=/ssdzfs/dv/bdiscimage.udf
+ 
+# /mnt/cdtemp2a/vmware-win2kpro-pdf-project-b4-office2K.tar
+
+exit;
+
+
+REF: Preformatting BR disc takes up 256MB for defect mgmt:
+http://superuser.com/questions/462782/growisofs-warnings-when-writing-to-blu-ray-dual-layer-discs
+
+NOTE if get this error after burning BR disc:
+[[
+24681185280/24708382720 (99.9%) @2.5x, remaining 0:02 RBU  81.1% UBU  98.6%
+builtin_dd: 12064640*2KB out @ average 2.5x4390KBps
+/dev/bluray: flushing cache
+/dev/bluray: closing track
+/dev/bluray: closing session
+:-[ CLOSE SESSION failed with SK=5h/INVALID FIELD IN CDB]: Input/output error
+/dev/bluray: reloading tray
+real    37m38.239s
+
+NOTE: disc after burn is still OK
+
+REF: https://bugs.launchpad.net/ubuntu/+source/dvd+rw-tools/+bug/1113679
+]]
+
+
+## NOTE this is for 2x-speed BR spindle white-label JVC
+# dvd+rw-mediainfo /dev/bluray 
+INQUIRY:                [HL-DT-ST][BD-RE  BH16NS40 ][1.00]
+GET [CURRENT] CONFIGURATION:
+ Mounted Media:         41h, BD-R SRM
+ Media ID:              JVC-AM/S6L
+ Current Write Speed:   6.0x4495=26976KB/s
+ Write Speed #0:        6.0x4495=26976KB/s
+ Write Speed #1:        4.0x4495=17984KB/s
+ Write Speed #2:        2.0x4495=8992KB/s
+ Speed Descriptor#0:    08/12219391 R@6.0x4495=26976KB/s W@6.0x4495=26976KB/s
+ Speed Descriptor#1:    00/12219391 R@6.0x4495=26976KB/s W@4.0x4495=17984KB/s
+ Speed Descriptor#2:    00/12219391 R@6.0x4495=26976KB/s W@2.0x4495=8992KB/s
+:-[ READ BD SPARE INFORMATION failed with SK=5h/INVALID FIELD IN CDB]: Input/output error
+READ DISC INFORMATION:
+ Disc status:           blank
+ Number of Sessions:    1
+ State of Last Session: empty
+ "Next" Track:          1
+ Number of Tracks:      1
+READ FORMAT CAPACITIES:
+ unformatted:           12219392*2048=25025314816
+ 00h(3000):             11826176*2048=24220008448
+ 32h(0):                11826176*2048=24220008448
+ 32h(0):                5796864*2048=11871977472
+ 32h(0):                12088320*2048=24756879360
+READ TRACK INFORMATION[#1]:
+ Track State:           invisible incremental
+ Track Start Address:   0*2KB
+ Next Writable Address: 0*2KB
+ Free Blocks:           12219392*2KB
+ Track Size:            12219392*2KB
+READ CAPACITY:          0*2048=0
+                         
