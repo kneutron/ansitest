@@ -1,6 +1,6 @@
 #!/bin/bash
 
-result=$(ps ax |awk '/tty9/ {print }' |grep -c top)
+result=$(ps ax |awk '/tty9/ {print $5}' |grep -c top)
 
 if [ $result -eq 0 ]; then
 # open top on vt9
