@@ -7,6 +7,12 @@ ls -l $DBS |egrep -v 'disk.s|disk..s' |awk '{print $9,$10,$11}' |gsed 's#disk#di
 
 exit;
 
+# Sample output
+ST3500418AS-5VMSTS             ->  /dev/disk  0
+004-2E4164-Z521TR              ->  /dev/disk  1
+Portable_SSD_T5-S49WNP0N12051  ->  /dev/disk  2
+HDWR460UZSVB-13T0A01HF1        ->  /dev/disk  3
+
 
 la $DBS |egrep -v 'disk.s|disk..s' |sort -h -k 11
 drwxr-xr-x   7 root  daemon   224 Nov 17 23:43 ..
