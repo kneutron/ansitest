@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# REQUIRES zpool awk grep xargs
+
 zpool list
 echo "$(date) - Fast exporting zpools"
 
