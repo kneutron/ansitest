@@ -33,7 +33,6 @@ NAME                                                     USED  AVAIL  REFER  MOU
 zhgstera6                                               2.82T  2.15T  17.3M  /Volumes/zhgstera6
 zhgstera6/bkp-from-macpro                               2.82T  2.15T  2.82T  /Volumes/zhgstera6/bkp-from-macpro
 zimactera4                                               654G  2.69T   380K  /Volumes/zimactera4
-zimactera4/from-imac5-tmpdel-y                           418G  2.69T   418G  /Volumes/zimactera4/from-imac5-tmpdel-y
 zimactera4/notshrcompr-zimactera4                        440K  2.69T   360K  /Volumes/zimactera4/notshrcompr-zimactera4
 zimactera4/shrcompr-zimactera4                           448K  2.69T   368K  /Volumes/zimactera4/shrcompr-zimactera4
 zimactera4/virtbox-macpro-backup                         237G  2.69T   237G  /Volumes/zimactera4/virtbox-macpro-backup
@@ -71,7 +70,6 @@ zsgtera4-old/notshrcompr-zsgt4B                         97.0G  1.73T  54.9G  /Vo
 zsgtera4-old/notshrcompr-zsgt4B/bkp-bookmarks           42.1G  1.73T  42.1G  /Volumes/zsgtera4-old/notshrcompr-zsgt4B/bkp-bookmarks
 zsgtera4-old/notshrcompr-zsgt4B/bkp-bookmarks-imac2008  3.80M  1.73T  3.51M  /Volumes/zsgtera4-old/notshrcompr-zsgt4B/bkp-bookmarks-imac2008
 zsgtera4-old/shrcompr-zsgt4B                            44.9G  1.73T  44.9G  /Volumes/zsgtera4-old/shrcompr-zsgt4B
-zsgtera4-old/tmpdel-xattrsa                             3.42G  1.73T  3.42G  /Volumes/zsgtera4-old/tmpdel-xattrsa
 zsgtera4-old/virtbox-virtmachines-linux                  566G  1.73T   566G  /Volumes/zsgtera4-old/virtbox-virtmachines-linux
 zsgtera4-old/zvol01                                       56K  1.73T    56K  -
 zsgtera4/dvdrips-shr                                     135G   772G   135G  /Volumes/zsgtera4/dvdrips-shr
@@ -80,7 +78,6 @@ zsgtera4/notshrcompr-zsgt2B/bkp-bookmarks               31.9G   772G  31.9G  /Vo
 zsgtera4/notshrcompr-zsgt2B/bkp-bookmarks-imac2008      8.45G   772G  3.50M  /Volumes/zsgtera4/notshrcompr-zsgt2B/bkp-bookmarks-imac2008
 zsgtera4/shrcompr-gz3                                    536K   772G   352K  /Volumes/zsgtera4/shrcompr-gz3
 zsgtera4/shrcompr-zsgt2B                                1.09T   772G  1.05T  /Volumes/zsgtera4/shrcompr-zsgt2B
-zsgtera4/tmpdel-xattrsa                                 55.5G   772G  55.5G  /Volumes/zsgtera4/tmpdel-xattrsa
 zsgtera4/virtbox-virtmachines                            564G   772G   555G  /Volumes/zsgtera4/virtbox-virtmachines
 zsgtera4/virtbox-virtmachines-linux                      151G   772G   151G  /Volumes/zsgtera4/virtbox-virtmachines-linux
 zsgtera4/virtbox-virtmachines/nocompr-freebsd           9.09G   772G  9.09G  /Volumes/zsgtera4/virtbox-virtmachines/nocompr-freebsd
@@ -91,7 +88,6 @@ zsgtera6bkp/from-imac5                                  3.05T  2.05T  3.04T  /Vo
 zsgtera6bkp/from-imac5--bkp-osx-zsam53                  1.90M  2.05T  1.77M  /Volumes/zsgtera6bkp/from-imac5--bkp-osx-zsam53
 zsgtera6bkp/notshrcompr                                  616K  2.05T   360K  /Volumes/zsgtera6bkp/notshrcompr
 ztoshtera10                                             6.31T  2.66T  1.83M  /Volumes/ztoshtera10
-ztoshtera10/enki                                        35.7G  2.66T  35.7G  /Volumes/ztoshtera10/enki
 ztoshtera10/fryserver-dvdbackup-shrnocompr-ztoshtera10  6.27T  2.66T  6.27T  /Volumes/ztoshtera10/fryserver-dvdbackup-shrnocompr-ztoshtera10
 ztoshtera10/notshrcompr-ztoshtera10                     2.25G  2.66T  2.25G  /Volumes/ztoshtera10/notshrcompr-ztoshtera10
 ztoshtera10/shrcompr-ztoshtera10                        1.94M  2.66T  1.79M  /Volumes/ztoshtera10/shrcompr-ztoshtera10
