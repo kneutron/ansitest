@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# OSX ZFS 1.9.4 / compatible with Linux 0.8.6 and up
-# create ZFS pool that should be cross-boot compatible and import OK
+# OSX ZFS 2.1.x / compatible with Linux 2.0.7 and up, no draid
+# create single-disk ZFS pool that should be cross-boot compatible and import OK
 # Original: Feb 2020
-# Updated: Sep 2022
+# Updated: Nov 2023
 # REF: https://www.reddit.com/r/zfs/comments/b092at/cant_import_pool_from_zol_to_bsd/
 # REF: https://openzfs.github.io/openzfs-docs/Basic%20Concepts/Feature%20Flags.html  # zfs by-OS compat. chart
 # REF ' man zpool-features ' - large_blocks needed for recordsize=1024k
@@ -44,10 +44,10 @@ zpool create -f -d \
   $zp \
   "$diskk" || failexit 101 "! Cant create zpool!"
  
-zfs-newds.sh 11 $zp sharecompr-$zp
+zfs-newds.sh 11 $zp shrcompr-$zp
 zfs-newds.sh 10 $zp notshrcompr-$zp
 
-gdf -hT
+df -hT
 
 exit;
 
