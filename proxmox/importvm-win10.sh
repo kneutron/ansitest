@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# Import converted virtualbox VDI disks for proxmox vm
+# 2024 kneutron
+
+# NOTE if destination storage is zfs, vm's disk will be a zvol
+
 source ~/bin/failexit.mrg
 
-# converted qcows from vbox
+# xxx TODO EDITME - converted qcows from vbox
 cd /mnt/seatera4-xfs
 
-echo "Usage: \$1=name-of-vm \$2=RAM-in-GB"
+echo "Usage: \$1=name-of-vm \$2=RAM-in-GB [optional]"
 
 if [ "$1" = "" ]; then
   failexit 101 "1st arg not supplied, must be VMNAME"
@@ -13,8 +18,8 @@ else
  newname="$1"
 fi
 
-#linux=126
-#oldlinux=124
+#linux=l26
+#oldlinux=l24
 
 # integer / number
 declare -i ram lastid newid
@@ -64,8 +69,3 @@ exit;
 
           L, not One
 --ostype <l24 | l26 | other | solaris | w2k | w2k3 | w2k8 | win10 | win11 | win7 | win8 | wvista | wxp>
-
-400 Parameter verification failed.  
-ostype: value '126' does not have a
-value in the enumeration 'other, wxp, w2k, w2k3, w2k8, wvista, win7, win8,
-win10, win11, l24, l26, solaris'
