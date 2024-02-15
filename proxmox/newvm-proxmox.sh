@@ -1,11 +1,14 @@
 #!/bin/bash
 
+# Import converted vdi virtualbox disks to proxmox vm (Linux version)
+# 2024 kneutron
+
 source ~/bin/failexit.mrg
 
-# converted qcows from vbox
+# xxx TODO EDITME - converted qcows from vbox are here
 cd /mnt/seatera4-xfs
 
-echo "Usage: \$1=name-of-vm \$2=RAM-in-GB"
+echo "Usage: \$1=name-of-vm \$2=RAM-in-GB [optional]"
 
 if [ "$1" = "" ]; then
   failexit 101 "1st arg not supplied, must be VMNAME"
@@ -13,8 +16,8 @@ else
  newname="$1"
 fi
 
-#linux=126
-#oldlinux=124
+#linux=l26
+#oldlinux=l24
 
 # integer / number
 declare -i ram lastid newid
@@ -40,8 +43,9 @@ echo "Last vmid: $lastid - New id: $newid -- RAM: $ram -- PK"
 read -n 1       
        
 # --ostype l26 \
-# --ostype win10 \
+# --ostype other \
 # --boot order=scsi0 \
+# onboot = 1 means start thisvm at proxmox host boot
 qm create $newid \
  --net0 virtio,bridge=vmbr0,firewall=0,link_down=0,firewall=0 \
  --net1 virtio,bridge=vmbr25,firewall=0,link_down=0,firewall=0 \
@@ -66,8 +70,3 @@ exit;
 
 	  L, not One
 --ostype <l24 | l26 | other | solaris | w2k | w2k3 | w2k8 | win10 | win11 | win7 | win8 | wvista | wxp>
-
-400 Parameter verification failed.  
-ostype: value '126' does not have a
-value in the enumeration 'other, wxp, w2k, w2k3, w2k8, wvista, win7, win8,
-win10, win11, l24, l26, solaris'
