@@ -1,0 +1,32 @@
+# bash - this is where backup tars, etc will be stored
+# can be overridden b4 sourcing
+#[ "$bkpdest" = "" ] && export bkpdest=/mnt/imacdual
+#[ "$bkpdest" = "" ] && export bkpdest=/zsg25lap1
+
+#[ "$bkpdest" = "" ] && export bkpdest=/mnt/imac5
+[ "$bkpdest" = "" ] && export bkpdest=/mnt/seatera4-xfs
+
+[ `echo $bkpdest |grep -c "/mnt/"` -gt 0 ] && mount $bkpdest   # mount if not ZFS!
+[ `echo $bkpdest |grep -c "/media/"` -gt 0 ] && mount $bkpdest   # mount if not ZFS!
+
+# from failexit.mrg
+function failexit () {
+  echo '! Something failed! Code: '"$1 $2" # code # (and optional description)
+  exit $1
+}
+
+
+[ -e "$bkpdest/NOTHERE" ] && failexit 99 "$bkpdest NOTHERE -- NOT MOUNTED"
+# "If" checking for NOTHERE file...
+
+chkmount=`df |grep -c $bkpdest`
+[ $chkmount -gt 0 ] || failexit 99 "$bkpdest NOT MOUNTED"
+
+# NOTE code 199 is generally could not cd to dir
+
+
+myhn=`hostname`
+#export BKPCRITD="$bkpdest/notshrcompr/bkpcrit-$myhn--fryserver--linux-xubuntu1404LTS-64--sdX1"
+#export BKPHOMED="$bkpdest/notshrcompr/bkp-home"
+#export BKPSYSD="$bkpdest/notshrcompr/bkpsys-$myhn" #--linux-xubuntu1404LTS-64--sdX1"
+#export BKPSYSFSARCD=$BKPSYSD
