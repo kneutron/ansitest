@@ -5,7 +5,10 @@
 # Useful if you want to assign specific cores to VM + cpu-using subthreads
 
 # example usage: $0 zstd
-# $0 vmid
+# $0 vmidnumber
+
+# Advanced usage - print only if CPU usage is >0
+# $0 'kvm -id 112 ' |awk '$5>0 {print}'
 
 ps -eLf |head -n 1
 ps -eLf --columns $COLUMNS |grep "$@" |egrep -v 'grep|bash'
@@ -14,6 +17,7 @@ exit;
 
 Example:
 
+#1        2         3     4       5
 $ psthreads.sh 112 # or ' kvm -id 112 ' as shown in ' htop '
 UID          PID    PPID     LWP  C NLWP STIME TTY          TIME CMD
 root      223474       1  223474 99   11 Feb21 ?        3-02:07:20 /usr/bin/kvm -id 112 -name win10-net-iso-install-boinc,debug-threads=on -no-shutdown -ch
