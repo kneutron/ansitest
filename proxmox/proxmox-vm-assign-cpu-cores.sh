@@ -7,7 +7,7 @@
 psax
 
 declare -i vmid # has to be a number
-if [ "31" = "" ]; then
+if [ "$1" = "" ]; then
   read -p "Enter VMID of highest-CPU kvm: " vmid
 else
   vmid=$1
