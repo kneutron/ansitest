@@ -2,7 +2,7 @@
 
 # REF: https://www.youtube.com/watch?v=jAlzBm40onc
 # This is when you really only have 2 nodes but need a 3rd vote for quorum
-# Can setup debian vm with 512MB RAM OUTSIDE the cluster
+# Can setup debian vm with 512MB RAM OUTSIDE the cluster as long as its on the same LAN
 
 # NOTE do not mix CPU types on host - all AMD or all Intel are OK
 
