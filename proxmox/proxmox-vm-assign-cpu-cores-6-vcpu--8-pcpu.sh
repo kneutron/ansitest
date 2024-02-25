@@ -3,6 +3,12 @@
 # 2024.feb kneutron
 # optional arg1 $1 = vmid if already known
 # Assign cores 2-7 to boinc win10 6-core vm on 8-core host
+#   OR Assign cores 7-5 to boinc win10 3-core vm on 8-core host
+
+# Features:
+# Auto-determines last core number
+# Adapts on-the-fly to 2,3+ vcpus (up to 6) as long as cpu usage is > 0
+#   Can be extended easily for more vcpu counts
 # This should obviously be done on quad-core or better CPU
 
 psax
@@ -32,16 +38,17 @@ set -x
  taskset -p $1
  taskset -cp $penultcpu,$lastcpu $1
  
- taskset -cp $penultcpu $2
- taskset -cp $lastcpu $3
+ taskset -cp $lastcpu $2
+ taskset -cp $penultcpu $3
+ 
  let penultcpu=$penultcpu-1
- taskset -cp $penultcpu $4
+[ "$4" = "" ] || taskset -cp $penultcpu $4
  let penultcpu=$penultcpu-1
- taskset -cp $penultcpu $5
+[ "$5" = "" ] || taskset -cp $penultcpu $5
  let penultcpu=$penultcpu-1
- taskset -cp $penultcpu $6
+[ "$6" = "" ] || taskset -cp $penultcpu $6
  let penultcpu=$penultcpu-1
- taskset -cp $penultcpu $7
+[ "$7" = "" ] || taskset -cp $penultcpu $7
 }
 # assign cpu cores 6,7 to win10 vm for better latency
 # REF: https://www.youtube.com/watch?v=-c_451HV6fE
