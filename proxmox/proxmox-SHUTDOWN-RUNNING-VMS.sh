@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # 2024.feb kneutron
+# This does a HIBERNATE to disk, not shutdown -- in parallel
+# Useful if you are switched to UPS power and need to shutdown gracefully in minimum time
+# NOTE - Will generate A LOT of disk I/O
+
+# Use "Bulk actions / Bulk shutdown" in the GUI otherwise
+
 # REF: https://forum.proxmox.com/threads/shutting-down-all-vm-ct-in-parallel.112519/
 
 [ $(which parallel |wc -l) -gt 0 ] || apt-get install -y parallel
