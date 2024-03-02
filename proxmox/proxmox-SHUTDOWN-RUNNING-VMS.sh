@@ -20,8 +20,8 @@ lastcpu=$(grep processor /proc/cpuinfo |tail -n 1 |awk '{print $3}')
 
 [ -e "$VM_LIST" ] && rm -f "$VM_LIST" # delete the old file ONLY IF it exists
 for vmid in $(qm list |grep running |awk '{print $1}'); do
-#  echo "qm shutdown $vmid" >>"$VM_LIST"
-  echo "qm suspend $vmid --todisk" >>"$VM_LIST"
+  echo "qm shutdown $vmid" >>"$VM_LIST"
+#  echo "qm suspend $vmid --todisk" >>"$VM_LIST"
 done
 
 echo "$(date) - HIBER ALL VMS using $lastcpu threads"
