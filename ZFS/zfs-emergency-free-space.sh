@@ -9,7 +9,7 @@ zfspath=/sys/module/zfs/parameters/spa_slop_shift
 
 if [ "$1" = "putitback" ]; then
   echo 5 > $zfspath
-  cat $zfapath
+  cat $zfspath
   zpool list
   exit 0;
 fi
