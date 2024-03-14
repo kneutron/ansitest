@@ -3,7 +3,7 @@
 # Backup critical file before editing (in current dir)
 # 2024.Mar kneutron
 
-cp -v "$1" "$1".bkp.$(date +%Y%m%d@%H%M%S)
+cp -v "$1" "$1.bkp.$(date +%Y%m%d@%H%M%S)--edit-by-$(id -un)"
 
 ls -lh "$1*"
 echo "Backed up $1 - OK to edit - Press enter"
