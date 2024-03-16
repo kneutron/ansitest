@@ -2,6 +2,10 @@
 
 # REF: https://forum.proxmox.com/threads/intel-x553-sfp-ixgbe-no-go-on-pve8.135129/#post-626516
 
+echo "WARNING THIS DOES NOT CURRENTLY WORK"
+exit;
+
+
 apt update
 apt-get install proxmox-default-headers build-essential dkms gcc make
 
