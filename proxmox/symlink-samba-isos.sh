@@ -9,12 +9,14 @@
 
 # xxx TODO EDITME - destination dir for iso symlinks
 # NOTE - default proxmox iso storage is /var/lib/vz
-cd /mnt/seatera4-xfs/template/iso || exit 44; 
+#cd /mnt/seatera4-xfs/template/iso || exit 44; 
+cd /var/lib/vz/template/iso || exit 44; 
 
 # NOTE local storage isos dir were renamed to iso-old
 
 # grep iso at the end skips any misc non-iso files that were part of a torrent
-# NOTE this is the samba mount
+# NOTE this is the samba mount where all the ISOs are stored, can have subdirectory structure
+# XXX TODO EDITME
 ln -sfn $(find /mnt/imac5/ISO/ |grep iso$) . 
 ls -l
 
