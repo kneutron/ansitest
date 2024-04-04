@@ -1,0 +1,4 @@
+drwxrwxr-x    3 dave-imac5  admin     6B Nov 28  2021 0BR-converted
+another input line
+Filesystem                                                  Type  Size  Used Avail Use% Mounted-on
+/dev/disk1s5s1                                              apfs  233G  226G  7.4G  97% /
