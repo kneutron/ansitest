@@ -3,14 +3,13 @@
 # NOTE this script should be included on the resulting ISO from mkrestoredvdiso.sh / or OSX version
 
 # To be run from systemrescuecd environment; NOTE restore disk sda MUST be partitioned 1st!
-# REQUIRES 1 arg: filename of .fsa
+
+# REQUIRES 1 arg: filename of .fsa to restore
 # copy this script to /tmp and chmod +x, run from there
 
 # NOTE ISO from mkrestoredvdiso should be mounted on 2nd dvd drive
 # NOTE having a copy of supergrubdisc is handy if the VM fails to boot
 # REF: https://distrowatch.com/table.php?distribution=supergrub
-
-# TODO include /home and restore that? IF EXIST
 
 # If you prefer not to use an ISO to restore from, systemrescuecd has sshfs:
 #
@@ -44,11 +43,11 @@ myres=BOOJUM-RESTORE.sh # injection script
 # NOTE sr0 is systemrescue
 mount /dev/sr1 $cdr -oro
 chkmount=$(df |grep -c $cdr)
-[ $chkmount -gt 0 ] || failexit 99 "Failed to mount $cdr"; # failed to mount
+#[ $chkmount -gt 0 ] || failexit 99 "Failed to mount $cdr"; # failed to mount
 chkmount=$(df |grep -c $rootdir)
 [ $chkmount -eq 0 ] || failexit 98 "$rootdir is still mounted - cannot restore!"
 
-cd $cdr || failexit 199 "Cannot CD to $cdr";
+#cd $cdr || failexit 199 "Cannot CD to $cdr";
 pwd
 echo "$(date) - RESTORING root filesystem to $rootdev"
 
