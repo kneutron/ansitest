@@ -1,26 +1,29 @@
 #!/bin/bash
 
+# 2024.0419 kneutron
+# Mod for proxmox LVM+ext4 root
+# EFI version
+
 # =LLC= © (C)opyright 2017 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
 ## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
 ## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
 #
 # To be run from systemrescuecd environment; NOTE restore disk MUST be partitioned 1st!
+
 # REQUIRES 1 arg: filename of .fsa
 # copy this script to /tmp and chmod +x, run from there
 
-# if using sshfs, cd to restore-dir and run /tmp/$0
-
 # If you prefer not to use an ISO to restore from, systemrescuecd has sshfs:
-#
+
+# HOWTO mount your backup storage over sshfs:
 # sshfs -C -o Ciphers=chacha20-poly1305@openssh.com  loginid@ipaddress:/path/to/backupfile \
 #  /mnt/path \
 #  -o follow_symlinks
 
-# mkdir -pv /mnt/restore; sshfs -C -o Ciphers=chacha20-poly1305@openssh.com dave@192.168.1.185:/mnt/seatera4-xfs/notshrcompr \
+# mkdir -pv /mnt/restore; sshfs -C -o Ciphers=chacha20-poly1305@openssh.com dave@192.168.1.185:/mnt/seatera4-xfs/notshrcompr/bkpsys-proxmox \
 #   /mnt/restore -o follow_symlinks
 
-# Mod for proxmox
-# EFI version
+# If using sshfs, cd to restore-dir and run /tmp/$0
 
 # failexit.mrg
 function failexit () {
@@ -38,7 +41,8 @@ rootdev=/dev/mapper/pve-root # for proxmox ext4+LVM restore
 # TODO editme
 efidev=/dev/vda2
 
-rdevonly=${rootdev%[[:digit:]]}
+# FIX
+rtdevonly=${efidev%[[:digit:]]}
 umount $rootdev # failsafe
 
 #cdr=/mnt/cdrom2
@@ -64,12 +68,13 @@ echo "$(date) - Restoring EFI partition to $efidev"
 [ -e boot-efi.dd ] && time dd if=boot-efi.dd of=$efidev bs=1M status=progress > $efidev
 
 # debugg
-read -n 1 -p "PK"
+#read -n 1 -p "PK"
 
 echo "`date` - RESTORING root filesystem to $rootdev"
 
 # PROBLEM with long filenames in UDF - gets cut off, use $1
 #time fsarchiver restfs *.fsa id=0,dest=$rootdev
+
 time fsarchiver restfs -v "$1" id=0,dest=$rootdev  || failexit 400 "Restore to $rootdev failed!";
 
 # TODO fix
@@ -109,27 +114,30 @@ mount $rootdev $rootdir -onoatime,rw
 
 # Make sure we can boot!
 echo "$(date) - Installing grub"
-grub-install --root-directory=$rootdir $rdevonly
+grub-install --root-directory=$rootdir $rtdevonly
 mount -o bind /dev $rootdir/dev; mount -o bind /proc $rootdir/proc; mount -o bind /sys $rootdir/sys
-
+#mount -o bind $efidev $rootdir/boot/efi # not work?
+ 
 # FIXED
 myres2=$rootdir/$myres
 touch $myres2 || failexit 298 "Check if R/O filesystem?"
 
 echo "#!/bin/bash" > $myres2 || failexit 299 "Cannot update $myres2 injection script - Check R/O filesystem?"
+echo "mount /boot/efi" >>$myres2
+echo "grub-install $rtdevonly" >> $myres2  # from chroot
 echo "update-grub" >> $myres2
-echo "grub-install $rdevonly" >> $myres2  # from chroot
 echo "exit;" >> $myres2
 #^D
 
 # inject script here!
 chroot $rootdir /bin/bash /$myres
 
+# Leave chroot mounted in case we need it
 #umount -a $rootdir/*
-umount -a $rootdir/{dev,proc,sys}
+#umount -a $rootdir/{dev,proc,sys}
 
-umount $rootdir/* 2>/dev/null
-umount $rootdir 2>/dev/null
+#umount $rootdir/* 2>/dev/null
+#umount $rootdir 2>/dev/null
 
 df -hT
 
@@ -143,6 +151,39 @@ echo "...and it should not hold up the reboot anymore"
 echo "- Also remove anything from /etc/fstab that exists on the host but not in-vm"
 
 exit;
+
+# 2024.0419 kneutron
+
+=======================================
+Full restore instructions:
+
+Boot systemrescuecd
+
+cd /tmp
+Fire up ' mc ' Midnight Commander
+
+Tab to right pane, Esc+9 (or F9) and SFTP to where your .fsa backup file(s) are
+
+SCP the appropriate restore script over to local /tmp and ' chmod +x ' it
+
+EDIT THIS SCRIPT (look for EDITME) and change the appropriate values to match your restore environnment
+
+Follow the sshfs HOWTO in the comment at the beginning of this script to mount your backup file storage
+
+cd /mnt/restore
+/tmp/$0 backupfilename.fsa # Start the restore
+
+From here you can still chroot into the /mnt/tmp2 dir and disable zfs imports, edit /etc/fstab, et al
+
+Shutdown, remove rescue media and it should reboot into Proxmox VE
+If not, boot Super Grub Disc and that should do it
+
+Once you have a PVE login prompt, you can login as root and reinstall grub
+' grub-install /dev/blah '
+
+and then do a test reboot to make sure everything comes up as expected.
+
+=======================================
 
 
 HOWTO restore: 
@@ -178,10 +219,7 @@ done
 # DON'T FORGET TO COPY /home and adjust fstab for swap / home / squid BEFORE booting new drive!
 # also adjust etc/network/interfaces , getdrives-byid , etc/rc.local , etc/hostname , etc/hosts , etc/init/tty11 port (home/cloudssh/.bash_login)
   
-  
-# umount /mnt/tmp2/*
-# umount /mnt/tmp2
-  
 ########
 
+2024.0419 Tested, works OK with proxmox lvm
 2017.0827 Tested, works OK
