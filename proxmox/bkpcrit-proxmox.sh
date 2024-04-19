@@ -24,6 +24,9 @@ else
   taropts="--lzop -cpf "; tarsfx="tar.lzop"
 fi
 
+# backup lvm config for DR
+vgcfgbackup
+
 rootpartn=$(df / |tail -n 1 |awk '{print $1}') # /dev/sde1
 rootpedit=$(echo ${rootpartn##*/}) # strip off beginning, and last slash: sde1
 #dest="$drive/notshrcompr/bkpcrit-$myhn--fryserver--linux-xubuntu1404LTS-64--$rootpedit" #sdX1"
