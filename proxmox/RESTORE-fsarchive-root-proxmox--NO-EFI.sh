@@ -8,8 +8,10 @@
 # REQUIRES 1 arg: filename of .fsa
 # copy this script to /tmp and chmod +x, run from there
 
-# TODO include /home and restore that? IF EXIST
+# 2024.Apr kneutron
 
+# mod for proxmox
+# NO EFI version
 
 # If you prefer not to use an ISO to restore from, systemrescuecd has sshfs:
 #
@@ -19,8 +21,6 @@
 
 # mkdir -pv /mnt/restore; sshfs -C -o Ciphers=chacha20-poly1305@openssh.com dave@192.168.1.185:/mnt/seatera4-xfs/notshrcompr \
 #   /mnt/restore -o follow_symlinks
-
-# Mod for proxmox
 
 # failexit.mrg
 function failexit () {
@@ -35,7 +35,9 @@ vgchange -a y
 #rootdev=/dev/vda3 # for restore to VM
 rootdev=/dev/mapper/pve-root # for proxmox ext4+LVM restore
 
-rdevonly=${rootdev%[[:digit:]]}
+# xxx TODO EDITME
+#rdevonly=${rootdev%[[:digit:]]}
+rdevonly=/dev/vda # for VM
 umount $rootdev # failsafe
 
 #cdr=/mnt/cdrom2
@@ -59,7 +61,7 @@ echo "`date` - RESTORING root filesystem to $rootdev"
 
 # PROBLEM with long filenames in UDF - gets cut off, use $1
 #time fsarchiver restfs *.fsa id=0,dest=$rootdev
-time fsarchiver restfs "$1" id=0,dest=$rootdev  || failexit 400 "Restore failed!";
+time fsarchiver restfs -v "$1" id=0,dest=$rootdev  || failexit 400 "Restore failed!";
 
 # TODO fix
 #while `wait -n`; do ## notwork - endless loop
@@ -78,8 +80,8 @@ mount $rootdev $rootdir -onoatime,rw
 # Comment out any existing swap partitions in restored fstab
 # REF: https://unix.stackexchange.com/questions/295537/how-do-i-comment-lines-in-fstab-using-sed
 #sed -e '/[/]/common s/^/#/' /etc/fstab
-/bin/cp -v $rootdir/etc/fstab $rootdir/etc/fstab--bkp && \
-  sed -i '/swap/s/^/#/' $rootdir/etc/fstab; grep swap $rootdir/etc/fstab
+#/bin/cp -v $rootdir/etc/fstab $rootdir/etc/fstab--bkp && \
+#  sed -i '/swap/s/^/#/' $rootdir/etc/fstab; grep swap $rootdir/etc/fstab
 
 # Detect swap partition(s) in restore environ - print /dev/sdXX w/o ":"
 #for p in `blkid |grep TYPE=\"swap\" |awk -F: '{ print $1 }'`; do
@@ -97,7 +99,7 @@ mount $rootdev $rootdir -onoatime,rw
 #lrwxrwxrwx 1 root root 10 Aug 27 11:09 dfc46f8f-bcfa-4e73-b62f-b24dd0bf60cf -> ../../sdb5
 
 # Make sure we can boot!
-echo "$(date) - Installing grub"
+echo "$(date) - Installing grub on $rdevonly"
 grub-install --root-directory=$rootdir $rdevonly
 mount -o bind /dev $rootdir/dev; mount -o bind /proc $rootdir/proc; mount -o bind /sys $rootdir/sys
 
@@ -106,8 +108,8 @@ myres2=$rootdir/$myres
 touch $myres2 || failexit 298 "Check if R/O filesystem?"
 
 echo "#!/bin/bash" > $myres2 || failexit 299 "Cannot update $myres2 injection script - Check R/O filesystem?"
-echo "update-grub" >> $myres2
 echo "grub-install $rdevonly" >> $myres2  # from chroot
+echo "update-grub" >> $myres2
 echo "exit;" >> $myres2
 #^D
 
@@ -115,21 +117,63 @@ echo "exit;" >> $myres2
 chroot $rootdir /bin/bash /$myres
 
 #umount -a $rootdir/*
-umount -a $rootdir/{dev,proc,sys}
+#umount -a $rootdir/{dev,proc,sys}
 
-umount $rootdir/* 2>/dev/null
-umount $rootdir 2>/dev/null
+#umount $rootdir/* 2>/dev/null
+#umount $rootdir 2>/dev/null
 
 df -hT
 
 echo "DON'T FORGET TO COPY /home and adjust fstab for swap / home / squid BEFORE booting new drive!"
 echo "+ also adjust etc/network/interfaces , getdrives-byid , etc/rc.local , etc/hostname , etc/hosts ,"
 echo "+ etc/init/tty11 port (home/cloudssh/.bash_login"
+echo '====='
+echo "If restoring to VM and a zpool on the host does not exist:"
+echo " systemctl disable zfs-import@zpoolnamehere "
+echo "...and it should not hold up the reboot anymore"
+echo "- Also remove anything from /etc/fstab that exists on the host but not in-vm"
 
 exit;
 
+# 2024.0420 kneutron
 
-HOWTO restore: 
+=======================================
+Full restore instructions:
+
+Boot systemrescuecd
+
+cd /tmp
+Fire up ' mc ' Midnight Commander
+
+Tab to right pane, Esc+9 (or F9) and SFTP to where your .fsa backup file(s) are
+
+SCP the appropriate restore script (EFI or NO-EFI) over to local /tmp and ' chmod +x ' it
+
+EDIT THIS SCRIPT (look for EDITME) and change the appropriate values to match your restore environnment
+
+You may run into an issue with systemrescuecd where you cannot save over the original file;
+ in that case you can save it under another name or delete it from another TTY and save it again
+ but you will have to redo the ' chmod +x ' on it
+ 
+Follow the sshfs HOWTO in the comment at the beginning of this script to mount your backup file storage
+
+cd /mnt/restore
+/tmp/$0 backupfilename.fsa # Start the restore
+
+From here you can still ' chroot ' into the /mnt/tmp2 dir and disable zfs imports, edit /etc/fstab, et al
+
+Shutdown, remove rescue media and it should reboot into Proxmox VE
+If not, boot Super Grub Disc and that should do it
+
+Once you have a PVE login prompt, you can login as root and reinstall grub
+' grub-install /dev/blah '
+
+and then do a test reboot to make sure everything comes up as expected.
+
+=======================================
+
+
+HOWTO restore:
 # time fsarchiver restfs *-fsarc1.fsa id=0,dest=/dev/sdf1
 Statistics for filesystem 0
 * files successfully processed:....regfiles=159387, directories=25579, symlinks=49276, hardlinks=25, specials=108
@@ -137,35 +181,12 @@ Statistics for filesystem 0
 real    4m26.116s
 ( 3.9GB )
 
-# mount /dev/sdf1 /mnt/tmp2
-
-# grub-install --root-directory=/mnt/tmp2 /dev/sdf
-# mount -o bind /dev /mnt/tmp2/dev; mount -o bind /proc /mnt/tmp2/proc; mount -o bind /sys /mnt/tmp2/sys
-# chroot /mnt/tmp2 /bin/bash
-# update-grub
-[[
-Generating grub configuration file ...
-Warning: Setting GRUB_TIMEOUT to a non-zero value when GRUB_HIDDEN_TIMEOUT is set is no longer supported.
-Found linux image: /boot/vmlinuz-4.2.0-36-generic
-Found initrd image: /boot/initrd.img-4.2.0-36-generic
-Found memtest86+ image: /boot/memtest86+.elf
-Found memtest86+ image: /boot/memtest86+.bin
-Found Ubuntu 14.04.4 LTS (14.04) on /dev/sda1
-done
-]]
-  
 # grub-install /dev/sdf  # from chroot
   
 ^D
 # umount -a /mnt/tmp2/*
   
-# DON'T FORGET TO COPY /home and adjust fstab for swap / home / squid BEFORE booting new drive!
-# also adjust etc/network/interfaces , getdrives-byid , etc/rc.local , etc/hostname , etc/hosts , etc/init/tty11 port (home/cloudssh/.bash_login)
-  
-  
-# umount /mnt/tmp2/*
-# umount /mnt/tmp2
-  
 ########
 
+2024.0420 Tested, works OK with proxmox no-efi
 2017.0827 Tested, works OK
