@@ -3,6 +3,9 @@
 # Intention: bare-metal backup and restore linux running system
 # REF: http://crunchbang.org/forums/viewtopic.php?id=24268
 
+# running from cron, we need this
+PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
+
 # TODO BOOJUM STAFF - adjust for client retention needs!
 keepdays=31
 
