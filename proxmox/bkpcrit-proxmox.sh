@@ -5,6 +5,9 @@
 # NOTE - BKPCRIT DESTINATION SHOULD NOT BE ON THE SAME DISK AS ROOT!!
 # DEPENDS: lzop
 
+# running from cron, we need this
+PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
+
 #fixresolvconf
 
 # xxx TODO EDITME
@@ -26,6 +29,8 @@ fi
 
 # backup lvm config for DR
 vgcfgbackup
+
+(pvs; vgs; lvs) >$dest/lvm-info.txt
 
 rootpartn=$(df / |tail -n 1 |awk '{print $1}') # /dev/sde1
 rootpedit=$(echo ${rootpartn##*/}) # strip off beginning, and last slash: sde1
@@ -60,7 +65,7 @@ df -hT > $dest/df-h.txt # added 2016.april
 df -T -x{tmpfs,usbfs} > $dest/df-$tdate.txt	# nice to have non-h df as well
 
 # removed 2016.0319, not using lvm
-#vgdisplay -v > $dest/vgdisplay-v-$tdate.txt
+vgdisplay -v > $dest/vgdisplay-v-$tdate.txt
 
 # xxx TODO editme
 distro="debian"
