@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# Remaster a proxmox installer ISO with a self-contained answerfile
+# 2024.Apr kneutron
+
 # XXX TODO EDITME
 isopath=/var/lib/vz/template/iso
 #isopath=/mnt/seatera4-xfs/template/iso
 
 useiso=proxmox-ve_8.2-1.iso
 answerfile=/root/proxmox-unattended-install.toml
+
+[ $(dpkg -l |grep -c proxmox-auto-install-assistant) -gt 0 ] || apt install -y proxmox-auto-install-assistant
 
 echo "$(date) - Preparing $isopath/$useiso using $answerfile"
 time proxmox-auto-install-assistant prepare-iso $isopath/$useiso --fetch-from iso --answer-file $answerfile
@@ -15,6 +20,9 @@ date;
 exit;
 
 # REF: https://pve.proxmox.com/wiki/Automated_Installation
+
+# Final ISO is available at "/mnt/seatera4-xfs/template/iso/proxmox-ve_8.2-1-auto-from-iso.iso".
+
 
 # test vm config for pve install
 BEGIN /etc/pve/qemu-server/126.conf 
