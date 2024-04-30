@@ -34,5 +34,5 @@ if [[ "$phase" == "post-start" ]]; then
         echo "vm guest service not running"
         exit 1
     fi
-    
+fi
 # REF: https://forum.proxmox.com/threads/windows-vm-time-not-updated-after-hibernate-resume.110517/page-2#post-624212

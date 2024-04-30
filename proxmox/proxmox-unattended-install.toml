@@ -1,0 +1,30 @@
+# This is the answer file for proxmox pve unattended install to VM (for testing)
+# ext4 + LVM boot/root
+# REF: https://pve.proxmox.com/wiki/Automated_Installation#Overview
+# 2024.Apr kneutron
+# xxx TODO EDITME before running ' proxmox-mkiso-unattended-install.sh '
+[global]
+keyboard = "en-us"
+country = "us"
+fqdn = "pveauto.testinstall"
+mailto = "root@localhost"
+timezone = "America/Denver"
+root_password = "123456"
+
+[network]
+source = "from-dhcp"
+
+[disk-setup]
+filesystem = "ext4"
+lvm.hdsize = 238
+# for "256GB" disk - even if disk is bigger than this, pve lvm will only use this much and rest can be used for ZFS
+#lvm.hdsize = "119"
+# for "128GB" disk - REF: https://platinumdatarecovery.com/hard-drive-capacity-calculator
+lvm.swapsize = 2
+# ^^ in GB
+lvm.maxroot = 40
+# GB
+lvm.minfree = 2
+# Leave 2GB of space for future growth / safety factor
+#disk_list = ["sda"]
+disk_list = ["vda"]
