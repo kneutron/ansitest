@@ -1,20 +1,14 @@
 #!/bin/bash
 
-#cd /mnt/toshtera10-xfs
-#pwd
-
 # XXX TODO EDITME
-#isopath=/var/lib/vz/template/iso
-isopath=/mnt/seatera4-xfs/template/iso
+isopath=/var/lib/vz/template/iso
+#isopath=/mnt/seatera4-xfs/template/iso
 
 useiso=proxmox-ve_8.2-1.iso
 answerfile=/root/proxmox-unattended-install.toml
 
 echo "$(date) - Preparing $isopath/$useiso using $answerfile"
 time proxmox-auto-install-assistant prepare-iso $isopath/$useiso --fetch-from iso --answer-file $answerfile
-
-#ls -lrth |tail -n 5
-#pwd
 
 date;
 
