@@ -9,6 +9,10 @@ PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/gam
 # TODO BOOJUM STAFF - adjust for client retention needs!
 keepdays=31
 
+# Vital dependency
+[ $(dpkg -l |grep -c fsarchiver -gt 0 ] || apt install -y fsarchiver
+[ $(dpkg -l |grep -c lzop -gt 0 ] || apt install -y lzop
+
 rootdev=`df / |grep /dev |awk '{print $1}'`
 rootpedit=`echo ${rootdev##*/}` # strip off beginning, and last slash: sde1
 
