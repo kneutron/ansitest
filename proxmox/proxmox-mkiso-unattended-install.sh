@@ -7,8 +7,8 @@
 # XXX TODO EDIT the .toml file before running this!
 
 # XXX TODO EDITME
-#isopath=/var/lib/vz/template/iso
-isopath=/mnt/seatera4-xfs/template/iso
+isopath=/var/lib/vz/template/iso
+#isopath=/mnt/seatera4-xfs/template/iso
 
 useiso=proxmox-ve_8.2-1.iso
 
