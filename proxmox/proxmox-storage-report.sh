@@ -443,3 +443,16 @@ zfs3nvme1T:vm-112-disk-0  raw  images  42949672960  112
 ztosh10:vm-112-disk-0     raw  images  85899345920  112
 ztosh10:vm-112-fleece-0   raw  images  42949672960  112
 ztosh10:vm-112-fleece-1   raw  images  85899345920  112
+
+=====
+
+# REF: https://stackoverflow.com/questions/25077709/shell-script-for-awk-print-divide-value-with-1024
+
+# not perfect, but convert column 4 to MB for easier reading
+# awk '{ MB = int($4/1024/1024); $4=MB"_MB"; print}' proxmox-storage-report.log |column -t |less
+o                                                                                  Storage  dir1:                      0_MB
+Volid                                                                              Format   Type                       0_MB       VMID
+dir1:105/vm-105-disk-1.raw                                                         raw      rootdir                    2048_MB    105
+dir1:backup/vzdump-lxc-102-2024_02_15-03_00_00.tar.zst                             tar.zst  backup                     812_MB     102
+dir1:backup/vzdump-lxc-105-2024_05_05-03_02_03.tar.zst                             tar.zst  backup                     219_MB     105
+dir1:backup/vzdump-lxc-105-2024_05_06-03_02_11.tar.zst                             tar.zst  backup                     219_MB     105
