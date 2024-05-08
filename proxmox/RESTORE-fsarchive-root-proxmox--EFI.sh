@@ -157,6 +157,8 @@ exit;
 =======================================
 Full restore instructions:
 
+Run the Proxmox installer from ISO / USB and recreate the LVM + ext4 root FS with appropriate disk size 
+
 Boot systemrescuecd
 
 cd /tmp
@@ -184,40 +186,6 @@ Once you have a PVE login prompt, you can login as root and reinstall grub
 and then do a test reboot to make sure everything comes up as expected.
 
 =======================================
-
-
-HOWTO restore: 
-# time fsarchiver restfs *-fsarc1.fsa id=0,dest=/dev/sdf1
-Statistics for filesystem 0
-* files successfully processed:....regfiles=159387, directories=25579, symlinks=49276, hardlinks=25, specials=108
-* files with errors:...............regfiles=0, directories=0, symlinks=0, hardlinks=0, specials=0
-real    4m26.116s
-( 3.9GB )
-
-# mount /dev/sdf1 /mnt/tmp2
-
-# grub-install --root-directory=/mnt/tmp2 /dev/sdf
-# mount -o bind /dev /mnt/tmp2/dev; mount -o bind /proc /mnt/tmp2/proc; mount -o bind /sys /mnt/tmp2/sys
-# chroot /mnt/tmp2 /bin/bash
-# update-grub
-[[
-Generating grub configuration file ...
-Warning: Setting GRUB_TIMEOUT to a non-zero value when GRUB_HIDDEN_TIMEOUT is set is no longer supported.
-Found linux image: /boot/vmlinuz-4.2.0-36-generic
-Found initrd image: /boot/initrd.img-4.2.0-36-generic
-Found memtest86+ image: /boot/memtest86+.elf
-Found memtest86+ image: /boot/memtest86+.bin
-Found Ubuntu 14.04.4 LTS (14.04) on /dev/sda1
-done
-]]
-  
-# grub-install /dev/sdf  # from chroot
-  
-^D
-# umount -a /mnt/tmp2/*
-  
-# DON'T FORGET TO COPY /home and adjust fstab for swap / home / squid BEFORE booting new drive!
-# also adjust etc/network/interfaces , getdrives-byid , etc/rc.local , etc/hostname , etc/hosts , etc/init/tty11 port (home/cloudssh/.bash_login)
   
 ########
 
