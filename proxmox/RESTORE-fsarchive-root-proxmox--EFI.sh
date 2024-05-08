@@ -4,18 +4,18 @@
 # Mod for proxmox LVM+ext4 root
 # EFI version
 
-# =LLC= © (C)opyright 2017 Boojum Consulting LLC / Dave Bechtel, All rights reserved.
-## NOTICE: Only Boojum Consulting LLC personnel may use or redistribute this code,
-## Unless given explicit permission by the author - see http://www.boojumconsultingsa.com
-#
-# To be run from systemrescuecd environment; NOTE restore disk MUST be partitioned 1st!
+if [ "$1" = "help" ]; then
+(cat <<EOF
+(NOTE you are in the 'less' pager, hit 'q' to quit)
 
-# REQUIRES 1 arg: filename of .fsa
-# copy this script to /tmp and chmod +x, run from there
+To be run from systemrescuecd environment; NOTE restore disk MUST be partitioned 1st!
 
-# If you prefer not to use an ISO to restore from, systemrescuecd has sshfs:
+This script REQUIRES 1 arg: filename of .fsa
+Copy this script to /tmp and chmod +x, run from there
 
-# HOWTO mount your backup storage over sshfs:
+If you prefer not to use an ISO to restore from, systemrescuecd has sshfs:
+
+HOWTO mount your backup storage over sshfs:
 # sshfs -C -o Ciphers=chacha20-poly1305@openssh.com  loginid@ipaddress:/path/to/backupfile \
 #  /mnt/path \
 #  -o follow_symlinks
@@ -23,7 +23,51 @@
 # mkdir -pv /mnt/restore; sshfs -C -o Ciphers=chacha20-poly1305@openssh.com dave@192.168.1.185:/mnt/seatera4-xfs/notshrcompr/bkpsys-proxmox \
 #   /mnt/restore -o follow_symlinks
 
-# If using sshfs, cd to restore-dir and run /tmp/$0
+If using sshfs, cd to restore-dir and run /tmp/$0
+
+PROTIP - you can run ' screen ' or ' tmux ' from systemrescuecd and have this help text visible while restoring!
+
+============
+Full restore instructions: (You may want to print this or copy to text editor, or have it up in a web browser)
+
+You need to have downloaded:
+o Proxmox VE ISO installer - https://www.proxmox.com/en/downloads
+o Systemrescuecd  	   - https://distrowatch.com/table.php?distribution=systemrescue
+o Super Grub Disc (emergency fix boot) - https://distrowatch.com/table.php?distribution=supergrub
+
+o Also handy to have - Rescatux: https://distrowatch.com/table.php?distribution=rescatux
+
+Run the Proxmox installer from ISO / USB and recreate the LVM + ext4 root FS with appropriate disk size 
+
+Then, Boot systemrescuecd
+
+cd /tmp
+Fire up ' mc ' Midnight Commander
+
+Tab to right pane, Esc+9 (or F9) and SFTP to where your .fsa backup file(s) are
+
+SCP the appropriate restore script (EFI or NO-EFI) over to local /tmp and ' chmod +x ' it
+
+EDIT THIS SCRIPT (look for EDITME) and change the appropriate values to match your restore environnment
+
+Follow the sshfs HOWTO in the comment at the beginning of this script to mount your backup file storage
+
+cd /mnt/restore
+/tmp/$0 backupfilename.fsa # Start the restore
+
+After the restore finishes: From here you can still chroot into the /mnt/tmp2 dir and disable zfs imports, edit /etc/fstab, et al
+
+Shutdown, remove rescue media and it should reboot into Proxmox VE
+If not, boot Super Grub Disc and that should do it
+
+Once you have a PVE login prompt, you can login as root and reinstall grub
+' grub-install /dev/blah '
+
+and then do a test reboot to make sure everything comes up as expected.
+EOF
+) |less
+exit 0;
+fi
 
 # failexit.mrg
 function failexit () {
@@ -31,6 +75,7 @@ function failexit () {
   exit $1
 }
 
+# needed for proxmox LVM
 vgchange -a y
 
 # TODO editme
@@ -38,7 +83,7 @@ vgchange -a y
 #rootdev=/dev/vda3 # for restore to VM
 rootdev=/dev/mapper/pve-root # for proxmox ext4+LVM restore
 
-# TODO editme
+# TODO editme if needed - this is for restoring to proxmox VM with virtio disk
 efidev=/dev/vda2
 
 # FIX
@@ -77,17 +122,10 @@ echo "`date` - RESTORING root filesystem to $rootdev"
 
 time fsarchiver restfs -v "$1" id=0,dest=$rootdev  || failexit 400 "Restore to $rootdev failed!";
 
-# TODO fix
-#while `wait -n`; do ## notwork - endless loop
-#while [ `jobs |wc -l` -gt 0 ]; do
-#  df -h |grep $rootdev # grep fsa
-#  sleep 5
-#done
-
 date
 
 # boojumtastic!
-tune2fs -m1 $rootdev
+tune2fs -m2 $rootdev
 
 mount $rootdev $rootdir -onoatime,rw
 
@@ -155,39 +193,7 @@ exit;
 # 2024.0419 kneutron
 
 =======================================
-Full restore instructions:
 
-Run the Proxmox installer from ISO / USB and recreate the LVM + ext4 root FS with appropriate disk size 
-
-Boot systemrescuecd
-
-cd /tmp
-Fire up ' mc ' Midnight Commander
-
-Tab to right pane, Esc+9 (or F9) and SFTP to where your .fsa backup file(s) are
-
-SCP the appropriate restore script over to local /tmp and ' chmod +x ' it
-
-EDIT THIS SCRIPT (look for EDITME) and change the appropriate values to match your restore environnment
-
-Follow the sshfs HOWTO in the comment at the beginning of this script to mount your backup file storage
-
-cd /mnt/restore
-/tmp/$0 backupfilename.fsa # Start the restore
-
-From here you can still chroot into the /mnt/tmp2 dir and disable zfs imports, edit /etc/fstab, et al
-
-Shutdown, remove rescue media and it should reboot into Proxmox VE
-If not, boot Super Grub Disc and that should do it
-
-Once you have a PVE login prompt, you can login as root and reinstall grub
-' grub-install /dev/blah '
-
-and then do a test reboot to make sure everything comes up as expected.
-
-=======================================
-  
-########
-
+2024.0508 Added help screen  
 2024.0419 Tested, works OK with proxmox lvm
 2017.0827 Tested, works OK
