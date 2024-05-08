@@ -140,6 +140,8 @@ exit;
 =======================================
 Full restore instructions:
 
+Run the Proxmox installer from ISO / USB and recreate the LVM + ext4 root FS with appropriate disk size 
+
 Boot systemrescuecd
 
 cd /tmp
@@ -171,22 +173,6 @@ Once you have a PVE login prompt, you can login as root and reinstall grub
 and then do a test reboot to make sure everything comes up as expected.
 
 =======================================
-
-
-HOWTO restore:
-# time fsarchiver restfs *-fsarc1.fsa id=0,dest=/dev/sdf1
-Statistics for filesystem 0
-* files successfully processed:....regfiles=159387, directories=25579, symlinks=49276, hardlinks=25, specials=108
-* files with errors:...............regfiles=0, directories=0, symlinks=0, hardlinks=0, specials=0
-real    4m26.116s
-( 3.9GB )
-
-# grub-install /dev/sdf  # from chroot
-  
-^D
-# umount -a /mnt/tmp2/*
-  
-########
-
+ 
 2024.0420 Tested, works OK with proxmox no-efi
 2017.0827 Tested, works OK
