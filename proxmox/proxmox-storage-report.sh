@@ -3,6 +3,7 @@
 # Verbosely list the contents of various storage defined in the Proxmox GUI
 # 2024.May kneutron
 # Could be handy to grep the output for e.g. vm-112 or an ISO name to see which storage has it
+# Also handy to find backups of a VM on different storage
 
 # running from cron, we need this
 PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
