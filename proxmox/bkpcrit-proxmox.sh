@@ -5,10 +5,10 @@
 # NOTE - BKPCRIT DESTINATION SHOULD NOT BE ON THE SAME DISK AS ROOT!!
 # DEPENDS: lzop
 
+#fixresolvconf
+
 # running from cron, we need this
 PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
-
-#fixresolvconf
 
 # xxx TODO EDITME
 primaryuser=dave
@@ -17,6 +17,8 @@ source /root/bin/boojum/BKPDEST.mrg     # now provides mount test
 drive=$bkpdest/notshrcompr
 
 source /etc/os-release
+
+source /root/bin/getdrive-byids
 
 # xxx TODO EDITME - set 1 if dest is ZFS compressed (lz4,zstd)
 comprdest=0
@@ -52,6 +54,11 @@ cp -v /etc/fstab $dest
 cp -v /tmp/smartctl.txt $dest
 cp -v /tmp/fdisk-l.txt $dest/fdisk-l-$tdate.txt
 
+# xxx LOCAL - get boot drive info - TODO commentme if exporting
+#gdisk -l /dev/nvme0n1 >/tmp/gdisk-l-rootdisk.txt
+gdisk -l $Dlinuxroot >/tmp/gdisk-l-rootdisk.txt
+cp -v /tmp/gdisk-l-rootdisk.txt $dest/gdisk-l-rootdisk-$tdate.txt
+
 echo 'o Clearing old files'
  # !! find bkp-gz, bkp-bz2 and flist files more than ~2 weeks old and delete
  cd $dest && \
@@ -65,7 +72,7 @@ df -hT > $dest/df-h.txt # added 2016.april
 df -T -x{tmpfs,usbfs} > $dest/df-$tdate.txt	# nice to have non-h df as well
 
 # removed 2016.0319, not using lvm
-vgdisplay -v > $dest/vgdisplay-v-$tdate.txt
+#vgdisplay -v > $dest/vgdisplay-v-$tdate.txt
 
 # xxx TODO editme
 distro="debian"
@@ -93,9 +100,13 @@ tar $taropts $dest/bkp-var-dpkg-status.$tarsfx /var/lib/dpkg
 tar $taropts $dest/bkp-var-dpkg-backups.$tarsfx /var/backups
 tar $taropts $dest/bkp-var-cache-apt-backups.$tarsfx /var/cache/apt
 
+tar $taropts $dest/bkp-var-spool-cron.$tarsfx /var/spool/cron
+
 # proxmox
 tar $taropts $dest/bkp-var-lib-vz.$tarsfx /var/lib/vz
 tar $taropts $dest/bkp-var-lib-pve-cluster.$tarsfx /var/lib/pve-cluster
+tar $taropts $dest/bkp-var-lib-lxc.$tarsfx /var/lib/lxc
+tar $taropts $dest/bkp-var-lib-firewall.$tarsfx /var/lib/pve-firewall
 
 
 # rhel-related distros
@@ -140,6 +151,8 @@ ls $dest -alh
 df -hT $drive
 echo $dest
 echo "$(date) - $0 done"
+
+gotifytest-general.sh "$0 completed"
 
 exit;
 
