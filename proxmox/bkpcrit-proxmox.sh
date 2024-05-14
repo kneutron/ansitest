@@ -1,8 +1,14 @@
 #!/bin/bash
 # Backup critical files (hopefully)
 
-# Highly recommended to run this before doing ANY system updates/upgrades
+# mod for proxmox
+# NOTE - lxc and VM definition files are in:
+# /etc/pve/nodes/proxmox
+# Restore them to original location and they should show up in the GUI
+
+# Highly recommended to run this before doing ANY system updates/upgrades, and AT LEAST once a week!
 # NOTE - BKPCRIT DESTINATION SHOULD NOT BE ON THE SAME DISK AS ROOT!!
+
 # DEPENDS: lzop
 
 #fixresolvconf
@@ -62,7 +68,7 @@ cp -v /tmp/gdisk-l-rootdisk.txt $dest/gdisk-l-rootdisk-$tdate.txt
 echo 'o Clearing old files'
  # !! find bkp-gz, bkp-bz2 and flist files more than ~2 weeks old and delete
  cd $dest && \
-   find $dest/* \( -name "*.txt" -o -name "flist*" \) -type f -mtime +15 -exec /bin/rm -v {} \;
+   find $dest/* \( -name "*.txt" -o -name "flist*" \) -type f -mtime +7 -exec /bin/rm -v {} \;
 #   find $dest/* \( -name "*.txt" -o -name "bkp*bz2" -o -name "flist*" \) -type f -mtime +20 -exec /bin/rm -v {} \;
    
 
@@ -117,7 +123,7 @@ tmp=/var/log/secure; [ -e "$tmp" ] && tar $taropts $dest/bkp-var-log-secure--$di
 
 
 tar $taropts $dest/bkp-$primaryuser-src.$tarsfx /home/$primaryuser/src
-tar $taropts $dest/bkp-$primaryuser-bin.$tarsfx /home/$primaryuser/bin
+tar $taropts $dest/bkp-$primaryuser-bin.$tarsfx /home/$primaryuser/bin /home/$primaryuser/.bashrc /home/$primaryuser/gonow /home/$primaryuser/.screen*
 
 
 # Dotfiles
@@ -152,7 +158,7 @@ df -hT $drive
 echo $dest
 echo "$(date) - $0 done"
 
-gotifytest-general.sh "$0 completed"
+gotifytest-general.sh "$0 completed on $(hostname)"
 
 exit;
 
