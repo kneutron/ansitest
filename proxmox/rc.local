@@ -1,6 +1,6 @@
 #!/bin/bash 
 #
-# rc.local
+# /etc/rc.local
 #
 # This script is executed at the end of each multiuser runlevel.
 # Make sure that the script will "exit 0" on success or any other
@@ -59,31 +59,17 @@ echo 160 > /proc/sys/vm/vfs_cache_pressure
 #ethtool -K eth0 sg off
 #ethtool -K eth0 tso off
 
-# NOTE this has to be in etc/network/interfaces to stick...
-#killall dhclient;sleep 1
-
-#myeth0=`ifconfig -a |grep HW |awk '{print $1}' |head -n 1`
-# 2018.0512 fix for imac linux mint 18.2 / ubuntu bionic
-#myeth0=`ifconfig -a |grep flags |awk -F':' '{print $1}' |head -n 1`
-
-# TODO - do we need this here?? 2017.mar
-#dhclient -v $myeth0;sleep 2
-#ifconfig $myeth0:1 10.9.3.6 netmask 255.0.0.0 up
-
 # 2.5Gbit ether usb3
 #modprobe r8152
-
-# xxx NOTE static ip on vmbr0! 2024.0229 for faster lan // wireless 192 slow
-/root/bin/boojum/fix-ifconfig-static.sh
 
 # speed up gig ether
 /root/bin/gig-ether--speedup &
 
 # xxx 2024.0302- REF: https://pve.proxmox.com/wiki/Zram
-modprobe zram
-zramctl --size 1500MiB /dev/zram0
-mkswap /dev/zram0 
-swapon /dev/zram0 -p 10
+#modprobe zram
+#zramctl --size 1500MiB /dev/zram0
+#mkswap /dev/zram0 
+#swapon /dev/zram0 -p 10
 
 modprobe zfs
 zpool import -d /dev/disk/by-id -a -f 
@@ -110,7 +96,7 @@ cd /sys/module/zfs/parameters #&& \
 #  tmpv=zfs_arc_max;             [ -e $tmpv ] && echo 1573741824 > $tmpv # limit zfs RAM usage
 
 # 4GB -- increased after RAM -> 32GB 2024.0324 (was 1.5GB for 16 on host)
-echo "$[4 * 1024*1024*1024]" >/sys/module/zfs/parameters/zfs_arc_max
+#echo "$[4 * 1024*1024*1024]" >/sys/module/zfs/parameters/zfs_arc_max
 
 
 #  tmpv=zfetch_max_distance;     [ -e $tmpv ] && echo 52428800 > $tmpv # prefetch 50MB - should speed up reads for VM resumes
@@ -120,7 +106,7 @@ cd -
 
 fi
 
-/root/bin/boojum/proxmox-mountall.sh &
+#/root/bin/boojum/proxmox-mountall.sh &
 
 source /root/bin/getdrive-byids
 
@@ -163,11 +149,6 @@ function setdrive () {
 #a -- no spindown for usb3ssd
 #/sbin/blockdev --setra 8192  $Dlinuxroot # not for ext4 "/"
 #/sbin/hdparm -S 0 $Dlinuxroot 
-
-# xxx 2019.0325 LEAVE COMMENTED - this was hanging up boot for some reason!
-######setdrive $Dlinuxroot 8192 90
-######setdrive $Dmacosxboot 16384 60
-### LEAVE COMMENTED MOTHERFUCKER
 
 setdrive $Dseatera4xfs 512 0
 setdrive $Dzseatera10BKP 512 0
@@ -233,7 +214,7 @@ done) &
 #Stopping NoMachine.
 
 # save RAM xxx 2019.0412
-modprobe -r btrfs 
+#modprobe -r btrfs 
 modprobe -r minix joydev parport_pc ppdev lp parport 
 
 service brltty stop&
@@ -288,16 +269,3 @@ exit 0
 rootdev=${tmpvar%? on*}
 /sbin/hdparm -S 0 $rootdev # /dev/sdb # 500 GB " / ", extra 
 #/sbin/hdparm -S 245 $rootdev # /dev/sdb # 500 GB " / ", extra 
-
-# OLD
-#ls -al /dev/disk/by-id|grep -v 'part'|egrep 'ata|scsi|usb'|column -t|sort -t'/' -k 3 >> /tmp/fdisk-l.txt
-# strip partitions, make it evensep, sort with fieldsep '/' on field #3
-#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  ata-WDC_WD20EURS-63S48Y0_WD-WCAZAF375968    ->  ../../sda
-#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  scsi-SATA_WDC_WD20EURS-63_WD-WCAZAF375968   ->  ../../sda
-#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  ata-WDC_WD5000AAKX-00ERMA0_WD-WCC2EL098911  ->  ../../sdb
-#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  scsi-SATA_WDC_WD5000AAKX-_WD-WCC2EL098911   ->  ../../sdb
-
-# OLD - turn SMART on for all and match dev to by-id
-#${i:5:3} = sda
-#( for i in /dev/sd?;do smartctl -s on $i;i2=${i:5:3};echo $i ' = ' $i2' ' `ls -l /dev/disk/by-id|grep $i2|head -1`;smartctl -a $i |head -18;done ) \
-#  > /tmp/smartctl.txt
