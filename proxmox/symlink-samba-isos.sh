@@ -9,19 +9,34 @@
 
 # xxx TODO EDITME - destination dir for iso symlinks
 # NOTE - default proxmox iso storage is /var/lib/vz
-#cd /mnt/seatera4-xfs/template/iso || exit 44; 
+# faster ones here
 cd /var/lib/vz/template/iso || exit 44; 
 
-# NOTE local storage isos dir were renamed to iso-old
-
 # grep iso at the end skips any misc non-iso files that were part of a torrent
-# NOTE this is the samba mount where all the ISOs are stored, can have subdirectory structure
-# XXX TODO EDITME
+# NOTE this is the samba mount
+# NOTE this is 10Gbit samba mount to zint1000pro - faster
+ln -sfn $(find /mnt/macpro-zint1000/ISO/ |grep iso$) . 
+#ls -l
+echo "Checking for broken symlinks:"
+pwd; find . -xtype l
+
+#cd /var/lib/vz/template/iso || exit 45; 
+cd /mnt/seatera4-xfs/template/iso || exit 44; 
 ln -sfn $(find /mnt/imac5/ISO/ |grep iso$) . 
-ls -l
+
+# show broken/stale symlinus
+pwd; find . -xtype l
 
 exit;
 
+# alternative:
+[ $(which symlinks |wc -l) -eq 0 ] && apt install -y symlinks
+symlinks -r . 
+
 REF: https://www.reddit.com/r/Proxmox/comments/1aqn2sc/connecting_to_read_only_nfs_for_iso/
 
-NOTE does not remove stale/broken symlinks - use midnight commander to detect them
+2024.0520 FIXED did not remove stale/broken symlinks - use midnight commander to detect them
+REF: https://linuxhandbook.com/find-broken-symlinks/
+
+#ln -sfn $(find /zseatera4mir/from-macpro-ztoshtera6/shrcompr-ztoshtera6/ISO/ |grep iso$) . 
+# xxx 2024.0324, macpro was off most of the weekend
