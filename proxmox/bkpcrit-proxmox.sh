@@ -78,7 +78,7 @@ df -hT > $dest/df-h.txt # added 2016.april
 df -T -x{tmpfs,usbfs} > $dest/df-$tdate.txt	# nice to have non-h df as well
 
 # removed 2016.0319, not using lvm
-#vgdisplay -v > $dest/vgdisplay-v-$tdate.txt
+vgdisplay -v > $dest/vgdisplay-v-$tdate.txt
 
 # xxx TODO editme
 distro="debian"
