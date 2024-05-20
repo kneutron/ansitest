@@ -24,7 +24,7 @@ pwd; find . -xtype l
 cd /mnt/seatera4-xfs/template/iso || exit 44; 
 ln -sfn $(find /mnt/imac5/ISO/ |grep iso$) . 
 
-# show broken/stale symlinus
+# show broken/stale symlinks
 pwd; find . -xtype l
 
 exit;
