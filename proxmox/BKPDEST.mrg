@@ -1,7 +1,10 @@
-# bash - this is where backup tars, etc will be stored
+# bash - this is defining where backup tars, etc will be stored - can be local, sshfs, CIFS, NFS but must be R/W
 # can be overridden b4 sourcing
-#[ "$bkpdest" = "" ] && export bkpdest=/mnt/imacdual
-#[ "$bkpdest" = "" ] && export bkpdest=/zsg25lap1
+
+# NOTE this script should be in /root/bin/boojum and be chmod +x
+#   it is sourced / used by several backup scripts
+# you can have it elsewhere (like /root) for convenience and soft-symlink to it if needed
+#   but the scripts are checking for it in /root/bin/boojum
 
 #[ "$bkpdest" = "" ] && export bkpdest=/mnt/imac5
 [ "$bkpdest" = "" ] && export bkpdest=/mnt/seatera4-xfs
@@ -25,8 +28,4 @@ chkmount=`df |grep -c $bkpdest`
 # NOTE code 199 is generally could not cd to dir
 
 
-myhn=`hostname`
-#export BKPCRITD="$bkpdest/notshrcompr/bkpcrit-$myhn--fryserver--linux-xubuntu1404LTS-64--sdX1"
-#export BKPHOMED="$bkpdest/notshrcompr/bkp-home"
-#export BKPSYSD="$bkpdest/notshrcompr/bkpsys-$myhn" #--linux-xubuntu1404LTS-64--sdX1"
-#export BKPSYSFSARCD=$BKPSYSD
+export myhn=$(hostname)
