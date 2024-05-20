@@ -19,7 +19,7 @@ PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/gam
 # xxx TODO EDITME
 primaryuser=dave
 
-source /root/bin/boojum/BKPDEST.mrg     # now provides mount test
+source /root/bin/boojum/BKPDEST.mrg     # now provides mount test - this defines where the backup destination mount is
 drive=$bkpdest/notshrcompr
 
 source /etc/os-release
