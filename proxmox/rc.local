@@ -1,0 +1,303 @@
+#!/bin/bash 
+#
+# rc.local
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+#
+# In order to enable or disable this script just change the execution
+# bits.
+#
+# By default this script does nothing.
+
+#############
+# TODO BOOJUM - make sure to update /root/bin/getdrive-byids 1st, then /etc/rc.local, then /root/bin/sleepnow-safe
+#############
+
+/usr/bin/logger -i -s 'o Running etc/rc.local'
+
+# hopefully enable sysrq; default is "176"
+echo "1" > /proc/sys/kernel/sysrq
+
+setterm -blank 0
+
+# we dont want to swap much if at all possible
+echo 1 > /proc/sys/vm/swappiness
+
+# hopefully better multitasking I/O performance
+echo 20 > /proc/sys/vm/dirty_ratio
+
+# Try to keep at least 100MB of free RAM at all times
+echo 100000 > /proc/sys/vm/min_free_kbytes
+
+# Default 100 - try more aggressively to reclaim inodes, etc from cache
+echo 160 > /proc/sys/vm/vfs_cache_pressure
+
+#  echo 1 > /proc/sys/vm/overcommit_memory
+# REF: https://forum.proxmox.com/threads/kvm-cannot-allocate-memory.13914/
+# TODO enable if start getting "cannot allocate ram" errors
+
+#  echo Y > /sys/module/kvm/parameters/ignore_msrs
+# TODO enable if host starts crashing when trying to do too much in a vm, like loading 400 tabs in a browser
+# REF: https://forum.proxmox.com/threads/win11-vm-opening-many-tabs-at-once-crashes-proxmox-host.140670/
+
+
+/root/bin/topterm9 &
+
+# xxx mac/apple specific fan control - set speed to cool down; macfanctld does the rest
+[ -e /sys/devices/platform/applesmc.768/fan1_min ] && /root/bin/boojum/macfanstemps.sh &
+#echo 3000 > /sys/devices/platform/applesmc.768/fan3_min
+# also see ' sensors -f '
+
+
+# xxx took out for imacdual 2019.0406
+#chvt 1
+
+# VMWARE FIX for slow guest << host Bridged networking 2006.0911
+#ethtool -K eth0 tx off
+#ethtool -K eth0 sg off
+#ethtool -K eth0 tso off
+
+# NOTE this has to be in etc/network/interfaces to stick...
+#killall dhclient;sleep 1
+
+#myeth0=`ifconfig -a |grep HW |awk '{print $1}' |head -n 1`
+# 2018.0512 fix for imac linux mint 18.2 / ubuntu bionic
+#myeth0=`ifconfig -a |grep flags |awk -F':' '{print $1}' |head -n 1`
+
+# TODO - do we need this here?? 2017.mar
+#dhclient -v $myeth0;sleep 2
+#ifconfig $myeth0:1 10.9.3.6 netmask 255.0.0.0 up
+
+# 2.5Gbit ether usb3
+#modprobe r8152
+
+# xxx NOTE static ip on vmbr0! 2024.0229 for faster lan // wireless 192 slow
+/root/bin/boojum/fix-ifconfig-static.sh
+
+# speed up gig ether
+/root/bin/gig-ether--speedup &
+
+# xxx 2024.0302- REF: https://pve.proxmox.com/wiki/Zram
+modprobe zram
+zramctl --size 1500MiB /dev/zram0
+mkswap /dev/zram0 
+swapon /dev/zram0 -p 10
+
+modprobe zfs
+zpool import -d /dev/disk/by-id -a -f 
+#zfs mount -a  # xxx commented 2024.0314 / 2019.0412 to not mount vm zvols / Snapshots!
+
+if [ `df -T|grep -c zfs` -gt 0 ]; then
+  /root/bin/boojum/boojum-1week-snapshot.sh &
+
+#[ `df -T|grep -c zredtera1` -gt 0 ] && 
+#  /root/bin/pokedisk.sh &  # Keep poking firewire disks so they dont sleep too soon
+
+# 2018.0819 FIX for writing ~150KB/sec to zfs /home
+#cd /sys/module/zfs/parameters && echo 30 > zfs_txg_timeout 
+#cd -
+
+cd /sys/module/zfs/parameters #&& \
+  tmpv=zfs_txg_timeout;         [ -e $tmpv ] && echo 20 > $tmpv
+
+# 1,073,741,824 *4
+#  tmpv=zfs_arc_max;             [ -e $tmpv ] && echo 4294967296 > $tmpv # limit zfs RAM usage
+#  tmpv=zfs_arc_max;             [ -e $tmpv ] && echo 2147483648 > $tmpv # limit zfs RAM usage # if over 16GB RAM
+#  tmpv=zfs_arc_max;             [ -e $tmpv ] && echo 1073741824 > $tmpv # limit zfs RAM usage
+
+#  tmpv=zfs_arc_max;             [ -e $tmpv ] && echo 1573741824 > $tmpv # limit zfs RAM usage
+
+# 4GB -- increased after RAM -> 32GB 2024.0324 (was 1.5GB for 16 on host)
+echo "$[4 * 1024*1024*1024]" >/sys/module/zfs/parameters/zfs_arc_max
+
+
+#  tmpv=zfetch_max_distance;     [ -e $tmpv ] && echo 52428800 > $tmpv # prefetch 50MB - should speed up reads for VM resumes
+# 52,428,800 # prefetch 50MB - should speed up reads for VM resumes
+# REF: https://github.com/openzfs/zfs/wiki/ZFS-on-Linux-Module-Parameters#zfetch_max_distance
+cd -
+
+fi
+
+/root/bin/boojum/proxmox-mountall.sh &
+
+source /root/bin/getdrive-byids
+
+# I/O speedup and drive spindown
+function setdrive () {
+# arg1: drivename - arg2: hdparm setreadahead - arg3: spindown in minutes
+	dnm=$1
+	sra=$2
+	slpmin=$3; slpact=0
+	
+# spindown NOTE:
+# 120 (10 minutes)
+# 240 = 20 min
+# 241 (30 minutes)
+# 242 (60 minutes)
+# 243 (1 hours + 30 minutes)
+# 245 (2 hours + 30 minutes)
+	
+# REF: http://tldp.org/LDP/abs/html/testbranch.html
+	case "slpmin" in
+    0 )   slpact=0;;
+    10 )  slpact=120;;
+    20 )  slpact=240;;
+    30 )  slpact=241;;
+    60 )  slpact=242;;
+    90 )  slpact=243;;
+    150 ) slpact=245;;
+
+    * )
+# everything else, make it an hour just to be safe
+      slpact=242
+      ;;
+  esac      
+                                                  	
+[ -e $dnm ] &&	blockdev --setra $sra $dnm
+[ -e $dnm ] &&	hdparm -S $slpact $dnm
+		
+}
+
+#a -- no spindown for usb3ssd
+#/sbin/blockdev --setra 8192  $Dlinuxroot # not for ext4 "/"
+#/sbin/hdparm -S 0 $Dlinuxroot 
+
+# xxx 2019.0325 LEAVE COMMENTED - this was hanging up boot for some reason!
+######setdrive $Dlinuxroot 8192 90
+######setdrive $Dmacosxboot 16384 60
+### LEAVE COMMENTED MOTHERFUCKER
+
+setdrive $Dseatera4xfs 512 0
+setdrive $Dzseatera10BKP 512 0
+setdrive $Dzseatera4f4m8 512 0
+setdrive $Dzseatera4mirA 512 0
+
+# EXTERNAL
+#setdrive $Dmilterausb3 16384 30
+#P
+
+
+# fix lack of /dev/dvd xxx 2011.0913
+ln /dev/sr0 /dev/dvd -sfn
+
+if [ -e /dev/sr1 ]; then
+  ln $optiarc /dev/dvd -sfn
+  ln $blurayburner /dev/bluray -sfn
+#  ln /dev/sr1 /dev/dvd -sfn
+#  ln /dev/sr0 /dev/bluray -sfn
+fi
+
+# if exist
+#mount /mnt/milterausb3
+
+/root/bin/boojum/drivemap.sh & 
+
+(fdisk -l /dev/sd? > /tmp/fdisk-l.txt 2>/dev/null
+ fdisk -l /dev/nvme?n1 >> /tmp/fdisk-l.txt 2>/dev/null
+blkid |sort >> /tmp/fdisk-l.txt
+
+# ls disk by id, no partitions, only certain fields, get rid of '../'
+ls -l /dev/disk/by-id/ \
+  | grep -v part \
+  | awk '{ print $9" "$10" "$11 }' \
+  | sed 's%../%%g' \
+  >> /tmp/fdisk-l.txt ) &
+  
+      
+# log smartctl info for all drives
+mf=/tmp/smartctl.txt
+# clearit
+> $mf 
+(for d in /dev/sd? $(ls -1 /dev/nvme*n1); do
+  echo "-- Processing $d" >> $mf
+  blockdev --getra $d >> $mf
+  smartctl --smart=on $d  
+
+  smartctl -l scterc,70,70 $d >> $mf
+# xxxxx 2016.0715 enable TLER @ 7 seconds REF: http://list.zfsonlinux.org/pipermail/zfs-discuss/2016-February/024696.html
+
+  smartctl -a $d |head -n 16 \
+    >> $mf
+done) & 
+
+
+# 2016.jul starts squid3 if needed and renices -5, protects from oom-killer
+#/root/bin/squidserver&
+#/usr/local/bin/squid -kshutdown&
+
+# xxx 2016.0407 disabled nomachine nxserver, using cpu when shouldnt even be running
+#service nxserver stop&
+#/etc/init.d/nxserver stop&
+#Stopping NoMachine.
+
+# save RAM xxx 2019.0412
+modprobe -r btrfs 
+modprobe -r minix joydev parport_pc ppdev lp parport 
+
+service brltty stop&
+service saned stop&
+
+cp /tmp/fdisk-l.txt /root
+cp /tmp/smartctl.txt /root
+
+chmod 777 /run/screen
+
+zpool status -v |awk 'NF>0' >/root/zpool-status.txt &
+
+# xxx added for proxmox 2024.0507
+pvereport > /root/pvereport.log &
+
+/root/bin/boojum/proxmox-storage-report.sh &
+
+chvt 1
+
+/root/bin/timesync &
+/root/bin/clearcache
+
+exit 0
+
+==================
+
+# REFERENCE: # set I/O scheduler for SSD ( can use /dev/disk/by-id )
+#echo noop > /sys/block/sda/queue/scheduler 
+
+# set noop scheduler on SSD
+# lrwxrwxrwx 1 root 9 Dec 18 21:19 /dev/disk/by-id/scsi-SATA_KINGSTON_SH103S50026B723A07AE7D -> ../../sdd
+# echo "/dev/sda"|cut -d'/' -f3
+#sda
+# echo "${tmp##*/}"
+#sdd
+#ssdtmp=`ls -1l $Dssd1`
+#ssdnoop="${ssdtmp##*/}"
+#echo "noop" > /sys/block/$ssdnoop/queue/scheduler # trying again 2015.0629
+#echo "deadline" > /sys/block/$ssdnoop/queue/scheduler # xxx seems faster 2014.0723
+
+# ZFS import if needed - xxx 2014.0717
+#zpool import -f -o readonly=on -R /zfs bigvaiterazfs
+
+#tmpvar=`mount|grep 'on / type'`
+# pattern match and strip out the number (only works with single digits)
+#echo ${tmpvar%? on*}
+#/dev/sdc
+#mount
+#/dev/sdc1 on / type ext4 (rw,noatime,errors=remount-ro,commit=0)
+
+# superseded by getdrive; keeping for method notes
+rootdev=${tmpvar%? on*}
+/sbin/hdparm -S 0 $rootdev # /dev/sdb # 500 GB " / ", extra 
+#/sbin/hdparm -S 245 $rootdev # /dev/sdb # 500 GB " / ", extra 
+
+# OLD
+#ls -al /dev/disk/by-id|grep -v 'part'|egrep 'ata|scsi|usb'|column -t|sort -t'/' -k 3 >> /tmp/fdisk-l.txt
+# strip partitions, make it evensep, sort with fieldsep '/' on field #3
+#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  ata-WDC_WD20EURS-63S48Y0_WD-WCAZAF375968    ->  ../../sda
+#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  scsi-SATA_WDC_WD20EURS-63_WD-WCAZAF375968   ->  ../../sda
+#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  ata-WDC_WD5000AAKX-00ERMA0_WD-WCC2EL098911  ->  ../../sdb
+#lrwxrwxrwx  1  root  root  9  Jan  25  19:35  scsi-SATA_WDC_WD5000AAKX-_WD-WCC2EL098911   ->  ../../sdb
+
+# OLD - turn SMART on for all and match dev to by-id
+#${i:5:3} = sda
+#( for i in /dev/sd?;do smartctl -s on $i;i2=${i:5:3};echo $i ' = ' $i2' ' `ls -l /dev/disk/by-id|grep $i2|head -1`;smartctl -a $i |head -18;done ) \
+#  > /tmp/smartctl.txt
