@@ -6,6 +6,7 @@
 # you can have it elsewhere (like /root) for convenience and soft-symlink to it if needed
 #   but the scripts are checking for it in /root/bin/boojum
 
+# xxx TODO EDITME
 #[ "$bkpdest" = "" ] && export bkpdest=/mnt/imac5
 [ "$bkpdest" = "" ] && export bkpdest=/mnt/seatera4-xfs
 
