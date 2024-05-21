@@ -4,12 +4,12 @@
 # mod for lxc
 
 # optional arg1 $1 = vmid if already known
-# Assign cores 2-7 to boinc win10 6-core vm on 8-core host
-#   OR Assign cores 7-5 to boinc win10 3-core vm on 8-core host
+# Assign cores 2-7 to 6-core lxc on 8-core host
+#   OR Assign cores 7-5 to 3-core vm on 8-core host
 
 # Features:
 # Auto-determines last core number
-# Adapts on-the-fly to 2,3+ vcpus (up to 6) as long as cpu usage is > 0
+# Adapts on-the-fly to 2,3+ vcpus (up to 6) 
 #   Can be extended easily for more vcpu counts
 # This should obviously be done on quad-core or better CPU
 
@@ -19,7 +19,7 @@ psax
 declare -i vmid lastcpu penultcpu  # has to be a number
 
 if [ "$1" = "" ]; then
-  read -p "Enter VMID of highest-CPU LXC: " lxcid
+  read -p "Enter ID of highest-CPU LXC: " lxcid
 else
   lxcid=$1
 fi
