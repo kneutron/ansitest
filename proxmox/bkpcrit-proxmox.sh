@@ -9,6 +9,8 @@
 # Highly recommended to run this before doing ANY system updates/upgrades, and AT LEAST once a week!
 # NOTE - BKPCRIT DESTINATION SHOULD NOT BE ON THE SAME DISK AS ROOT!!
 
+# NOTE this script depends on /root/bin/boojum/BKPDEST.mrg - edit that file to define your backup destination
+
 # DEPENDS: lzop
 
 #fixresolvconf
