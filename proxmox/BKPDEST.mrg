@@ -1,17 +1,26 @@
-# bash - this is defining where backup tars, etc will be stored - can be local, sshfs, CIFS, NFS but must be R/W
-# can be overridden b4 sourcing
+# bash - this is defining where backup tars, fsarchive, etc will be stored - can be local, sshfs, CIFS, NFS but must be R/W
+# can be overridden b4 sourcing (set bkpdest var before sourcing this and you will still get the mount functionality)
 
 # NOTE this script should be in /root/bin/boojum and be chmod +x
 #   it is sourced / used by several backup scripts
-# you can have it elsewhere (like /root) for convenience and soft-symlink to it if needed
+
+# you can have it live elsewhere (like /root) for convenience and soft-symlink to it if needed
 #   but the scripts are checking for it in /root/bin/boojum
 
-# xxx TODO EDITME
+# e.g.
+# mkdir -pv /root/bin/boojum
+# ln -sfn /root/BKPDEST.mrg /root/bin/boojum/
+
+## and save BKPDEST in /root
+## thus the bkpdest will be in /root for convenience, but still pointed to by the soft symlink in the usual location
+##   that the scripts expect
+
+# xxx TODO EDITME - this is where your backups will be stored - NEEDS TO BE ON A SEPARATE DISK FROM ROOT!
 #[ "$bkpdest" = "" ] && export bkpdest=/mnt/imac5
 [ "$bkpdest" = "" ] && export bkpdest=/mnt/seatera4-xfs
 
-[ `echo $bkpdest |grep -c "/mnt/"` -gt 0 ] && mount $bkpdest   # mount if not ZFS!
-[ `echo $bkpdest |grep -c "/media/"` -gt 0 ] && mount $bkpdest   # mount if not ZFS!
+[ $(echo $bkpdest |grep -c "/mnt/") -gt 0 ] && mount $bkpdest   # mount if not ZFS - needs to be properly defined in /etc/fstab
+[ $(echo $bkpdest |grep -c "/media/") -gt 0 ] && mount $bkpdest   # mount if not ZFS
 
 # from failexit.mrg
 function failexit () {
@@ -20,13 +29,12 @@ function failexit () {
 }
 
 
-[ -e "$bkpdest/NOTHERE" ] && failexit 99 "$bkpdest NOTHERE -- NOT MOUNTED"
+[ -e "$bkpdest/NOTHERE" ] && failexit 99 "$bkpdest NOTHERE detected -- NOT MOUNTED"
 # "If" checking for NOTHERE file...
 
-chkmount=`df |grep -c $bkpdest`
+chkmount=$(df |grep -c $bkpdest)
 [ $chkmount -gt 0 ] || failexit 99 "$bkpdest NOT MOUNTED"
 
 # NOTE code 199 is generally could not cd to dir
-
 
 export myhn=$(hostname)
