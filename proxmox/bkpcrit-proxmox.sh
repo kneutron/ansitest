@@ -11,7 +11,7 @@
 
 # NOTE this script depends on /root/bin/boojum/BKPDEST.mrg - edit that file to define your backup destination
 
-# DEPENDS: lzop
+# DEPENDS: gzip
 
 #fixresolvconf
 
@@ -33,8 +33,8 @@ comprdest=0
 if [ "$comprdest" = "1" ]; then
   taropts="-cpf "; tarsfx="tar"
 else
-#  taropts="--use-compress-program lzop -cpf "
-  taropts="--lzop -cpf "; tarsfx="tar.lzop"
+#  taropts="--use-compress-program gzip -cpf "
+  taropts="--gzip -cpf "; tarsfx="tar.gz"
 fi
 
 # backup lvm config for DR
