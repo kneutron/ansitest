@@ -18,7 +18,7 @@ set -u # abort on undefined var
 set -e # abort on error
 
 [ $(which sgdisk |wc -l) -eq 0 ] && apt-get install -y gdisk
-[ $(which wipefs |wc -l) -eq 0 ] && apt-get install -y util-linus
+[ $(which wipefs |wc -l) -eq 0 ] && apt-get install -y util-linux
 [ $(which parted |wc -l) -eq 0 ] && apt-get install -y parted # included in case partition end needs to be manually moved + makes new gptlabel
 # REF: https://sirlagz.net/2023/07/03/updated-live-resize-lvm-on-linux/
 
