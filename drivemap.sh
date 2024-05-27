@@ -15,10 +15,17 @@ outf=/root/drivemap.txt
 # Use 'sort -k 3' if $9 $10 $11
 ls -lR /dev/disk |grep -w /sd[a-z] |sed 's^../..^/dev^' |awk 'NF>0 {print $11" "$10" "$9}' |column -t |sort \
  >$outf
+ls -lR /dev/disk |grep -w /vd[a-z] |sed 's^../..^/dev^' |awk 'NF>0 {print $11" "$10" "$9}' |column -t |sort \
+ >>$outf
  
 echo '========' >> $outf
 
 ls -lR /dev/disk |grep -w /sd[a-z][a-z] |sed 's^../..^/dev^' |awk 'NF>0 {print $11" "$10" "$9}' |column -t |sort \
+ >>$outf
+ls -lR /dev/disk |grep -w /vd[a-z][a-z] |sed 's^../..^/dev^' |awk 'NF>0 {print $11" "$10" "$9}' |column -t |sort \
+ >>$outf
+
+ls -lR /dev/disk |grep -w /nvme.n. |sed 's^../..^/dev^' |awk 'NF>0 {print $11" "$10" "$9}' |column -t |sort \
  >>$outf
 
 echo '=====' >>$outf
@@ -37,6 +44,7 @@ function hdps () {
 
 hdps |sort -k 2 >>$outf
 
+cp -v $outf /tmp/
 ls -l $outf
 
 # To search outfile:
