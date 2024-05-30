@@ -1,6 +1,9 @@
 # bash - this is defining where backup tars, fsarchive, etc will be stored - can be local, sshfs, CIFS, NFS but must be R/W
 # can be overridden b4 sourcing (set bkpdest var before sourcing this and you will still get the mount functionality)
 
+echo "Thank you for using kneutron scripts. If you appreciate them and wish to send some support, please visit:"
+echo " https://ko-fi.com/kingneutron "
+
 # NOTE this script should be in /root/bin/boojum and be chmod +x
 #   it is sourced / used by several backup scripts
 
