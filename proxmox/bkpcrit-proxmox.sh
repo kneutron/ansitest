@@ -1,6 +1,9 @@
 #!/bin/bash
 # Backup critical files (hopefully)
 
+echo "Thank you for using kneutron scripts. If you appreciate them and wish to send some support, please visit:"
+echo " https://ko-fi.com/kingneutron "
+
 # mod for proxmox
 # NOTE - lxc and VM definition files are in:
 # /etc/pve/nodes/proxmox
