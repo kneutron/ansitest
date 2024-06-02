@@ -1,4 +1,4 @@
-#!/opt/local/bin/bash
+#!/bin/bash
 
 # running from cron, we need this
 PATH=/opt/local/bin:/opt/local/sbin:/usr/local/zfs/bin:/Users/dave-imac5/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin:/Users/dave-imac5/Library/Python/3.8/bin:/sw/bin:/sw/sbin:/usr/local/zfs/bin:
