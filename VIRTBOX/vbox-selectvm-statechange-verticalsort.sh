@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/opt/local/bin/bash
+
+# running from cron, we need this
+PATH=/opt/local/bin:/opt/local/sbin:/usr/local/zfs/bin:/Users/dave-imac5/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin:/Users/dave-imac5/Library/Python/3.8/bin:/sw/bin:/sw/sbin:/usr/local/zfs/bin:
 
 # Script version:
 scrver="2022_0521@1345"
@@ -42,7 +45,8 @@ function startvm () {
 ########## MAIN
 echo "o-> Utility to change state of a virtualbox VM -stop if running, +start if not running | v.$scrver-$debugg <-o"  
 
-if [ "$1" = "s" ] || [ "$1" = "" ]; then
+#if [ "$1" = "s" ] || [ "$1" = "" ]; then
+[ "$1" = "" ] || vmn=$1
 # select ; REF: https://www.baeldung.com/linux/reading-output-into-array
   runtest=$($vbm list runningvms)
   if [ "$runtest" = "" ]; then
@@ -78,11 +82,14 @@ cols=$(stty size |awk '{print $2}') # columns / terminal size - REF: https://sta
 # Old way - fancy display in 2 columns; $1=number of entry, $2=nameofvm, $3=vmUUID
 
   echo -n "+=ON; Enter comma-separated number(s) of VM to XOR, or all to stop-all: "
-  read vmn
+  [ "$1" = "" ] && read vmn
 #  echo "You selected $vmn"
-else
-  vm="$1"
-fi
+
+#else
+#  vmn="$1" # xxx 2024.0601 
+#  declare -a vmlist=( $($vbm list vms |tr -d '"' |tr -d '{}' |sort) )
+#  maxvmnum=$($vbm list vms |wc -l |awk '{print $1}') # ${#vmlist[@]} # of elements in array
+#fi
 
 [ $debugg -gt 0 ] && set -x
 
@@ -154,7 +161,7 @@ elif [ $test4comma -gt 0 ]; then
   done
 
 else
-# Single VM, either a number or passed as arg
+[ $debugg -gt 0 ] && echo "Single VM, either a number or passed as arg"
   if [ "${#vmn}" -gt 0 ]; then 
 # check length, user entered selection
 
@@ -178,8 +185,10 @@ else
   vm=$(echo "$vm" |tr -d '"' |awk '{print $1}') # take out quotes and only print name
 
   # take out brackets and only print uuid
-  [ "$vmuuid" = "" ] && vmuuid=$($vbm list vms |grep "$vm" |awk '{print $2}' |tr -d '{}')
+#  [ "$vmuuid" = "" ] && vmuuid=$($vbm list vms |grep "$vm" |awk '{print $2}' |tr -d '{}')
   [ "$vmuuid" = "" ] && failexit 46 "Cannot find uuid for $vm / unknown VM?"
+
+[ $debugg -gt 0 ] && echo "vmuuid: $vmuuid"
 
  # stopthis=$(VBoxManage list runningvms |awk '/'$vm'/ {print $2}' |tr -d '{}') # remove brackets
   stopthis=$(VBoxManage list runningvms |awk '/'$vmuuid'/ {print $2}' |tr -d '{}') # remove brackets
@@ -196,6 +205,9 @@ date;
 
 ls -lh "$logf"
 
+# call us again - TODO test for interactive
+#exec $0
+
 exit;
 
 # 2022.0520 Dave Bechtel
@@ -209,6 +221,7 @@ exit;
 # o Will not care if you put in the same number two or more times(!)
 # o Does NOT process ranges, like 1-3 or 1..3 -- only comma-separated
 
+2024.0601 FIX if user enters vm number as arg
 
 # helpful aliases:
 alias vb='wmctrl -s 2; virtualbox &'
