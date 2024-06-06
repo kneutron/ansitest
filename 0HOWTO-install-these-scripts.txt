@@ -1,0 +1,29 @@
+Click the green Code button and download the .zip
+
+https://github.com/kneutron/ansitest/tree/master
+
+Code:
+mkdir -pv /root/bin/boojum
+
+Put the BKPDEST.mrg in that directory, the rest can run from /root/bin if you want. 
+Install midnight commander if you want an easy way to copy/move things around (it's also the safest way to recursively delete directories)
+
+If /root/bin is not already in your PATH ( echo $PATH # to check ) you will need to add something like this to /root/.bashrc:
+
+
+Code:
+export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
+
+and then ' source ~/.bashrc '# for it to take effect in the current shell
+
+For good measure, ' chmod -R 750 /root/bin ' # make scripts executable
+
+Then you want to edit /root/bin/boojum/BKPDEST.mrg and define the target for your backups. 
+This will probably also need to be a mountpoint defined in /etc/fstab, unless you're using sshfs. 
+The BKPDEST will attempt to mount it if it isn't already active.
+
+This target mountpoint CANNOT be root on the same system (or preferably, not even a separate partition on the same root disk) - needs to be separate media or NAS. 
+(If your root disk dies, you still want access to the backup.)
+
+Now, you should be able to run the bkpcrit script. 
+I recommend that you put it nightly in cron, and also run it ad hoc before ANY system changes - this includes package upgrades.
