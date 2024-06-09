@@ -11,6 +11,12 @@
 
 # TODO EDITME before running!
 destdir=/mnt/macpro-sgtera2
+# Will be mounted on this server / local dir
+
+sshfsmountthis=/Volumes/sgtera2
+# destination directory on the remote side
+# TODO add a subdir here for different systems
+
 loginid=dave 
 # for sshfs
 
@@ -20,6 +26,7 @@ destserver=macpro-static
 # NOTE this **needs** to be the correct disk!
 zfsroot=sdb
 # Obtain from /dev/disk/by-id
+
 disktomir="ata-Samsung_Portable_SSD_T5_S49WNV0MC04217F-part3" 
 # Obtain from zpool status -v
 
@@ -57,14 +64,14 @@ if [ $(df -T |grep sshfs |grep -c $destdir) -eq 0 ]; then
 # TODO change this to samba, nfs, whatever works for you
 # TODO ssh-copy-id for passwordless access
   sshfs -o Ciphers=chacha20-poly1305@openssh.com \
-    $loginid@$destserver:/Volumes/sgtera2 $destdir
+    $loginid@$destserver:$sshfsmountthis $destdir
 fi
 
 if [ $(df -T |grep -c $destdir) -eq 0 ]; then
   failexit 40 "$destdir is not mounted, cannot proceed"
 fi
   
-cd $destdir # TODO add a subdir here for different systems
+cd $destdir 
 fdisk -l /dev/$zfsroot >fdisk-l-pve-zfs-bootroot.txt
 
 # (OLD)
@@ -145,6 +152,7 @@ watchresilver;
 
 echo ''
 echo "$(date) - Check results of scrub and ^C to abort, or Enter to offline the file-backed mirror"
+echo "(Waiting for input)"
 read
 
 zpool offline rpool $destdir/$mirfile
