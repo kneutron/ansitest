@@ -64,8 +64,11 @@ if [ $(df -T |grep sshfs |grep -c $destdir) -eq 0 ]; then
 # TODO change this to samba, nfs, whatever works for you
 # TODO ssh-copy-id for passwordless access
   sshfs -o Ciphers=chacha20-poly1305@openssh.com \
+    -o ServerAliveInterval=30 \
+    -o ServerAliveCountMax=1 \
     $loginid@$destserver:$sshfsmountthis $destdir
 fi
+# hopefully by adding the serveralives, sshfs will drop the connection if it doesnt hear back (network issues)
 
 if [ $(df -T |grep -c $destdir) -eq 0 ]; then
   failexit 40 "$destdir is not mounted, cannot proceed"
@@ -165,3 +168,38 @@ echo " and (as long as the target containing the rpool*efi.disk isn't mounted)"
 echo " you can detach the efi.disk mirror copy from the pool without issues, the data on the backup file will stay intact."
 
 echo "TODO: # zpool detach rpool $destdir/$mirfile"
+
+exit;
+
+
+EXPERIMENTAL: In order to update the mirror file occasionally, you might leave the sshfs mounted and simply:
+
+# zpool online rpool /mnt/macpro-sgtera2/proxmox-rpool-mirror-41.5G-zfs-efi.disk
+
+And allow it to resilver. Then bring it offline again. 
+
+# zpool offline rpool /mnt/macpro-sgtera2/proxmox-rpool-mirror-41.5G-zfs-efi.disk
+
+I have NO IDEA how "stable" this would be, but would definitely NOT recommend allowing
+the 2nd disk in a zfs rpool mirror to run over an sshfs network mount for
+any length of time - beyond what it takes to update the file-based backup.
+
+Unstable behavior could result if you have a network outage / need to bounce a switch.
+
+You can test this in a VM restore - start a GNU ' screen ' session, then disconnect the primary network interface
+while the sshfs is mounted and the file-backed mirror is still attached to the rpool.
+
+Now try to dd /dev/random to a file, bs=1M, count=100 and issue a ' sync '
+You will start seeing "task blocked for more than X seconds" RIP messages.
+
+ZFS will still think everything is fine, ' zpool status ' still responds, but comms to the mirror disk are hanging.
+' df ' will hang. Bash tab-completion may hang. Load average on a single-cpu instance shot up to (15).
+
+Even trying to take the mirror disk offline while comms were down hung up for almost 3 minutes,
+but finally completed. Once the dead mirror disk finally went offline from the command, the several
+hung commands also finally completed.
+
+Reconnecting the vNIC after 10-15 minutes finally dropped the sshfs mount. (The Samba mounts recovered.)
+
+
+
