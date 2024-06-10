@@ -20,6 +20,7 @@
 # This should hopefully get your full environment back online and running in a minimum amount of time :)
 
 # IT IS HIGHLY RECOMMENDED to test this process in a VM first before you rely on it!
+# NOTE if restoring to VM, you should turn off Secure Boot in the vm BIOS
 
 
 # TODO EDITME before running!
