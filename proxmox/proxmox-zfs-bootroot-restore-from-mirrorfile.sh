@@ -4,7 +4,9 @@
 
 # 2024.Jun kneutron
 
-# Objective: Restore a proxmox zfs boot/root disk from a mirror file over sshfs and reboot into it (Disaster Recovery)
+# Objective: Bare-metal Restore a proxmox zfs boot/root disk from a mirror file over sshfs and reboot into it (Disaster Recovery)
+# Useful for P2V or if both disks in the mirror failed
+
 # NOTE - proxmox-backup-zfs-bootroot.sh should have been run beforehand!!
 
 # Tested with "systemrescuecd + zfs" ISO
@@ -15,7 +17,7 @@
 
 # MAKE SURE you specify the correct destination disk and other info! Author takes NO RESPONSIBILITY for data loss!!
 
-# This should hopefully get your full environment back online and running in a minimum amount of time
+# This should hopefully get your full environment back online and running in a minimum amount of time :)
 
 # IT IS HIGHLY RECOMMENDED to test this process in a VM first before you rely on it!
 
@@ -25,7 +27,7 @@ destdir=/mnt/macpro-sgtera2
 # Will be mounted on this server / local dir
 
 sshfsmountthis=/Volumes/sgtera2
-# destination directory on the remote side
+# destination directory on the remote side - this is where the mirror backup file lives
 # TODO add a subdir here for different systems
 
 loginid=dave 
@@ -35,11 +37,11 @@ destserver=172.16.25.12 # macpro-static
 # hostname or IP; IP is better for systemrescue environment
 
 # NOTE this **needs** to be the correct disk!
-# Default is set to proxmox restore VM with SCSI disk
+# Default is set to be a proxmox restore-VM with a SCSI disk; virtio destination disk would be vda
 # TODO EDITME
 zfsroot=sda
 # Obtain from /dev/disk/by-id
-
+# ALL DATA ON THIS DISK WILL BE OVERWRITTEN FOR THE RESTORE PROCESS - YOU HAVE BEEN WARNED!
           
 # failexit.mrg
 function failexit () {
@@ -169,8 +171,8 @@ echo ''
 echo "$(date) - Restoring EFI to /dev/${zfsroot}2"
 time gzip -cd $efifile |dd of=/dev/${zfsroot}2 bs=1M status=progress || failexit 101 "Failed to restore EFI partition"
 
-# NOTE I have not bothered to re-size the ZFS partition on the replacement
-# disk to take advantage of any increased disk space
+# NOTE I have not bothered to re-size the ZFS partition on the replacement disk
+# to take advantage of any increased disk space
 
 # Tips for resizing here:
 # REF: https://sirlagz.net/2023/07/03/updated-live-resize-lvm-on-linux/
@@ -230,12 +232,12 @@ Easy fix:
 (initramfs) zpool import -f 
 Then hit Control+D, boot process resumes and should survive further reboots.
 
-If the boot process does not continue, hard reboot and issue:
+If the boot process does NOT continue, hard reboot and issue:
 
 (initramfs) rm -fv /etc/zfs/zpool.cache
 (initramfs) zpool import -a -f -d /dev/disk/by-id
 
-Then hit ^D to continue the boot process. Further reboots should work OK.
+Then hit ^D to continue the boot process. Further reboots should now work OK.
 
 Finally, without the target/backup $destdir being mounted, you should detach the file-backed copy
 from the rpool to get it out of DEGRADED state:
