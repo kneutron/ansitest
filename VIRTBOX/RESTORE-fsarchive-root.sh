@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# no dvd #2 requirement - use sshfs
 # NOTE this script should be included on the resulting ISO from mkrestoredvdiso.sh / or OSX version
 
 # To be run from systemrescuecd environment; NOTE restore disk sda MUST be partitioned 1st!
@@ -27,13 +28,14 @@ function failexit () {
 }
 
 # xxx TODO editme - assumes swap is on sda1
-rootdev=/dev/sda2 # for VM - assuming sda1 is swap
+rootdev=/dev/sda2 # for VM - assuming sda1 is swap - use vda for virtio
 rdevonly=${rootdev%[[:digit:]]}
 umount $rootdev # failsafe
 
 # xxx comment out references to cdrom2 if not using it
-cdr=/mnt/cdrom2
-mkdir -pv $cdr
+#cdr=/mnt/cdrom2
+#mkdir -pv $cdr
+
 rootdir=/mnt/tmp2
 umount $rootdir # failsafe
 mkdir -pv $rootdir
@@ -41,9 +43,10 @@ mkdir -pv $rootdir
 myres=BOOJUM-RESTORE.sh # injection script
 
 # NOTE sr0 is systemrescue
-mount /dev/sr1 $cdr -oro
-chkmount=$(df |grep -c $cdr)
+#mount /dev/sr1 $cdr -oro
+#chkmount=$(df |grep -c $cdr)
 #[ $chkmount -gt 0 ] || failexit 99 "Failed to mount $cdr"; # failed to mount
+
 chkmount=$(df |grep -c $rootdir)
 [ $chkmount -eq 0 ] || failexit 98 "$rootdir is still mounted - cannot restore!"
 
@@ -102,9 +105,9 @@ echo "exit;" >> $myres2
 chroot $rootdir /bin/bash /$myres
 
 #umount -a $rootdir/* 
-umount -a $rootdir/{dev,proc,sys}
+#umount -a $rootdir/{dev,proc,sys}
 
-umount $rootdir/* 2>/dev/null
+#umount $rootdir/* 2>/dev/null
 #umount $rootdir 2>/dev/null
 
 df -hT
