@@ -1,18 +1,28 @@
 #!/bin/bash
 
+# Traverses subdirs on SMB net share and symlinks everything into 1 flat dir on proxmox
+# Saves on ISO storage space across PVE nodes
+# 2024.Feb kneutron / edits 2024.Nov
+
 # shared ISOs are mounted via samba from macpro on 2.5gbit network, R/O
 # fstab:
 # //macpro-25g/shrcompr-ztoshtera6  /mnt/imac5  cifs  noauto,noexec,credentials=/root/.smb-macpro,uid=root,ro 0 0
 
-# Pass "1" as arg to auto-delete broken symlinks
+# NOTE Pass "1" as arg to auto-delete broken symlinks
 
-# TODO set to 1 if you have +1 shared ISO dir
-enable2nddir=0
+# Rerun the script on each PVE node if you update / delete ISOs on the share / run nightly in cron
 
-# Traverses subdirs on net share and symlinks everything into 1 flat dir on proxmox
-# 2024.Feb kneutron / edits 2024.Nov
+# for cron
+PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
 
-# xxx TODO EDITME - destination dir for iso symlinks
+# Example root crontab entry:
+# every day @ 11:01pm, refresh ISO symlinks and autodelete stale ones 
+#1  23  *  *  *  /root/bin/boojum/symlink-samba-isos.sh 1 2>&1 >/root/symlink-samba-isos.log
+
+# TODO set to 0 if you only have 1 shared ISO dir
+enable2nddir=1
+
+# Destination dir for iso symlinks
 # NOTE - default proxmox iso storage is /var/lib/vz
 # faster ones here
 cd /var/lib/vz/template/iso || exit 44; 
@@ -29,7 +39,7 @@ if [ $(df |grep -c $mnt) -gt 0 ]; then
   pwd
   if [ "$1" = "1" ]; then
     echo "o Auto-deleting broken symlinks per arg passed"
-    find . -xtype l -print -delete # fix broken sym
+    find . -xtype l -print -delete # autofix broken sym
   else
 # display only, admin needs to fix
     find . -xtype l 
@@ -41,12 +51,13 @@ if [ $enable2nddir -gt 0 ]; then
 # secondary ISO dir [optional]
 # This is the destination dir on pve - xxx TODO EDITME
   cd /mnt/seatera4-xfs/template/iso || exit 44; 
-# this is the samba mount - TODO EDITME
+# this is the samba mount - xxx TODO EDITME
   mnt=imac5
   if [ $(df |grep -c $mnt) -gt 0 ]; then
     echo '====='
     echo "o Symlinking 2nd dir $mnt to $PWD"
     ln -sfn $(find /mnt/$mnt/ISO/ |grep iso$) . 
+# show broken/stale symlinks
     pwd
     echo "o Checking for broken symlinks from $mnt:"
     if [ "$1" = "1" ]; then
