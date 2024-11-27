@@ -20,7 +20,7 @@ PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/gam
 #1  23  *  *  *  /root/bin/boojum/symlink-samba-isos.sh 1 2>&1 >/root/symlink-samba-isos.log
 
 # TODO set to 0 if you only have 1 shared ISO dir
-enable2nddir=1
+enable2nddir=0
 
 # Destination dir for iso symlinks
 # NOTE - default proxmox iso storage is /var/lib/vz
