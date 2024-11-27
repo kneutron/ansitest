@@ -6,11 +6,11 @@
 
 # Pass "1" as arg to auto-delete broken symlinks
 
-# TODO set to 0 if you only have 1 shared ISO dir
-enable2nddir=1
+# TODO set to 1 if you have +1 shared ISO dir
+enable2nddir=0
 
 # Traverses subdirs on net share and symlinks everything into 1 flat dir on proxmox
-# 2024.Feb kneutron
+# 2024.Feb kneutron / edits 2024.Nov
 
 # xxx TODO EDITME - destination dir for iso symlinks
 # NOTE - default proxmox iso storage is /var/lib/vz
@@ -18,7 +18,6 @@ enable2nddir=1
 cd /var/lib/vz/template/iso || exit 44; 
 
 # grep iso at the end skips any misc non-iso files that were part of a torrent
-# NOTE this is the samba mount
 # NOTE this is 2.5Gbit samba mount to zint1000pro - faster
 # only if mounted, otherwise skip
 # xxx TODO EDITME
@@ -40,7 +39,7 @@ fi # if df
 
 if [ $enable2nddir -gt 0 ]; then
 # secondary ISO dir [optional]
-# This is the destination dir on pve
+# This is the destination dir on pve - xxx TODO EDITME
   cd /mnt/seatera4-xfs/template/iso || exit 44; 
 # this is the samba mount - TODO EDITME
   mnt=imac5
@@ -48,7 +47,6 @@ if [ $enable2nddir -gt 0 ]; then
     echo '====='
     echo "o Symlinking 2nd dir $mnt to $PWD"
     ln -sfn $(find /mnt/$mnt/ISO/ |grep iso$) . 
-# show broken/stale symlinks
     pwd
     echo "o Checking for broken symlinks from $mnt:"
     if [ "$1" = "1" ]; then
