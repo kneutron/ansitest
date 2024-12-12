@@ -111,3 +111,5 @@ echo "Enjoy! Kneutron"
 
 # Inspired by:
 # REF: https://www.reddit.com/r/Proxmox/comments/1hayp1j/mail_client_vm/
+
+# NOTE if no killall command, ' ps ax |grep dh ' and kill the PID of dhclient, then issue dhclient -v...
