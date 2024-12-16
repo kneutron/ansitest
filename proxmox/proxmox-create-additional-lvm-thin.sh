@@ -26,22 +26,26 @@ if [ "$1" = "0" ] || [ "$1" -lt 2 ]; then
 fi
 
 # xxx TODO EDITME
-target=/dev/nvme0n1p6
+#target=/dev/nvme0n1p6
+target=/dev/sdb6
 
 echo '-- YOU NEED TO EDIT THIS SCRIPT BEFORE RUNNING IT --'
 echo "About to create lvm-thin number: $lvmthins on $target - Enter to continue or ^C"
 read -n 1
 
 pvcreate $target
-vgcreate -A y pvethin${lvmthins} $target
+echo "$(date) - vgcreate pvethin${lvmthins} on $target"
+time vgcreate -A y pvethin${lvmthins} $target
 # pvethin2
 
 #lvcreate -L 100G -n data pve
-lvcreate -A y  --readahead auto \
+echo "$(date) - lvcreate lvmthin${lvmthins}data on VG pvethin${lvmthins}"
+time lvcreate -A y  --readahead auto \
  --name lvmthin${lvmthins}data --extent 99%FREE pvethin${lvmthins} || failexit 99 "Failed to lvcreate lvmthin${lvmthins}data on VG pvethin${lvmthins}"
 # lvmthin2 , pvethin2
 
-lvconvert --type thin-pool pvethin${lvmthins}/lvmthin${lvmthins}data || failexit 101 "Failed to convert pvethin${lvmthins}/lvmthin${lvmthins}data to lvm-thin"
+echo "$(date) - lvconvert to thin pool: pvethin${lvmthins}/lvmthin${lvmthins}data"
+time lvconvert --type thin-pool pvethin${lvmthins}/lvmthin${lvmthins}data || failexit 101 "Failed to convert pvethin${lvmthins}/lvmthin${lvmthins}data to lvm-thin"
 # pvethin2 , lvmthin2
 
 (pvs; vgs; lvs) |tee >/root/lvminfo.txt
@@ -51,4 +55,5 @@ lvconvert --type thin-pool pvethin${lvmthins}/lvmthin${lvmthins}data || failexit
 # It may also be useful to regularly back up the files in /etc/lvm.
 vgcfgbackup
 
-echo "Define storage in pve GUI as lvm-thin2"
+echo "Define storage in pve GUI as lvm-thin${lvmthins}"
+ls -lh /root/lvminfo.txt
