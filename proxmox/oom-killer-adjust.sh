@@ -4,8 +4,13 @@ vmid=100 # protect this one at all costs from oom-killer
 [ "$1" = "" ] || vmid=$1
 
 #declare -i pid # integer # not work if pid > 32768!
-pid=$(ps ax |grep "kvm -id $vmid" |head -n 1 |awk '{print $1}')
-[ "$pid" = "0" ] && exit 99;
+pid=""
+pid=$(ps ax |grep "kvm -id $vmid" |grep -v grep |head -n 1 |awk '{print $1}')
+#echo '.'$pid'.'
+#ps $pid
+# handle LXC
+[ -z "$pid" ] && pid=$(ps ax |grep "lxc-start *.* $vmid" |grep -v grep |head -n 1 |awk '{print $1}')
+[ -z "$pid" ] && exit 99;
 
 ps $pid
 echo "B4:"
