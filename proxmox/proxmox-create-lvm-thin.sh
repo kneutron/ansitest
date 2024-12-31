@@ -1,7 +1,15 @@
 #!/bin/bash
 
+# this create an lvm-thin with the same naming scheme the proxmox installer uses
+
 # xxx TODO EDITME
 target=/dev/sda4
+
+echo '*** YOU NEED TO EDIT THIS SCRIPT BEFORE RUNNING IT ***'
+echo '*** AUTHOR IS NOT RESPONSIBLE FOR DATA LOSS!! ***'
+echo ''
+echo "About to create lvm-thin on $target - Enter to continue or ^C"
+read
 
 pvcreate $target
 vgcreate -A y pve $target
