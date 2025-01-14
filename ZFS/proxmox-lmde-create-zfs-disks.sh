@@ -1,21 +1,28 @@
 #!/bin/bash
 
+# 2025.Jan kneutron
+
+# bash heredoc / here document
+cat <<EOF
+
+# Purpose: Populate a proxmox vm with the max number of disks (that I know of) for zfs raidz / raidz2 expansion testing
+# OLDNOTE VM must be EFI boot to see all drives! (2025.Jan apparently works OK with Seabios now)
+
 # NOTE DO NOT RUN THIS AGAINST A VM WITHOUT HAVING BACKED IT UP OR SNAPSHOTTED IT FIRST!!!
 
-####################
-# README
+##############################################
+# README - EDIT THIS SCRIPT BEFORE RUNNING IT!
 #
 # NOTE - run this script when the VM is POWERED OFF!
 # current boot disk is set to scsi0 - make sure the VM is backed up in case scsi0 gets deleted!!
 #
-####################
+# NOTE - this is important - DO NOT DO ZFS-ON-ZFS! 
+# -> Use XFS/ext4 or lvm-thin for backing storage when creating ZFS virtual disks or you will get write amplification!!
+#
+##############################################
 
-# Purpose: Populate a proxmox vm with the max number of disks (that I know of) for zfs raidz expansion testing
-# OLDNOTE VM must be EFI boot to see all drives! (2025.Jan apparently works OK with Seabios now)
 
-# 2025.Jan kneutron
-
-# NOTE you will probably need to use dev/disk/by-path in-vm
+# NOTE you will probably need to use /dev/disk/by-path in-vm
 # NOTE may need to reboot to have vm recognize all drives, or run rescan-scsi-bus
 
 # NOTE - THIS IS A UTILITY SCRIPT, I TAKE NO RESPONSIBILITY FOR DATA LOSS! RUN THIS AT YOUR OWN RISK!
@@ -23,23 +30,26 @@
 # *** DO NOT RUN THIS SCRIPT IF YOU HAVE AN ACTIVE ZFS POOL IN THE VM, THE DISKS WILL BE FORCIBLY RECREATED!! ***
 
 # NOTE this script assumes the boot drive (sda) is scsi0!!
-
+Press Enter to proceed or ^C
+EOF
+read -n 1
 
 # xxx TODO editme
-vmid=100
-#usestor=tosh10-xfs-multi # storage name from gui
+#vmid=100
+vmid=99999
+#usestor=dir1-xfs # storage name from gui
 #usestor=local-lvm # storage name from gui
 usestor=tosh10-xfs-multi # storage name from gui
-dsize=1 # GB
+dsize=1 # create disk of this size in GB
 
-skipscsi=1 # if limited storage
+skipscsi=1 # if limited storage on host
 #skipscsi=0
 
 # NOTE also remove disk 1st if exist, for resizing
 # ISSUE virtio only supports 0-15, sata only supports 0-5, scsi supports 0-30 - so we have to do this in sets
 
 # NOTE proxmox sata drives are not hotplug and will not be de-rezzed if the vm is running
-# NOTE this is important, skip sda
+# NOTE this is important, skip sda as it may be the boot disk
 i=1
 echo "$(date) - Creating additional SATA disks for VM $vmid of size ${dsize}GB"
 # these end up being sda .. sde in by-path
@@ -105,8 +115,8 @@ echo "$(date) - Done - Total $total disks created for VM $vmid"
 
 exit;
 
-# HOWTO Distribute virtio disks between 2x XFS:
-# for d in 1 3 5 7 9; do echo "$(date) - $d"; time qm move_disk 100 virtio$d dir1-xfs --delete; done; date
+# HOWTO Distribute virtio disks between 2x XFS where 0,2..etc are on tosh10-xfs (for better I/O):
+# for d in 1 3 5 7 9 11 13 15; do echo "$(date) - $d"; time qm move_disk 100 virtio$d dir1-xfs --delete; done; date
 
 
 #grep -v unused 130.conf |grep -c qcow2                                                           
