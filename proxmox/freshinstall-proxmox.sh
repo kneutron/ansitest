@@ -27,9 +27,9 @@ addpkgs linux-headers-`uname -r` build-essential
 
 # Admin
 addpkgs synaptic aptitude apt-file
-addpkgs mbr lm-sensors gawk hddtemp
+addpkgs mbr lm-sensors gawk  net-tools mlocate # hddtemp
 addpkgs sshfs  pv buffer  ethtool  parted  iotop dos2unix
-addpkgs p7zip unrar parallel pbzip2 xz-utils     # TODO - codecs? - to play dvds
+addpkgs p7zip  parallel pbzip2 xz-utils     # unrar #  TODO - codecs? - to play dvds
 #addpkgs exfat-utils  jfsutils
 
 # SCSI stuff
@@ -99,7 +99,13 @@ addpkgs mutt
 #addpkgs sarg 
 # for squid reports - REF: https://www.tecmint.com/sarg-squid-analysis-report-generator-and-internet-bandwidth-monitoring-tool/
 
-addpkgs netr lm-sensors hwloc htop sshfs nbtscan avahi-utils sg3-utils
+addpkgs netr lm-sensors hwloc htop sshfs nbtscan avahi-utils sg3-utils lshw iperf3 kpartx ncal bc needrestart nvme-cli
+
+# disable cluster services to save wear/tear on ssd
+systemctl disable --now corosync
+systemctl disable --now pve-ha-crm
+systemctl disable --now pve-ha-lrm
+
 
 apt-file update &
 #[ `lsmod |grep -c zfs` -gt 0 ] && zpool import
