@@ -25,6 +25,7 @@ function failexit () {
 
 # The fuzz in units can cause problems with relative items. 
 # To determine the previous month more reliably, you can ask for the month before the 15th of current month
+# fix for debian $2 to $3
 pmonth=$(date --date="$(date +%Y-%m-15) -2 month" |awk '{print $2}')
 
 # arg NOT blank
@@ -58,7 +59,13 @@ else
 fi
 
 # killzem - NOTE requires another script in PATH
-zfs-list-snaps--boojum.sh |grep $mymonth |awk '{print $1}' |xargs -n1 -t zfs-killsnaps.sh
+set -x
+time zfs-list-snaps--boojum.sh |grep $mymonth |awk '{print $1}' \
+ |shuf \
+ |xargs -P 0 -n1 zfs-killsnaps.sh
+# -n1
+# parallel after random shuffle xxxxx 2023.0630
+set +x
 
 # review
 [ $intera -gt 0 ] && zfs-list-snaps--boojum.sh |less
