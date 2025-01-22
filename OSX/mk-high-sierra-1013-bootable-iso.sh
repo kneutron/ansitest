@@ -6,7 +6,7 @@ function failexit () {
   exit $1
 }
 
-
+# xxx TODO EDITME
 dest=/Volumes/zmac5int/zmac5intcompshr
 
 cd $dest || failexit 101 "check $dest"
