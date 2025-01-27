@@ -16,7 +16,8 @@ function failexit () {
 ##define variables
 # EDITME
 firstrun=1
-pointrel="2.1.2"
+#pointrel="2.1.13"
+pointrel="2.3.0"
 
 user=dave
 
@@ -42,11 +43,24 @@ cd /usr/local/src
 compile_zfs(){
 	##https://github.com/zfsonlinux/zfs/wiki/Custom-Packages#debian-and-ubuntu
 	installcompilepackages(){
-		apt-get -y install build-essential autoconf libtool gawk alien fakeroot gdebi wget
-		apt-get -y install zlib1g-dev uuid-dev libattr1-dev libblkid-dev libselinux-dev libudev-dev libaio-dev
-		apt-get -y install parted lsscsi ksh libssl-dev libelf-dev
-		apt-get -y install linux-headers-$(uname -r)
-		apt-get -y install python3 python3-dev python3-setuptools python3-cffi python3-distutils
+
+# As of 2025.0113 from webpage https://openzfs.github.io/openzfs-docs/Developer%20Resources/Custom%20Packages.html#debian-and-ubuntu
+apt install -y alien autoconf automake build-essential debhelper-compat dh-autoreconf dh-dkms dh-python dkms fakeroot \
+ gawk git libaio-dev libattr1-dev libblkid-dev libcurl4-openssl-dev libelf-dev libffi-dev libpam0g-dev libssl-dev \
+ libtirpc-dev libtool libudev-dev linux-headers-generic parallel po-debconf python3 python3-all-dev python3-cffi \
+ python3-dev python3-packaging python3-setuptools python3-sphinx uuid-dev zlib1g-dev
+
+# apt-get -y install build-essential autoconf automake libtool gawk alien fakeroot \
+# dkms libblkid-dev uuid-dev libudev-dev libssl-dev zlib1g-dev libaio-dev \
+# libattr1-dev libelf-dev linux-headers-generic python3 python3-dev \
+# python3-setuptools python3-cffi libffi-dev python3-packaging \
+# debhelper-compat dh-python po-debconf python3-all-dev python3-sphinx
+
+#		apt-get -y install build-essential autoconf libtool gawk alien fakeroot gdebi wget
+#		apt-get -y install zlib1g-dev uuid-dev libattr1-dev libblkid-dev libselinux-dev libudev-dev libaio-dev
+#		apt-get -y install parted lsscsi ksh libssl-dev libelf-dev
+#		apt-get -y install linux-headers-$(uname -r)
+#		apt-get -y install python3 python3-dev python3-setuptools python3-cffi python3-distutils
 
 # REF: https://openzfs.github.io/openzfs-docs/Developer%20Resources/Building%20ZFS.html
  apt-get -y install build-essential autoconf automake libtool gawk alien \
@@ -65,7 +79,8 @@ compile_zfs(){
 #			mv zfs-0.8.0{,-rc3}
 			cd zfs-$pointrel #0.8.0-rc3
 			./configure --prefix=/usr || exit $?
-			make -s -j $(nproc) && make deb-utils deb-dkms && echo "ZFS packages are ready" || failexit 999 "ZFS compilation error"
+#			make -s -j $(nproc) && make deb-utils deb-dkms && echo "ZFS packages are ready" || failexit 999 "ZFS compilation error"
+			make -s -j $(nproc) && time make -s native-deb && echo "ZFS packages are ready" || failexit 999 "ZFS compilation error"
 		}
 		
 		master(){
@@ -88,6 +103,7 @@ compile
 install_zfs(){
 	##need dkms package to install zfs-dkms
 	apt-get -y install dkms
+	cd .. # usrlocalsrc
 	for DEB in *.deb; do gdebi --non-interactive $DEB; done
 
 	services(){
