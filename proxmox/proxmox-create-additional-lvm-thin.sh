@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # 2024.Dec kneutron
+# NOTE author takes NO responsibility for data loss, run this at your own risk!
 
 # This creates an ADDITIONAL lvm-thin on another disk/partition besides the one the PVE installer creates
 # Avoids resizing and multiple LVM failures in non-RAID systems
