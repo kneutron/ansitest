@@ -38,7 +38,6 @@ read
 [ $(which pv |wc -l) -eq 0 ] && apt install -y pv
 [ $(which wipefs |wc -l) -eq 0 ] && apt install -y util-linux
 [ $(which sgdisk |wc -l) -eq 0 ] && apt install -y gdisk
-[ $(which pv |wc -l) -eq 0 ] && apt install -y pv
 
 (set -x
 zpool export -f rpool2 # if running more than once
@@ -119,25 +118,6 @@ time zfs send -R rpool@transfer \
 date
 
 #Note that -F will destroy the contents of pool2, so be cautious and make sure the command is right.
-
-# wait for resilver
-function waitresilver () {
-sdate=$(date)
-# do forever
-while :; do
-  clear
-  echo "Pool: rpool - NOW: $(date) -- Watchresilver started: $sdate"
-
-  zpool status rpool |grep -A 2 'in progress' || break 2
-  zpool iostat -v rpool #2 3 &
-
-  sleep 5
-  date
-done
-
-ndate=$(date)
-echo "o Resilver watch rpool start: $sdate // Completed: $ndate"
-}
 
 zpool status -v rpool2 |awk 'NF>0' # skip blank lines
 date
