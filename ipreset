@@ -1,0 +1,19 @@
+#!/bin/bash
+
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+
+iptables -F
+iptables -X
+
+iptables -t nat -F
+iptables -t nat -X
+
+# Specifically allow ssh
+# iptables -A INPUT -p tcp --dport 22 -m conntrack --ctstate NEW,ESTABLISHED -j ACCEPT
+# iptables -A OUTPUT -p tcp --sport 22 -m conntrack --ctstate ESTABLISHED -j ACCEPT
+
+iptables -L -v
+echo '=============================='
+iptables -L -t nat -v
