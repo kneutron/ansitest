@@ -1,28 +1,44 @@
 #!/bin/bash
 # Backup critical files (hopefully)
 
-echo "Thank you for using kneutron scripts. If you appreciate them and wish to send some support, please visit:"
-echo " https://ko-fi.com/kingneutron "
-
 # mod for proxmox
+
+# Where the critical stuff is:
+
 # NOTE - lxc and VM definition files are in:
-# /etc/pve/nodes/proxmox
+# /etc/pve/nodes/qemu-server/  # VMs
+# /etc/pve/nodes/lxc/
 # Restore them to original location and they should show up in the GUI
+
+# Networking is /etc/network/interfaces
+
+# Storage is /etc/pve/storage.cfg
+
+# Datacenter Backup jobs are /etc/pve/jobs.cfg
+
+# Notifications (email/gotify) are /etc/pve/notifications.cfg
+
 
 # Highly recommended to run this before doing ANY system updates/upgrades, and AT LEAST once a week!
 # NOTE - BKPCRIT DESTINATION SHOULD NOT BE ON THE SAME DISK AS ROOT!!
 
 # NOTE this script depends on /root/bin/boojum/BKPDEST.mrg - edit that file to define your backup destination
 
-# DEPENDS: gzip
+# DEPENDS: gzip - switched from lzop for mc browse compat
+# will use pigz for faster para compr
 
 #fixresolvconf
 
 # running from cron, we need this
 PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
 
+echo "Thank you for using kneutron scripts. If you appreciate them and wish to send some support, please visit:"
+echo " https://ko-fi.com/kingneutron "
+
 # xxx TODO EDITME
 primaryuser=dave
+
+sdate=$(date)
 
 source /root/bin/boojum/BKPDEST.mrg     # now provides mount test - this defines where the backup destination mount is
 drive=$bkpdest/notshrcompr
@@ -31,13 +47,17 @@ source /etc/os-release
 
 source /root/bin/getdrive-byids
 
+[ $(which pigz |wc -l) -eq 0 ] && apt-get install -y pigz
+
 # xxx TODO EDITME - set 1 if dest is ZFS compressed (lz4,zstd)
 comprdest=0
 if [ "$comprdest" = "1" ]; then
   taropts="-cpf "; tarsfx="tar"
 else
-#  taropts="--use-compress-program gzip -cpf "
-  taropts="--gzip -cpf "; tarsfx="tar.gz"
+  taropts="--use-compress-program pigz -cpf "
+#export GZIP="-1"
+#  taropts="--gzip -cpf "
+  tarsfx="tar.gz"
 fi
 
 # backup lvm config for DR
@@ -49,8 +69,7 @@ rootpartn=$(df / |tail -n 1 |awk '{print $1}') # /dev/sde1
 rootpedit=$(echo ${rootpartn##*/}) # strip off beginning, and last slash: sde1
 #dest="$drive/notshrcompr/bkpcrit-$myhn--fryserver--linux-xubuntu1404LTS-64--$rootpedit" #sdX1"
 dest="$drive/bkpcrit-$myhn--$rootpedit" #sdX1 
-# xxx TODO EDITME
-echo $dest # = PK
+echo $dest 
 
 mkdir -pv $dest
 chmod 750 $dest # drwxr-x---
@@ -73,7 +92,7 @@ cp -v /tmp/gdisk-l-rootdisk.txt $dest/gdisk-l-rootdisk-$tdate.txt
 echo 'o Clearing old files'
  # !! find bkp-gz, bkp-bz2 and flist files more than ~2 weeks old and delete
  cd $dest && \
-   find $dest/* \( -name "*.txt" -o -name "flist*" \) -type f -mtime +7 -exec /bin/rm -v {} \;
+   find $dest/* \( -name "*.txt" -o -name "flist*" \) -type f -mtime +14 -exec /bin/rm -v {} \;
 #   find $dest/* \( -name "*.txt" -o -name "bkp*bz2" -o -name "flist*" \) -type f -mtime +20 -exec /bin/rm -v {} \;
    
 
@@ -121,10 +140,10 @@ tar $taropts $dest/bkp-var-lib-firewall.$tarsfx /var/lib/pve-firewall
 
 
 # rhel-related distros
-tmp=/var/cache/yum;  [ -e "$tmp" ] && tar $taropts $dest/bkp-var-cache-yum--$distro.$tarsfx $tmp
-tmp=/var/lib/rpm;    [ -e "$tmp" ] && tar $taropts $dest/bkp-var-lib-rpm--$distro.$tarsfx $tmp
-tmp=/var/lib/yum;    [ -e "$tmp" ] && tar $taropts $dest/bkp-var-lib-yum--$distro.$tarsfx $tmp
-tmp=/var/log/secure; [ -e "$tmp" ] && tar $taropts $dest/bkp-var-log-secure--$distro.$tarsfx $tmp /var/log/yum.log
+#tmp=/var/cache/yum;  [ -e "$tmp" ] && tar $taropts $dest/bkp-var-cache-yum--$distro.$tarsfx $tmp
+#tmp=/var/lib/rpm;    [ -e "$tmp" ] && tar $taropts $dest/bkp-var-lib-rpm--$distro.$tarsfx $tmp
+#tmp=/var/lib/yum;    [ -e "$tmp" ] && tar $taropts $dest/bkp-var-lib-yum--$distro.$tarsfx $tmp
+#tmp=/var/log/secure; [ -e "$tmp" ] && tar $taropts $dest/bkp-var-log-secure--$distro.$tarsfx $tmp /var/log/yum.log
 
 
 tar $taropts $dest/bkp-$primaryuser-src.$tarsfx /home/$primaryuser/src
@@ -161,7 +180,7 @@ tar \
 ls $dest -alh
 df -hT $drive
 echo $dest
-echo "$(date) - $0 done"
+echo "Start: $sdate - End: $(date) - $0 done"
 
 gotifytest-general.sh "$0 completed on $(hostname)"
 
