@@ -6,7 +6,7 @@
 stime=$(date)
 
 # TODO editme
-zp=zint500 # This is where the Test-aes* datasets live
+zp=zfs3nvme1T # This is where the Test-aes* datasets live
 
 tmpfile=$HOME/zfstestencrspeeds.txt
 outfile=$HOME/zfs-test-encryption-speeds-results.log
@@ -19,7 +19,7 @@ function failexit () {
 }
 
 useramdisk=1
-[ $useramdisk -eq 0 ] && isopath=/Volumes/zsgtera4/shrcompr-zsgt2B/ISO # use if < 6GB RAM installed
+[ $useramdisk -eq 0 ] && isopath=/ztoshtera6macpromir/shrcompr-ztoshtera6/ISO # use if < 6GB RAM installed
 # xxx TODO EDITME ^^
 [ "$isopath" = "" ] && isopath=/dev/shm
 
