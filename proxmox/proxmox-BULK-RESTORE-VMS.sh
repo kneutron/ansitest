@@ -69,7 +69,7 @@ done |awk 'NF>0'
 #using-my-own-vm-as-storage-lol:backup/vm/100/2025-01-26T08:00:09Z  pbs-vm  backup     33285998322 100
 #using-my-own-vm-as-storage-lol:backup/vm/100/2025-02-02T08:00:08Z  pbs-vm  backup     33285998313 100
 
-spaceneed=$(awk '{sum+=$4;} END{print sum;}' $restorethese)
+spaceneed=$(awk '{sum+=$4;} END{printf "%.0f\n",sum;}' $restorethese)
 let spaceneed1024=$spaceneed/1024
 let spaceneedgig=$spaceneed1024/1024/1024
 
@@ -121,7 +121,7 @@ echo "Restore process   ended: $endate" |tee -a $logf
 echo '=========================' |tee -a $logf
 ls -l $logf
 
-# TODO parallel / xargs (faster?)
+# DONE parallel / xargs (faster?) - separate script
 
 # Example log:
 #BULK-RESTORE-VMS.sh - Fri Feb  7 12:13:42 AM MST 2025 - Space needed to restore (MiB): 1,571,406,038
@@ -136,3 +136,8 @@ ls -l $logf
 
 # HOWTO cleanup a test restore of LXC:
 # for VMID in 130 131; do pct set --protection 0 $VMID; echo $VMID; time pct destroy $VMID; done; date
+
+# HOWTO cleanup test-restored VM:
+# ls -lrt /etc/pve/qemu-server/
+# for VMID in 130 131; do echo $VMID; qm unlock $VMID; time qm destroy $VMID; done; date
+
