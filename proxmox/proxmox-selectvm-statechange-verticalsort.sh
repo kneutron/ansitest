@@ -311,6 +311,31 @@ exit;
 # o Will not care if you put in the same number two or more times(!)
 # o Does NOT process ranges, like 1-3 or 1..3 -- only comma-separated
 
+Example output:
+
+o-> Utility to change state of a Proxmox LXC/VM -stop if running, +start if not running | v.2025_0213@1645-0 <-o
+                                                        ( 11 ) LXC/VMs are currently running
+100 - lmde-zfstest                                                                                         118 + proxmox-fileserver-ctr
+101 - pxenetboot                                                                                           119 - ubuntu-ansible-controller
+102 - livecd                                                                                               120 + pbs-bkp-4-beelink-vms
+103 - rocky-linux-9                                                                                        121 + suse-iscsi-proxmox-macmini
+104 + popos-boinc                                                                                          122 - test-phone-tether
+105 + gotify                                                                                               123 - casaos-debian
+106 - livecd2                                                                                              124 - nextcloud-turnkey-debian
+107 - win11-choco                                                                                          125 - test-restore-qotom-proxmox
+108 - minimal-debian-fluxbox-xrdp-thunderbird                                                              126 - pve-test-unattended-install
+109 + opnsense-dhcp-for-2p5Gbit                                                                            127 - macpro-lmde5-upgrade-test
+110 - suseleap-ctr-p                                                                                       128 - ubuntu
+111 + ipfire-dhcp-for-10gig                                                                                129 - proxmox-zfs-root-mirror-test-efiboot
+112 + win10-net-iso-install-boinc                                                                          133 - win10-pro-lenovo-520-restore-veeam
+113 + hostonly-dhcp-ctr-server-no-internet                                                                 134 - alma8-docker-no-stig-test
+114 - debianctr-xorgtest                                                                                   135 - debian-qdevice-replacement
+115 - proxmox-test-lvm-resize                                                                              136 - authelia-ctr-priv-debian
+116 + squidvm-new-2p5-10-HO                                                                                137 + suse-iscsi-proxmox-macpro
+117 - win10-22H2-upgrade-test                                                                              1037 - suse-leap-iscsi-template
++=ON; Enter comma-separated number(s) of VM to XOR, or all to stop-all: ^C
+
+
 2024.0601 FIX if user enters vm number as arg
 
 # We only need the 1st 3 fields
