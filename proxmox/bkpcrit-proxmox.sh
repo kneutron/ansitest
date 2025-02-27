@@ -13,6 +13,7 @@
 # Networking is /etc/network/interfaces
 
 # Storage is /etc/pve/storage.cfg
+# Passwords for storage are in /etc/pve/priv/storage
 
 # Datacenter Backup jobs are /etc/pve/jobs.cfg
 
