@@ -1,0 +1,39 @@
+#!/bin/bash
+
+PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/games:/usr/games:/root/bin:/root/bin/boojum:/usr/X11R6/bin:/usr/NX/bin:
+
+date
+if [ $(which ntpdate |wc -l) -gt 0 ]; then
+ ntpdate -s pool.ntp.org
+else
+ chronyc -a 'burst 4/4' #service chronyd restart
+fi
+
+if [ "$1" = "1" ]; then
+ sleep 10
+ chronyc -a makestep
+fi
+
+sleep 2
+date
+
+exit;
+
+
+# REF: https://serverfault.com/questions/930747/force-chrony-time-check
+
+If you want chronyd to also step the clock instead of slewing if there is a
+larger offset and chrony.conf doesnt include an unlimited makestep
+directive, you will also need to wait until the new measurements are made
+and then tell chronyd to make the step:
+
+#sleep 10
+#chronyc -a makestep
+
+#ntp1.linuxmedialabs.com
+# pool.ntp.org
+# ntp1.tummy.com - CO
+# louie.udel.edu - DElwr
+# ntp.shorty.com - GA
+
+# inetd's timeserver is port 37; use ' rdate p233 '
