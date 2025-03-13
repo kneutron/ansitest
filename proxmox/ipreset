@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Reset all iptables firewall rules
+# Useful for systemrescuecd
+
 iptables -P INPUT ACCEPT
 iptables -P OUTPUT ACCEPT
 iptables -P FORWARD ACCEPT
