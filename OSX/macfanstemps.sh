@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# NOTE this script is for linux - run as root
+modprobe applesmc
+
 outfile=/tmp/macfans.txt
 
 source ~/bin/failexit.mrg
