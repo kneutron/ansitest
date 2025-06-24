@@ -9,3 +9,6 @@ cd /usr/share/consolefonts
 setfont Lat15-Terminus20x10
 # Useful for 1920x1080
 
+#[ "$1" = "1" ] && setfont ./latarcyrheb-sun32.psfu.gz # 4k tv - slt smaller but still readable
+[ "$1" = "1" ] && setfont Lat15-Fixed16 # 4k tv - slt smaller but still readable
+[ "$1" = "2" ] && setfont Lat15-Terminus12x6 # beelink portable display maxres still readable
