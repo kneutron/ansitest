@@ -2,7 +2,7 @@
 
 # REST API: https://immich.app/docs/api
 
-# FY instance
+# for immich instance = blah
 ip=192.168.1.241
 port=2283
 
