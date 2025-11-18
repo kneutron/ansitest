@@ -33,3 +33,7 @@ If your VMs have EFI and TPM disks, it can be a bit messy and you might want
 to create them from scratch.  Otherwise, editing the config files directly
 to change them from "unused0" to whatever config key is needed might be
 quicker.
+
+=====
+
+# REF: https://forum.proxmox.com/threads/recovering-server-from-disks.176120/
