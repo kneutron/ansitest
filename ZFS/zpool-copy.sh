@@ -48,3 +48,17 @@ zfs3nvme1T/vm-120-disk-0      7.75G   639G  4.80G  -
 zfs3nvme1T/vm-121-disk-0      4.14G   639G  3.97G  -
 zfs3nvme1T/vm-123-disk-0      41.7G   639G  41.3G  -
 
+NAME                          USED  AVAIL  REFER  MOUNTPOINT
+ztestpool                     284G   197G   112K  /ztestpool
+ztestpool/ISO                 197G   197G   197G  /ztestpool/ISO
+ztestpool/shrcompr-fast        96K   197G    96K  /ztestpool/shrcompr-fast
+ztestpool/subvol-118-disk-1  9.45G  14.6G  9.41G  /ztestpool/subvol-118-disk-1
+ztestpool/vm-106-disk-0        56K   197G    56K  -
+ztestpool/vm-111-disk-0      11.4G   197G  11.0G  -
+ztestpool/vm-112-disk-0      1.64G   197G  1.64G  -
+ztestpool/vm-115-disk-0        76K   197G    76K  -
+ztestpool/vm-115-disk-1      8.75G   197G  8.75G  -
+ztestpool/vm-117-disk-0      1.47G   197G  1.38G  -
+ztestpool/vm-120-disk-0      7.85G   197G  4.87G  -
+ztestpool/vm-121-disk-0      4.18G   197G  4.02G  -
+ztestpool/vm-123-disk-0      41.8G   197G  41.5G  -
