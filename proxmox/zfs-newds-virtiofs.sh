@@ -73,6 +73,6 @@ df -hT |head -n 1
 df -hT |grep $myds
 echo '====='
 echo "+ NOTE: Add the following line to fstab in VMID $vmid /etc/fstab:"
-echo "share /mnt/$zp-$myds  virtiofs  rw,nofail,noatime  0 0 "
+echo "$zp-$myds  /mnt/$zp-$myds  virtiofs  rw,nofail,noatime  0 0 "
 
 exit;
