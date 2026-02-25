@@ -1,0 +1,142 @@
+./WINTEST/WINTEST.vmx
+numvcpus = 4
+./ubuntu-ntpserver/ubuntu-ntpserver.vmx
+numvcpus = 2
+./Docker/Docker.vmx
+numvcpus = 16
+./Jenkins/Jenkins.vmx
+numvcpus = 2
+./CDOLinux/CDOLinux.vmx
+numvcpus = 4
+./ASW-R9G-DataTemplate_1/ASW-R9G-DataTemplate.vmx
+numvcpus = 2
+./RHELBuildServer/RHELBuildServer.vmx
+numvcpus = 4
+./LinuxTest/LinuxTest.vmx
+numvcpus = 4
+./SMPDMaster/SMPDMaster.vmx
+numvcpus = 2
+./SMPDODSC01/SMPDODSC01.vmx
+numvcpus = 2
+./MSBLDR01_1/MSBLDR01.vmx
+numvcpus = 2
+./coverity/coverity.vmx
+numvcpus = 2
+./SMPDODSC02/SMPDODSC02.vmx
+numvcpus = 2
+./SMPDASTRO01/SMPDASTRO01.vmx
+numvcpus = 2
+./MSBLDR01/MSBLDR01.vmx
+numvcpus = 2
+./MSBLDR02/MSBLDR02.vmx
+numvcpus = 2
+./MSBLDR02_1/MSBLDR02.vmx
+numvcpus = 2
+./rhelbldr12/rhelbldr12.vmx
+numvcpus = 2
+./MSBLDR03/MSBLDR03.vmx
+numvcpus = 2
+./RHELBLDR01/RHELBLDR01.vmx
+numvcpus = 2
+./rhelbldr13/rhelbldr13.vmx
+numvcpus = 2
+./MSBLDR04/MSBLDR04.vmx
+numvcpus = 2
+./MSBLDR05/MSBLDR05.vmx
+numvcpus = 2
+./MSBLDR06/MSBLDR06.vmx
+numvcpus = 2
+./RHELSHELL/RHELSHELL.vmx
+./MSBLDR07/MSBLDR07.vmx
+numvcpus = 2
+./Jest/Clone of Jest.vmx
+numvcpus = 2
+./MSBLDR08/MSBLDR08.vmx
+numvcpus = 2
+./MSBLDR09/MSBLDR09.vmx
+numvcpus = 2
+./MSBLDR10/MSBLDR10.vmx
+numvcpus = 2
+./avacgit/avacgit.vmx
+numvcpus = 4
+./avacgit_1/avacgit.vmx
+numvcpus = 4
+./ASTROVM/ASTROVM.vmx
+numvcpus = 4
+./openfire/openfire.vmx
+numvcpus = 4
+./astrogit/astrogit.vmx
+numvcpus = 4
+./rhelbldr14/rhelbldr14.vmx
+numvcpus = 2
+./rhelbldr15/rhelbldr15.vmx
+numvcpus = 2
+./rhelbldr16/rhelbldr16.vmx
+numvcpus = 2
+./rhelbldr17/rhelbldr17.vmx
+numvcpus = 2
+./MSBLDR11/MSBLDR11.vmx
+numvcpus = 2
+./rhelbldr18/rhelbldr18.vmx
+numvcpus = 2
+./rhelbldr19/rhelbldr19.vmx
+numvcpus = 2
+./astrodef01/astrodef01.vmx
+numvcpus = 8
+./Testie/Testie.vmx
+numvcpus = 2
+./rhelbldr20/rhelbldr20.vmx
+numvcpus = 2
+./astrows/astrows.vmx
+numvcpus = 4
+./rhel8-ntpserver/rhel8-ntpserver.vmx
+./rhel8-nagios/rhel8-nagios.vmx
+numvcpus = 6
+./rhel8-lamp/rhel8-lamp.vmx
+numvcpus = 4
+./MSBLDR12/MSBLDR12.vmx
+numvcpus = 2
+./MSBLDR13/MSBLDR13.vmx
+numvcpus = 2
+./MSBLDR14/MSBLDR14.vmx
+numvcpus = 2
+./MSBLDR15/MSBLDR15.vmx
+numvcpus = 2
+./MSBLDR16/MSBLDR16.vmx
+numvcpus = 2
+./MSBLDR17/MSBLDR17.vmx
+numvcpus = 2
+./MSBLDR18/MSBLDR18.vmx
+numvcpus = 2
+./MSBLDR19/MSBLDR19.vmx
+numvcpus = 2
+./MSBLDR20/MSBLDR20.vmx
+numvcpus = 2
+./MSBLDR21/MSBLDR21.vmx
+numvcpus = 2
+./MSBLDR22/MSBLDR22.vmx
+numvcpus = 2
+./MSBLDR23/MSBLDR23.vmx
+numvcpus = 2
+./MSBLDR24/MSBLDR24.vmx
+numvcpus = 2
+./MSBLDR25/MSBLDR25.vmx
+numvcpus = 2
+./popos-zachrestore--offline-repo/popos-zachrestore--offline-repo.vmx
+numvcpus = 2
+./Leroy/Leroy.vmx
+numvcpus = 2
+./Admin002/Admin002.vmx
+numvcpus = 4
+./odsc-ub-zachp/odsc-ub-zachp.vmx
+numvcpus = 8
+./rhelbldr11/rhelbldr11.vmx
+numvcpus = 2
+./testies/testies.vmx
+numvcpus = 2
+./ubuntu-astrostdtest/ubuntu-astrostdtest.vmx
+numvcpus = 2
+./SSNAM/SSNAM.vmx
+numvcpus = 2
+./rhel8buildsrv_1/rhel8buildsrv_1.vmx
+numvcpus = 4
