@@ -14,8 +14,8 @@ template="
    writable = yes
    guest ok = yes
    guest only = no
-   create mode = 0777
-   directory mode = 0777
+   create mode = 0775
+   directory mode = 0775
 
 "
 
