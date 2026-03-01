@@ -18,12 +18,12 @@
 
 
 # xxx TODO editme
-vmid=130
+vmid=101 # 121
 #usestor=tosh10-xfs-multi # storage name from gui
 usestor=local-lvm # storage name from gui
 dsize=1 # GB
 
-skipscsi=1 # if limited storage
+skipscsi=0 # if limited storage
 
 # NOTE also remove disk 1st if exist, for resizing
 # ISSUE virtio only supports 0-15, sata only supports 0-5, scsi supports 0-30 - so we have to do this in sets
@@ -38,7 +38,7 @@ for d in {b..f}; do
   echo $d $i
 #  time qm set $vmid --delete scsi${i}
 #  qm set $vmid --delete unused0
-  qm unlink 130 --force 1 --idlist sata${i} # dont move disk to unused, delete outright 
+  qm unlink $vmid --force 1 --idlist sata${i} # dont move disk to unused, delete outright 
 
   time qm set $vmid --sata${i} $usestor:$dsize,cache=writeback,discard=on,ssd=0,backup=1,format=raw &
   let i=$i+1
@@ -56,7 +56,7 @@ echo "$(date) - Creating virtio disks for VM $vmid of size ${dsize}GB"
 for d in {a..p}; do
   echo $d $i
 #  time qm set $vmid --delete scsi${i}
-  qm unlink 130 --force 1 --idlist virtio${i} # dont move disk to unused, delete outright 
+  qm unlink $vmid --force 1 --idlist virtio${i} # dont move disk to unused, delete outright 
 
 # NOTE no ssd option for virtio
   time qm set $vmid --virtio${i} $usestor:$dsize,cache=writeback,discard=on,backup=1,format=raw &
@@ -76,7 +76,7 @@ if [ $skipscsi -eq 0 ]; then
  for d in {g..z} $(echo a{a..k}); do
   echo $d $i
 #  time qm set $vmid --delete scsi${i}
-  qm unlink 130 --force 1 --idlist scsi${i} # dont move disk to unused, delete outright 
+  qm unlink $vmid --force 1 --idlist scsi${i} # dont move disk to unused, delete outright 
 
   time qm set $vmid --scsi${i} $usestor:$dsize,cache=writeback,discard=on,ssd=0,backup=1,format=raw &
   let i=$i+1
