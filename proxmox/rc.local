@@ -203,6 +203,8 @@ mf=/tmp/smartctl.txt
     >> $mf
 done) & 
 
+(pvs; vgs; lvs) >/tmp/lvm-info.txt
+vgcfgbackup &
 
 # 2016.jul starts squid3 if needed and renices -5, protects from oom-killer
 #/root/bin/squidserver&
