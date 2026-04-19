@@ -7,5 +7,5 @@ export SSHPASS="87654321"
 
 # xxx TODO EDITME
 for SERVER in server1 server2; do
-  sshpass -e ssh-copy-id -o StrictHostKeyChecking=no avac_admin@$SERVER
+  sshpass -e ssh-copy-id -o StrictHostKeyChecking=no ansibleuser@$SERVER
 done   
