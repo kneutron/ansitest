@@ -37,7 +37,7 @@ fi
 
 
 # TODO editme - default user
-#myid=dave
+myid=dave
 if [ $((id $myid) 2>&1 |grep -c 'no such user') -gt 0 ]; then
  echo "o Creating $myid and setting password" |tee -a $logf
  useradd --create-home $myid
