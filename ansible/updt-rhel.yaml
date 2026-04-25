@@ -1,0 +1,48 @@
+---
+- hosts: rhel
+  become: true
+  vars:
+    yum_name: "*"
+    yum_state: latest
+    dnf_name: "*"
+    dnf_state: latest
+  tasks:
+    - name: Check instance connectivity (skip if target is down)
+      ansible.builtin.wait_for_connection:
+        timeout: 35
+      ignore_unreachable: true
+      register: reachability_check
+
+    - name: This Task only runs if instance = reachable
+      ansible.builtin.debug:
+        msg: "Host is reachable!"
+      when: reachability_check is not unreachable
+
+    - name: Upgrade packages via dnf (RHEL 8+)
+      ansible.builtin.dnf:
+        name: "{{ dnf_name }}"
+        state: "{{ dnf_state }}"
+      become: true
+      register: dnfcommandout
+      when: ansible_facts.distribution_major_version | int >= 8
+
+    - name: Show dnf output
+      ansible.builtin.debug:
+        var: dnfcommandout
+
+    - name: Install yum-utils if needed
+      ansible.builtin.package:
+        name: yum-utils
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Check if reboot is required
+      ansible.builtin.command: needs-restarting -r
+      register: result
+      ignore_errors: yes
+
+    - name: Reboot server if necessary
+      ansible.builtin.reboot:
+        msg: "Ansible Updates Triggered - rebooting server"
+        reboot_timeout: 3600
+      when: result.rc == 1

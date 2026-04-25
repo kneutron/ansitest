@@ -1,0 +1,43 @@
+---
+- hosts: debian
+  become: true
+  tasks:
+    - name: Check instance connectivity (skip if target is down)
+      ansible.builtin.wait_for_connection:
+        timeout: 35
+      ignore_unreachable: true
+      register: reachability_check
+
+    - name: This Task only runs if instance = reachable
+      ansible.builtin.debug:
+        msg: "Host is reachable!"
+      when: reachability_check is not unreachable
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        upgrade: full
+        autoremove: yes
+        autoclean: yes
+      register: apt_result
+      
+    - name: Show apt output
+      ansible.builtin.debug:
+        var: apt_result
+
+    - name: Check if a reboot is needed
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    - name: Reboot the server if required
+      ansible.builtin.reboot:
+        msg: "Reboot initiated by Ansible for system updates"
+        connect_timeout: 5
+        reboot_timeout: 360
+        test_command: uptime
+      when: reboot_required.stat.exists
