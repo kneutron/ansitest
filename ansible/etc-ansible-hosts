@@ -1,0 +1,44 @@
+# Ansible hosts - .local resolve with avahi / mDNS
+# See /etc/ansible/hosts.example or
+# the on-line documentation at http://docs.ansible.com/ansible/intro_inventory.html
+# for information on how to configure this file.
+
+ansible               ansible_connection=local
+
+# Uncomment & replace the following with the names of your managed Windows servers
+#[windows]
+#winserver1.example.com
+#winserver2.example.com
+
+[debian]
+debian-ansible-target.local
+squidvm.lan
+#		ansible_host=192.168.255.251
+pop-os.local
+gotify.local
+#		ansible_host=192.168.255.253
+rsyslog-target.local
+local-ai-test.local
+minimal-debian-fluxbox-xrdp-thunderbird.local
+bkpcrit-target.local
+mac-browsing-session.local
+
+
+[rhel]
+rhel-ansible-target.local
+
+
+[proxmox-lxc]
+gotify.local
+rsyslog-target.local
+local-ai-test.local
+minimal-debian-fluxbox-xrdp-thunderbird.local
+rhel-ansible-target.local
+debian-ansible-target.local
+mac-browsing-session.local
+
+
+[proxmox-vm]
+squidvm.lan
+pop-os.local
+bkpcrit-target.local
