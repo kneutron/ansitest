@@ -1,0 +1,19 @@
+---
+- name: Fix rhel servers so users in wheel group can do sudo commands with nopass for ansible ctrl
+  hosts: '{{target}}'
+  become: yes
+  tasks: 
+    - name: Uncomment %wheel nopasswd line
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        regexp: '^#\s%wheel\s+ALL.*NOPASSWD.*'
+        line: "%wheel ALL=(ALL) NOPASSWD: ALL"
+        state: present
+        validate: 'visudo -cf %s'
+
+    - name: Add avac_admin to wheel group to enable nopass
+      ansible.builtin.user:
+        name: avac_admin
+        groups: wheel
+        append: yes
+
