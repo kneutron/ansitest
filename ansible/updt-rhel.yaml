@@ -25,6 +25,7 @@
       become: true
       register: dnfcommandout
       when: ansible_facts.distribution_major_version | int >= 8
+      timeout: 1800 # 30 min
 
     - name: Show dnf output
       ansible.builtin.debug:

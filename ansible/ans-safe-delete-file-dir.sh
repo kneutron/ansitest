@@ -27,9 +27,10 @@ do
 done
 
 echo "Processing servers: $1"
-time ansible $1 -m file -a "dest=$2 state=absent" --become
+time ansible $1 -m file -a "dest=$2 state=absent" --become 2>&1 |tee /var/log/ansible/$(basename $0)-$(date +%Y%m%d@%H%M%S).log
 
 exit;
+
 
 Example usage - On target server:
 

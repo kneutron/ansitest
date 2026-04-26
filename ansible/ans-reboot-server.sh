@@ -7,7 +7,8 @@ if [ "$1" = "" ]; then
 else
   servers=${@%,} # omit trailing comma
   echo "$servers"
-  ansible-playbook reboot-and-wait.yml --become -e "target=$servers" #--become-password-file=~/ansible/sudo_pass.txt
+  ansible-playbook reboot-and-wait.yml --become -e "target=$servers" 2>&1 |tee /var/log/ansible/$(basename $0)-$(date +%Y%m%d@%H%M%S).log
+  #--become-password-file=~/ansible/sudo_pass.txt
 fi
 
 exit;

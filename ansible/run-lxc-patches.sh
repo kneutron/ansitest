@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # group as defined in etc/ansible/hosts
-ansible-playbook updt-debian.yaml --limit proxmox-lxc
+ansible-playbook updt-debian.yaml --limit proxmox-lxc 2>&1 |tee /var/log/ansible/$(basename $0)-$(date +%Y%m%d@%H%M%S).log
 
 date
 

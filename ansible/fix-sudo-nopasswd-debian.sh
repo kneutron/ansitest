@@ -4,4 +4,5 @@
 # User dave also needs to be in wheel group (rhel) or sudo group (debian)
 
 # takes 1 arg, typically " debian "
-ansible-playbook ~/ansible/ans-fix-sudo-nopass-debian.yml --become -e "target=$@" --become-password-file=~/ansible/sudo_pass.txt
+ansible-playbook ~/ansible/ans-fix-sudo-nopass-debian.yml --become -e "target=$@" --become-password-file=~/ansible/sudo_pass.txt \
+  2>&1 |tee /var/log/ansible/$(basename $0)-$(date +%Y%m%d@%H%M%S).log

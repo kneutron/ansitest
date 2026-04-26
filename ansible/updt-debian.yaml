@@ -24,6 +24,7 @@
         autoremove: yes
         autoclean: yes
       register: apt_result
+      timeout: 1800 # 30 min
       
     - name: Show apt output
       ansible.builtin.debug:
