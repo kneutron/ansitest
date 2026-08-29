@@ -1,0 +1,45 @@
+#!/bin/bash 
+
+# 2026.Aug kneutron - systemsetup needs root/sudo
+
+TZ=$(systemsetup -gettimezone)
+#ltime="$(gdate +%a) $(gdate +%F) $(gdate +%H:%M:%S) $(gdate +%Z)"
+ltime="$(date +%a) $(date +%F) $(date +%H:%M:%S) $(date +%Z)"
+tz1=$(date +%Z)
+tz2=$(date +%z)
+
+echo -e "\t\tLocal time: \t\t$ltime"
+echo -e "\t\tUniversal time: \t$(date -u)"
+echo -e "\t\tRTC time: n/a"
+echo -e "\t\t$TZ ($tz1, $tz2)"
+
+#Check current time zone:
+#sudo #systemsetup -gettimezone 
+
+#List available time zones:
+#systemsetup -listtimezones
+
+#Set the time zone:
+#systemsetup -settimezone <time_zone> 
+#(for example, sudo systemsetup -settimezone America/New_York)
+
+#Check network time status:
+systemsetup -getusingnetworktime
+nts=$(systemsetup -getnetworktimeserver)
+echo $nts
+sntp pool.ntp.org 2>/dev/null # check time against world
+sntp $(echo $nts |awk -F: '{print $2}') # check time slew against configged ntp server
+
+#Enable network time sync:
+#systemsetup -setusingnetworktime 
+
+# date "+%m%d%H%M%Y.%S" = 082913342026.55
+
+# Linux output:
+#               Local time: Sat 2026-08-29 13:28:46 MDT
+#           Universal time: Sat 2026-08-29 19:28:46 UTC
+#                 RTC time: Sat 2026-08-29 19:28:46
+#                Time zone: America/Denver (MDT, -0600)
+#System clock synchronized: yes
+#              NTP service: active
+#          RTC in local TZ: no
