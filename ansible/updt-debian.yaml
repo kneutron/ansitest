@@ -1,6 +1,12 @@
 ---
 - hosts: debian
   become: true
+  pre_tasks:
+    - name: Freeze the current timestamp once
+      ansible.builtin.set_fact:
+        current_date: "{{ now(fmt='%Y%m%d%H%M_%S') }}" # Generates a string like "2026-09-04_1458_23"
+      run_once: true  # Ensures all hosts share the exact same timestamp
+      
   tasks:
     - name: Check instance connectivity (skip if target is down)
       ansible.builtin.wait_for_connection:
@@ -18,13 +24,25 @@
         update_cache: yes
         cache_valid_time: 3600
 
+    - name: MISC touch backup file with date so it exists
+      ansible.builtin.file:
+        path: "/root/ansible-packages-to-upgrade-{{ current_date }}.log"
+        state: touch
+
     - name: Log packages to be upgraded to dated file
-      ansible.builtin.shell: "apt-get -s upgrade > /root/ansible-packages-to-upgrade-$(date +%Y%m%d@%M_%S).log"
+      ansible.builtin.shell: "apt-get -s upgrade > /root/ansible-packages-to-upgrade-{{ current_date }}.log"
       register: pkgstoupgrade
 
-    - name: Show packages to be upgraded
+    - name: Log packages to be upgraded
+      ansible.builtin.command: cat /root/ansible-packages-to-upgrade-{{ current_date }}.log
+      register: command_output
+      changed_when: false # Prevents the task from showing a "changed" status
+
+    - name: Print the packages to be upgraded
       ansible.builtin.debug:
-        msg: "{{ pkgstoupgrade.stdout }}"
+        var: command_output.stdout
+#      ansible.builtin.debug:
+#        msg: "{{ pkgstoupgrade.stdout }}"
 
     - name: Upgrade all packages
       ansible.builtin.apt:
@@ -32,7 +50,7 @@
         autoremove: yes
         autoclean: yes
       register: apt_result
-      timeout: 1200 # 20 min
+      timeout: 1500 # 25 min
       
     - name: Show apt output
       ansible.builtin.debug:
