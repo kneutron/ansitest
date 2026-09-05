@@ -14,7 +14,7 @@ mydt=$(date +%Y%m%d@%H%M_%S)
 ansible-playbook -vv poweron-rhel.yaml 2>&1 |tee /var/log/ansible/$(basename $0)-${mydt}.log
 
 date
-exit # early
+#exit # early
 
 
 echo "Make sure /etc/ansible/hosts is up to date"
