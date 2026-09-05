@@ -1,0 +1,55 @@
+---
+- name: Ensure Proxmox Beelink RHEL instances are powered on for patching
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Start RHEL LXCs if stopped
+      community.proxmox.proxmox:
+        api_host: "pve-beelink.local"
+        api_user: "startstopinstance@pam"
+        api_token_id: "blah"
+        api_token_secret: "mekkaaccad3d7-4730-91d3-db23b8dca"
+        node: "pve-beelink"
+        validate_certs: no
+        hostname: rhel-ansible-target
+        state: started
+        timeout: 30 # secs
+#        vmid: 113	# rhel-ansible-target
+# OR:
+#        hostname: rhel-ansible-target
+#        state: started
+        
+- name: Ensure Proxmox RHEL VMs are powered on
+  hosts: localhost
+  gather_facts: false
+  vars:
+    # Define your VM IDs in a list here
+    target_vms:
+      - rhel-8-test-4-work
+      - rhel-alma9-test
+      - rocky8-for-work
+      - rocky9-for-work
+
+  gather_facts: false
+  tasks:
+    - name: Start RHEL VMs if stopped
+      community.proxmox.proxmox_kvm:
+        api_host: "pve-beelink.local"
+        api_user: "startstopinstance@pam"
+        api_token_id: "blah"
+        api_token_secret: "accad3d7-berf-3170-91d3-yabba23b8dca"
+        node: "pve-beelink"
+        validate_certs: no
+        name: "{{ item }}"
+        state: started
+        timeout: 60        
+      loop: "{{ target_vms }}"
+      
+#        vmid: 127	# rhel-8-test-4-work
+#        state: started
+#        vmid: 138	# rhel-alma9-test
+#        state: started
+#        vmid: 136	# rocky8-for-work
+#        state: started
+#        vmid: 116	# rocky9-for-work
+#        state: started
