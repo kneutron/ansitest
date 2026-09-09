@@ -87,7 +87,7 @@ EOF
 #lines inside a single <target> block.
 
 #<target ://2026-09.com.example:storage.disk1>
-    # LUN 1: Direct-mapped block device
+    # LUN 1: Direct-mapped block device - may not work
 #    direct-store /dev/sdb
 
     # LUN 2: Standard block device backing store
