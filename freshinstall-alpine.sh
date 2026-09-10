@@ -35,6 +35,8 @@ rc-service crond start && rc-update add crond
 #executes the scripts placed in the folders under /etc/periodic/ - there are
 #folders for 15min, hourly, daily, weekly and monthly scripts.
 
+macaddr=$(ip a |grep 'link/ether' |head -n 1 |awk '{print $2}')
+macaddr2=$(echo "$macaddr" |tr -d ':') # need to make target unique
 
 # iscsi - TODO editme as needed
 mkdir -pv /etc/tgt/conf.d
@@ -49,7 +51,7 @@ default-driver iscsi
 # iSCSI naming convention for iqn format:
 # https://www.rfc-editor.org/rfc/rfc3721#section-1.1
 
-<target iqn.2026-09.alpine.iscsi:server.target1>
+<target iqn.2026-09.alpine.iscsi:servertemplate.$macaddr2.target1>
     ## General settings
     controller_tid 1
     vendor_id AlpineLinux
