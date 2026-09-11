@@ -11,7 +11,7 @@ primaryuser=dave
 setup-apkrepos -c -f
 
 # essential pkgs
-apk add joe mc screen tmux vim nano bwm-ng sysstat sudo bash parted less curl rsyslog libuser gptfdisk sgdisk
+apk add joe mc screen tmux vim nano bwm-ng sysstat sudo bash parted less curl rsyslog libuser gptfdisk sgdisk chrony sg3_utils
 
 # self-advertise thisbox as $(hostname -s).local 	# mDNS
 apk add avahi \
