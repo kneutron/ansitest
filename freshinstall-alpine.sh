@@ -7,11 +7,27 @@
 # xxx TODO EDITME
 primaryuser=dave
 
+# xxx TODO editme
+instdocker=0
+
+vmtype=qemu-guest-agent # proxmox
+#vmtype=open-vm-tools # vmware
+
+############## No more edits needed after this
+
 # enable community repos and use fastest mir
 setup-apkrepos -c -f
 
 # essential pkgs
-apk add joe mc screen tmux vim nano bwm-ng sysstat sudo bash parted less curl rsyslog libuser gptfdisk sgdisk chrony sg3_utils
+apk add joe mc screen tmux vim nano bwm-ng sysstat sudo bash parted less curl rsyslog libuser gptfdisk sgdisk chrony sg3_utils lsblk
+
+if [ "$vmtype" = "" ]; then
+  : # NOP
+elif [ "$vmtype" = "qemu-guest-agent" ] || [ "$vmtype" = "open-vm-tools" ]; then
+  apk add $vmtype
+  rc-update add $vmtype
+  rc-service $vmtype start
+fi
 
 # self-advertise thisbox as $(hostname -s).local 	# mDNS
 apk add avahi \
@@ -54,7 +70,7 @@ default-driver iscsi
 <target iqn.2026-09.alpine.iscsi:servertemplate.$macaddr2.target1>
     ## General settings
     controller_tid 1
-    vendor_id AlpineLinux
+    vendor_id Alpine
 
     ## iSCSI features
     HeaderDigest None
@@ -123,7 +139,8 @@ service tgt-admin start
 
 # verify
 echo '====='
-tgtadm --mode target --op show
+#tgtadm --mode target --op show
+tgt-admin -s
 
 #tgt-admin is a convenience script to configure the running tgtd daemon. It is not needed if you want to manually configure tgtd using the tgtadm tool.
 #Documentation can be found in the scsi-tgt-doc package (man tgt-admin), but also on upstream's GitHub page
@@ -149,10 +166,28 @@ tgtadm --mode target --op show
 #
 #To see the status of the running configuration, use the tgt-admin -s command:
 
-#echo '====='
-#tgt-admin -s		# Skip, shows same info
-
 # If you want to see that native commands are needed you can use the --verbose option. 
+
+useradd "$primaryuser"
+#usermod -aG wheel "$primaryuser"
+addgroup $primaryuser wheel
+
+
+if [ $instdocker -gt 0 ]; then
+# Install Docker Engine and Docker Compose V2 plugin
+  apk add docker docker-cli-compose
+
+# Start Docker and enable it at boot
+  rc-update add docker boot
+  service docker start
+
+# Add your user to the docker group to run commands without sudo
+  addgroup $primaryuser docker
+
+  docker version
+  docker compose version
+  docker run hello-world
+fi
 
 
 # man pages:
@@ -165,12 +200,22 @@ tgtadm --mode target --op show
 apk add docs
 
 mkdir -pv $HOME/bin/boojum $HOME/tmpdel
+mkdir -pv /home/$primaryuser/tmpdel; chown $primaryuser /home/$primaryuser/tmpdel
+id $primaryuser
 
-useradd "$primaryuser"
-usermod -aG wheel "$primaryuser"
 ) 2>~/freshinstall-alpine-errs.log
 
-echo '%wheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
+if [ $(grep -c boojum /etc/sudoers) -eq 0 ]; then
+echo '#boojum
+%wheel ALL=(ALL:ALL) ALL' >> /etc/sudoers
+fi
+
+tail -n 5 /etc/sudoers
+echo '-----'
+id $primaryuser
+
+date
+exit;
 
 # REF: https://wiki.alpinelinux.org/wiki/Alpine_Linux:FAQ
 
